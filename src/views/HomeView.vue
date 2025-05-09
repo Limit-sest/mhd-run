@@ -246,52 +246,36 @@ const deckCardCount = computed(() => deckOrder.value.length);
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-900 text-white p-4 flex flex-col items-center selection:bg-sky-500 selection:text-white">
-    <header class="my-6 sm:my-8 text-center">
-      <h1 class="text-3xl sm:text-4xl font-bold text-sky-400">MHD Run - Karetní Hra</h1>
-    </header>
+  <div class="bg-white text-black p-4 w-screen flex flex-col " style="height: 100svh;">
 
-    <div v-if="isLoading" class="text-xl text-yellow-400 animate-pulse">Načítání karet...</div>
-    <div v-if="error && !isLoading" class="w-full max-w-2xl text-center text-red-400 bg-red-900/50 p-4 rounded-md mb-6">
+    <div v-if="isLoading" class="text-slate-400 italic p-4 text-center w-full flex-1">Načítání karet...</div>
+    <div v-if="error && !isLoading" class="text-slate-400 italic p-4 text-center w-full flex-1">
       <p class="font-semibold">Chyba při načítání karet:</p>
       <p class="text-sm">{{ error }}</p>
     </div>
 
-    <div v-if="!isLoading && !error && allCardsMasterList.length === 0" class="text-xl text-orange-400">
-        Žádné karty nebyly nalezeny. Zkontrolujte prosím konfiguraci.
+    <div v-if="!isLoading && !error && allCardsMasterList.length === 0" class="text-slate-400 italic p-4 text-center w-full flex-1">
+      Žádné karty nebyly nalezeny. Zkontrolujte prosím konfiguraci.
     </div>
 
-    <div v-if="!isLoading && allCardsMasterList.length > 0" class="w-full max-w-5xl">
-      <!-- Controls -->
-      <div class="mb-6 flex flex-col sm:flex-row justify-center items-center space-y-3 sm:space-y-0 sm:space-x-4 p-4 bg-slate-800/70 rounded-lg shadow-xl sticky top-2 z-10 backdrop-blur-sm">
-        <Button @click="shuffleDeck" variant="outline" class="border-sky-500 text-sky-400 hover:bg-sky-500 hover:text-white font-semibold py-3 px-6 rounded-lg shadow-md w-full sm:w-auto transition-colors duration-150">
-          Zamíchat balíček
-        </Button>
-        <Button @click="drawCard" :disabled="deckCardCount === 0" class="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-150">
-          Líznout kartu ({{ deckCardCount }})
-        </Button>
-      </div>
-
-      <!-- Game Zones -->
+    <div v-if="!isLoading && allCardsMasterList.length > 0" class="w-full h-full flex-1 overflow-y-auto">
       <div class="space-y-8">
         <!-- Hand Zone -->
         <section>
-          <h2 class="text-2xl font-semibold mb-4 text-sky-300 border-b-2 border-sky-700 pb-2">Ruka ({{ handCards.length }})</h2>
+          <h2 class="text-2xl font-semibold mb-4 border-b-2 border-neutral-500">Ruka ({{ handCards.length }})</h2>
           <div v-if="handCards.length === 0" class="text-slate-400 italic p-4 text-center">V ruce nemáš žádné karty.</div>
           <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Card v-for="card in handCards" :key="card.id" :class="[card.type === 'Prokletí' ? 'border-red-500 bg-red-900/30' : 'border-green-500 bg-green-900/30', 'shadow-lg hover:shadow-sky-500/30 transition-all duration-200 ease-out flex flex-col']">
+            <Card v-for="card in handCards" :key="card.id" :class="[card.type === 'Prokletí' ? 'curse-glow' : '']">
               <CardHeader>
-                <CardTitle :class="[card.type === 'Prokletí' ? 'text-red-300' : 'text-green-300']">{{ card.title }}</CardTitle>
-                <CardDescription class="text-slate-400">{{ card.type }}</CardDescription>
-              </CardHeader>
-              <CardContent class="flex-grow">
-                <p class="text-slate-200 mb-3 text-sm">{{ card.description }}</p>
-                <div class="text-xs text-yellow-400/80">
-                  Mince: <span class="font-semibold text-yellow-300">{{ card.rewardCoins }}</span> | Síla: <span class="font-semibold text-yellow-300">{{ card.rewardPowerUp }}</span>
+                <CardTitle class="uppercase text-base font-bold">{{ card.title }}</CardTitle>
+                <CardDescription>{{ card.description }}</CardDescription>
+                <div class="font-bold">
+                  Odměna: {{ card.rewardCoins }} | {{ card.rewardPowerUp }}
                 </div>
-              </CardContent>
-              <CardFooter class="flex justify-end pt-4">
-                <Button @click="completeCard(card.id)" size="sm" variant="outline" class="text-xs border-blue-500 text-blue-400 hover:bg-blue-500 hover:text-white transition-colors duration-150">Dokončit</Button>
+              </CardHeader>
+
+              <CardFooter class="flex justify-end">
+                <Button @click="completeCard(card.id)" variant="secondary" >Dokončit</Button>
               </CardFooter>
             </Card>
           </div>
@@ -299,28 +283,39 @@ const deckCardCount = computed(() => deckOrder.value.length);
 
         <!-- Completed Zone -->
         <section>
-          <h2 class="text-2xl font-semibold mb-4 text-sky-300 border-b-2 border-sky-700 pb-2">Dokončené ({{ completedCards.length }})</h2>
-          <div v-if="completedCards.length === 0" class="text-slate-500 italic p-4 text-center">Zatím žádné dokončené karty.</div>
+          <h2 class="text-2xl font-semibold mb-4 border-b-2 border-neutral-500">Dokončené ({{ completedCards.length }})</h2>
+          <div v-if="completedCards.length === 0" class="text-slate-400 italic p-4 text-center">Zatím nemáš žádné dokončené karty.</div>
           <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Card v-for="card in completedCards" :key="card.id" :class="[card.type === 'Prokletí' ? 'border-red-700/50 bg-red-950/50 opacity-70' : 'border-green-700/50 bg-green-950/50 opacity-70', 'shadow-md flex flex-col']">
+            <Card v-for="card in completedCards" :key="card.id" :class="[card.type === 'Prokletí' ? 'curse-glow' : '']">
               <CardHeader>
-                <CardTitle :class="[card.type === 'Prokletí' ? 'text-red-400' : 'text-green-400']">{{ card.title }}</CardTitle>
-                <CardDescription class="text-slate-500">{{ card.type }}</CardDescription>
-              </CardHeader>
-              <CardContent class="flex-grow">
-                <p class="text-slate-400 mb-3 text-sm">{{ card.description }}</p>
-                 <div class="text-xs text-yellow-500/80">
-                  Mince: <span class="font-semibold text-yellow-400">{{ card.rewardCoins }}</span> | Síla: <span class="font-semibold text-yellow-400">{{ card.rewardPowerUp }}</span>
+                <CardTitle class="uppercase text-base font-bold">{{ card.title }}</CardTitle>
+                <CardDescription>{{ card.description }}</CardDescription>
+                <div class="font-bold">
+                  Odměna: {{ card.rewardCoins }} | {{ card.rewardPowerUp }}
                 </div>
-              </CardContent>
+              </CardHeader>
+
+              <CardFooter class="flex justify-end">
+                <Button @click="completeCard(card.id)" variant="secondary" disabled >Dokončit</Button>
+              </CardFooter>
             </Card>
           </div>
         </section>
       </div>
     </div>
-     <footer class="mt-10 sm:mt-16 mb-6 text-center text-xs sm:text-sm text-slate-600">
-      <p>&copy; {{ new Date().getFullYear() }} MHD Run Game. Vytvořeno s Vue.js & Tailwind CSS.</p>
-    </footer>
+
+    <div class="bg-white p-2 pb-4 flex flex-col gap-2 z-10">
+      <Button @click="drawCard" :disabled="deckCardCount === 0">
+        Líznout kartu ({{ deckCardCount }})
+      </Button>
+      <div class="grid grid-cols-2 gap-2">
+        <Button @click="shuffleDeck" variant="outline" >
+          Zamíchat balíček
+        </Button>
+        <Button @click="loadCardsFromPublishedCSV" variant="outline" >
+          Fetch data
+        </Button>
+      </div>
+    </div>
   </div>
 </template>
-

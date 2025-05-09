@@ -4,40 +4,6 @@
 
 @custom-variant dark (&:is(.dark *));
 
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-weight: normal;
-}
-
-a,
-.green {
-  text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-  padding: 3px;
-}
-
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
-  }
-}
-
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
-
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
-  }
-}
-
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -155,4 +121,24 @@ a,
   body {
     @apply bg-background text-foreground;
   }
+}
+
+@keyframes curse-pulse {
+  0%, 100% {
+    box-shadow: inset 0 0 4px #6b21a84f;
+    filter: grayscale(20%) sepia(0.15);
+  }
+  50% {
+    box-shadow: inset 0 0 15px #6b21a8b4;
+    filter: grayscale(20%) sepia(0.05);
+  }
+}
+
+.curse-glow {
+  @apply shadow-inner;
+  box-shadow: inset 0 0 10px #6b21a84f;
+  animation:
+    curse-pulse 2.4s ease-in-out infinite;
+  transition: all 0.3s ease;
+  will-change: transform, box-shadow;
 }
