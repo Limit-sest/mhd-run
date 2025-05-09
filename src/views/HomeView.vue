@@ -262,14 +262,14 @@ const deckCardCount = computed(() => deckOrder.value.length);
       <div class="space-y-8">
         <!-- Hand Zone -->
         <section>
-          <h2 class="text-2xl font-semibold mb-4 border-b-2 border-neutral-500">Ruka ({{ handCards.length }})</h2>
+          <h2 class="text-2xl font-semibold mb-4 border-b-2 border-neutral-500 tabular-nums">Ruka ({{ handCards.length }})</h2>
           <div v-if="handCards.length === 0" class="text-slate-400 italic p-4 text-center">V ruce nemáš žádné karty.</div>
           <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <Card v-for="card in handCards" :key="card.id" :class="[card.type === 'Prokletí' ? 'curse-glow' : '']">
               <CardHeader>
                 <CardTitle class="uppercase text-base font-bold">{{ card.title }}</CardTitle>
                 <CardDescription>{{ card.description }}</CardDescription>
-                <div class="font-bold">
+                <div class="font-bold tabular-nums">
                   Odměna: {{ card.rewardCoins }} | {{ card.rewardPowerUp }}
                 </div>
               </CardHeader>
@@ -283,14 +283,14 @@ const deckCardCount = computed(() => deckOrder.value.length);
 
         <!-- Completed Zone -->
         <section>
-          <h2 class="text-2xl font-semibold mb-4 border-b-2 border-neutral-500">Dokončené ({{ completedCards.length }})</h2>
+          <h2 class="text-2xl font-semibold mb-4 border-b-2 border-neutral-500 tabular-nums">Dokončené ({{ completedCards.length }})</h2>
           <div v-if="completedCards.length === 0" class="text-slate-400 italic p-4 text-center">Zatím nemáš žádné dokončené karty.</div>
           <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <Card v-for="card in completedCards" :key="card.id" :class="[card.type === 'Prokletí' ? 'curse-glow' : '']">
               <CardHeader>
                 <CardTitle class="uppercase text-base font-bold">{{ card.title }}</CardTitle>
                 <CardDescription>{{ card.description }}</CardDescription>
-                <div class="font-bold">
+                <div class="font-bold tabular-nums">
                   Odměna: {{ card.rewardCoins }} | {{ card.rewardPowerUp }}
                 </div>
               </CardHeader>
@@ -305,7 +305,7 @@ const deckCardCount = computed(() => deckOrder.value.length);
     </div>
 
     <div class="bg-white p-2 pb-4 flex flex-col gap-2 z-10">
-      <Button @click="drawCard" :disabled="deckCardCount === 0">
+      <Button @click="drawCard" :disabled="deckCardCount === 0" class="tabular-nums">
         Líznout kartu ({{ deckCardCount }})
       </Button>
       <div class="grid grid-cols-2 gap-2">
