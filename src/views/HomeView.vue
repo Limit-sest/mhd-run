@@ -270,7 +270,7 @@ const deckCardCount = computed(() => deckOrder.value.length);
                 <CardTitle class="uppercase text-base font-bold">{{ card.title }}</CardTitle>
                 <CardDescription>{{ card.description }}</CardDescription>
                 <div class="font-bold tabular-nums">
-                  Odměna: {{ card.rewardCoins }} | {{ card.rewardPowerUp }}
+                  Odměna: {{ card.rewardCoins }} {{ card.rewardPowerUp }}
                 </div>
               </CardHeader>
 
@@ -291,7 +291,7 @@ const deckCardCount = computed(() => deckOrder.value.length);
                 <CardTitle class="uppercase text-base font-bold">{{ card.title }}</CardTitle>
                 <CardDescription>{{ card.description }}</CardDescription>
                 <div class="font-bold tabular-nums">
-                  Odměna: {{ card.rewardCoins }} | {{ card.rewardPowerUp }}
+                  Odměna: {{ card.rewardCoins }} {{ card.rewardPowerUp }}
                 </div>
               </CardHeader>
 
