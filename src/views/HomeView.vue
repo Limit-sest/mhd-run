@@ -262,7 +262,7 @@ const deckCardCount = computed(() => deckOrder.value.length);
       <div class="space-y-8">
         <!-- Hand Zone -->
         <section>
-          <h2 class="text-2xl font-semibold mb-4 border-b-2 border-neutral-500 tabular-nums">Ruka ({{ handCards.length }})</h2>
+          <h2 class="text-2xl font-semibold mb-4 border-b-2 border-neutral-500 tabular-nums">Aktivní ({{ handCards.length }})</h2>
           <div v-if="handCards.length === 0" class="text-slate-400 italic p-4 text-center">V ruce nemáš žádné karty.</div>
           <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <Card v-for="card in handCards" :key="card.id" :class="[card.type === 'Prokletí' ? 'curse-glow' : '']">
