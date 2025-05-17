@@ -1,8 +1,8 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import Papa from 'papaparse'
+import PlayingCardsContainer from '@/components/PlayingCardsContainer.vue'
 
 // --- Configuration ---
 const PUBLIC_CSV_URL = import.meta.env.VITE_PUBLIC_CSV_URL;
@@ -261,46 +261,8 @@ const deckCardCount = computed(() => deckOrder.value.length);
     <div v-if="!isLoading && allCardsMasterList.length > 0" class="w-full h-full flex-1 overflow-y-auto">
       <div class="space-y-8">
         <!-- Hand Zone -->
-        <section>
-          <h2 class="text-2xl font-semibold mb-4 border-b-2 border-neutral-500 tabular-nums">Aktivní ({{ handCards.length }})</h2>
-          <div v-if="handCards.length === 0" class="text-slate-400 italic p-4 text-center">V ruce nemáš žádné karty.</div>
-          <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Card v-for="card in handCards" :key="card.id" :class="[card.type === 'Prokletí' ? 'curse-glow' : '']">
-              <CardHeader>
-                <CardTitle class="uppercase text-base font-bold">{{ card.title }}</CardTitle>
-                <CardDescription>{{ card.description }}</CardDescription>
-                <div class="font-bold tabular-nums">
-                  Odměna: {{ card.rewardCoins }} {{ card.rewardPowerUp }}
-                </div>
-              </CardHeader>
-
-              <CardFooter class="flex justify-end">
-                <Button @click="completeCard(card.id)" variant="secondary" >Dokončit</Button>
-              </CardFooter>
-            </Card>
-          </div>
-        </section>
-
-        <!-- Completed Zone -->
-        <section>
-          <h2 class="text-2xl font-semibold mb-4 border-b-2 border-neutral-500 tabular-nums">Dokončené ({{ completedCards.length }})</h2>
-          <div v-if="completedCards.length === 0" class="text-slate-400 italic p-4 text-center">Zatím nemáš žádné dokončené karty.</div>
-          <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Card v-for="card in completedCards" :key="card.id" :class="[card.type === 'Prokletí' ? 'curse-glow' : '']">
-              <CardHeader>
-                <CardTitle class="uppercase text-base font-bold">{{ card.title }}</CardTitle>
-                <CardDescription>{{ card.description }}</CardDescription>
-                <div class="font-bold tabular-nums">
-                  Odměna: {{ card.rewardCoins }} {{ card.rewardPowerUp }}
-                </div>
-              </CardHeader>
-
-              <CardFooter class="flex justify-end">
-                <Button @click="completeCard(card.id)" variant="secondary" disabled >Dokončit</Button>
-              </CardFooter>
-            </Card>
-          </div>
-        </section>
+        <PlayingCardsContainer :cards="handCards" title="Aktivní" :cardsDisabled="false" />
+        <PlayingCardsContainer :cards="completedCards" title="Dokončené" :cardsDisabled="true" />
       </div>
     </div>
 
