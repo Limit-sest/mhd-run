@@ -1,0 +1,14 @@
+{
+  "singleQuote": true,
+  "semi": true,
+  "trailingComma": "es5",
+  "tabWidth": 2,
+  "useTabs": false,
+  "bracketSpacing": true,
+  "arrowParens": "always",
+  "vueIndentScriptAndStyle": true,
+  "printWidth": 80,
+  "importOrder": ["^@.*", "^[a-zA-Z]"],
+  "importOrderSeparation": true,
+  "importOrderSortSpecifiers": true
+}
