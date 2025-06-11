@@ -91,17 +91,17 @@ export const drawCard = () => {
   const shuffledCards = storeToRefs(useShuffeledCardsStore());
   const handCards = storeToRefs(useHandCardsStore());
 
-  const cardIdToDraw = shuffledCards.value.cards.shift(); // Removes from top (start of array)
-  handCards.value.cards.push(cardIdToDraw);
+  const cardIdToDraw = shuffledCards.cards.value.shift(); // Removes from top (start of array)
+  handCards.cards.value.push(cardIdToDraw);
 };
 
 export const completeCard = (cardId) => {
   const handCards = storeToRefs(useHandCardsStore());
   const completedCards = storeToRefs(useCompletedCardsStore());
 
-  const cardIndexInHand = handCards.value.cards.indexOf(cardId);
+  const cardIndexInHand = handCards.cards.value.indexOf(cardId);
   if (cardIndexInHand > -1) {
-    const [cardToCompleteId] = handCards.value.cards.splice(cardIndexInHand, 1);
-    completedCards.value.cards.push(cardToCompleteId);
+    const [cardToCompleteId] = handCards.cards.value.splice(cardIndexInHand, 1);
+    completedCards.cards.value.push(cardToCompleteId);
   }
 };

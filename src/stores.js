@@ -33,12 +33,22 @@ export const useHandCardsStore = defineStore('handCards', {
   state: () => ({
     cards: getFromLocalStorage('handCards_cards') || [],
   }),
+  actions: {
+    setCards(cards) {
+      this.cards = cards;
+    },
+  },
 });
 
 export const useCompletedCardsStore = defineStore('completedCards', {
   state: () => ({
     cards: getFromLocalStorage('completedCards_cards') || [],
   }),
+  actions: {
+    setCards(cards) {
+      this.cards = cards;
+    },
+  },
 });
 
 export const useShuffeledCardsStore = defineStore('shuffeledCards', {
@@ -64,8 +74,8 @@ export const useShuffeledCardsStore = defineStore('shuffeledCards', {
       }
       this.cards = cardIdsToShuffle;
       // Reset hand and completed cards
-      handCardsStore.setHandCards([]);
-      completedCardsStore.setCompletedCards([]);
+      handCardsStore.setCards([]);
+      completedCardsStore.setCards([]);
     },
   },
 });
