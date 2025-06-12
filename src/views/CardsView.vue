@@ -41,7 +41,7 @@
       </div>
     </div>
 
-    <div class="bg-white p-2 pb-4 flex flex-col gap-2 z-10">
+    <div class="bg-white flex flex-col gap-2 z-10">
       <Button
         @click="drawCard"
         :disabled="
