@@ -19,6 +19,9 @@
   const completedCards = computed(() =>
     completedCardsIds.cards.map(getCardDetails).filter(Boolean)
   );
+  const hasTaskCardInHand = computed(() => {
+    return handCards.value.some((card) => card.type === 'Úkol');
+  });
 </script>
 <template>
   <div class="bg-white text-black p-4 w-screen flex flex-col">
@@ -43,7 +46,7 @@
         @click="drawCard"
         :disabled="
           handCards.length + completedCards.length ===
-          shuffledCardsIds.cards.length
+            shuffledCardsIds.cards.length || hasTaskCardInHand
         "
         class="tabular-nums"
       >
