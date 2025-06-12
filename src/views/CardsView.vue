@@ -6,7 +6,7 @@
     useHandCardsStore,
   } from '@/stores';
   import PlayingCardsContainer from '@/components/PlayingCardsContainer.vue';
-  import { getCardDetails, loadCardsFromPublishedCSV, drawCard } from '@/utils';
+  import { getCardDetails, drawCard } from '@/utils';
   import { Button } from '@/components/ui/button';
 
   const shuffledCardsIds = useShuffeledCardsStore();
@@ -52,14 +52,6 @@
       >
         Líznout kartu
       </Button>
-      <div class="grid grid-cols-2 gap-2">
-        <Button @click="shuffledCardsIds.shuffleCards" variant="outline">
-          Zamíchat balíček
-        </Button>
-        <Button @click="loadCardsFromPublishedCSV" variant="outline">
-          Fetch data
-        </Button>
-      </div>
     </div>
   </div>
 </template>

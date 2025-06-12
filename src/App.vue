@@ -6,7 +6,7 @@
 <template>
   <div style="height: 100svh" class="flex flex-col">
     <TopBar />
-    <div class="flex-1 flex overflow-y-scroll">
+    <div class="flex-1 flex overflow-y-scroll bg-white text-gray-900">
       <RouterView class="flex-1" />
     </div>
     <BottonBar />
