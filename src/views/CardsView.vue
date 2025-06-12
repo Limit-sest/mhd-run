@@ -21,10 +21,7 @@
   );
 </script>
 <template>
-  <div
-    class="bg-white text-black p-4 w-screen flex flex-col"
-    style="height: 100svh"
-  >
+  <div class="bg-white text-black p-4 w-screen flex flex-col">
     <div class="w-full h-full flex-1 overflow-y-auto">
       <div class="space-y-8">
         <!-- Hand Zone -->
