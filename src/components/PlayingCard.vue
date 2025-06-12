@@ -30,7 +30,7 @@
       }}</CardTitle>
       <CardDescription>{{ card.description }}</CardDescription>
       <div class="font-bold tabular-nums">
-        Odměna: {{ card.rewardCoins }} {{ card.rewardPowerUp }}
+        Odměna: {{ card.rewardCoins }} 🪙 {{ card.rewardPowerUp }} ⚡️
       </div>
     </CardHeader>
     <CardFooter class="flex justify-end">
