@@ -3,6 +3,7 @@ import {
   useShuffeledCardsStore,
   useHandCardsStore,
   useCompletedCardsStore,
+  usePlayerStore,
 } from './stores';
 import Papa from 'papaparse';
 import { storeToRefs } from 'pinia';
@@ -98,10 +99,17 @@ export const drawCard = () => {
 export const completeCard = (cardId) => {
   const handCards = storeToRefs(useHandCardsStore());
   const completedCards = storeToRefs(useCompletedCardsStore());
+  const allCards = useAllCardsStore();
+  const player = usePlayerStore();
 
   const cardIndexInHand = handCards.cards.value.indexOf(cardId);
   if (cardIndexInHand > -1) {
     const [cardToCompleteId] = handCards.cards.value.splice(cardIndexInHand, 1);
     completedCards.cards.value.push(cardToCompleteId);
+    const cardDetails = allCards.cards.find(
+      (card) => card.id === cardToCompleteId
+    );
+    player.addCoins(cardDetails.rewardCoins);
+    player.addPowerup(cardDetails.rewardPowerUp);
   }
 };

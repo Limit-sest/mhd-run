@@ -87,16 +87,16 @@ export const usePlayerStore = defineStore('player', {
   }),
   actions: {
     setCoins(coins) {
-      this.coins = coins;
+      this.coins = parseInt(coins);
     },
     setPowerup(powerup) {
-      this.powerup = powerup;
+      this.powerup = parseInt(powerup);
     },
     addCoins(amount) {
-      this.coins += amount;
+      this.coins += parseInt(amount);
     },
     addPowerup(amount) {
-      this.powerup += amount;
+      this.powerup += parseInt(amount);
     },
   },
 });
