@@ -81,6 +81,12 @@ export const usePlayerStore = defineStore('player', {
     addPowerup(amount) {
       this.powerup += parseInt(amount);
     },
+    removeCoins(amount) {
+      this.coins = Math.max(0, this.coins - parseInt(amount));
+    },
+    removePowerup(amount) {
+      this.powerup = Math.max(0, this.powerup - parseInt(amount));
+    },
   },
 });
 
@@ -88,6 +94,12 @@ export const useShopStore = defineStore('shop', {
   state: () => ({
     transit: getFromLocalStorage('shop_transit') || [],
     powerups: getFromLocalStorage('shop_powerups') || [],
+    shoppingCart: {
+      transit: {},
+      powerup: {},
+      totalCoins: 0,
+      totalPowerups: 0,
+    },
   }),
   actions: {
     setTransit(value) {
@@ -95,6 +107,25 @@ export const useShopStore = defineStore('shop', {
     },
     setPowerups(value) {
       this.powerups = value;
+    },
+    initializeTransitCart() {
+      this.transit.forEach((_, index) => {
+        this.shoppingCart.transit[index] = 0;
+        this.shoppingCart.totalCoins = 0
+      });
+      
+    },
+    addShopItem(itemIndex) {
+      const currentCount = this.shoppingCart.transit[itemIndex] || 0;
+      this.shoppingCart.transit[itemIndex] = currentCount + 1;
+      this.shoppingCart.totalCoins += parseInt(this.transit[itemIndex].price);
+    },
+    removeShopItem(itemIndex) {
+      const currentCount = this.shoppingCart.transit[itemIndex] || 0;
+      if (currentCount > 0) {
+        this.shoppingCart.transit[itemIndex] = currentCount - 1;
+        this.shoppingCart.totalCoins -= parseInt(this.transit[itemIndex].price);
+      }
     },
   },
 });
