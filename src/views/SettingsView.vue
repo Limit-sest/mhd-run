@@ -1,23 +1,16 @@
 <script setup>
   import { ref } from 'vue';
   import { fetchAllData } from '@/utils';
-  import {
-    useShuffeledCardsStore,
-    usePlayerStore,
-    useAllCardsStore,
-  } from '@/stores';
+  import { useShuffeledCardsStore, usePlayerStore } from '@/stores';
   import { Button } from '@/components/ui/button';
   import { Input } from '@/components/ui/input';
   import { Label } from '@/components/ui/label';
 
   const shuffledCardsIds = useShuffeledCardsStore();
-  const allCards = useAllCardsStore();
   const playerStore = usePlayerStore();
 
   const coinsInput = ref(playerStore.coins);
   const powerupInput = ref(playerStore.powerup);
-
-  const cardCsv = import.meta.env.VITE_PUBLIC_CSV_URL;
 
   const handleSetCoins = () => {
     playerStore.setCoins(parseInt(coinsInput.value, 10) || 0);
@@ -33,12 +26,7 @@
       <Button @click="shuffledCardsIds.shuffleCards" variant="outline">
         Zamíchat balíček
       </Button>
-      <Button
-        @click="fetchAllData(cardCsv, allCards, shuffledCardsIds)"
-        variant="outline"
-      >
-        Fetch data
-      </Button>
+      <Button @click="fetchAllData" variant="outline"> Fetch data </Button>
     </div>
     <div class="flex flex-col gap-2">
       <Label for="coins">Počet mincí</Label>
