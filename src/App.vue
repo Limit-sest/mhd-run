@@ -1,4 +1,5 @@
 <script setup>
+  import BottonBar from './components/BottonBar.vue';
   import TopBar from './components/TopBar.vue';
 </script>
 
@@ -8,5 +9,6 @@
     <div class="flex-1 flex overflow-y-scroll">
       <RouterView class="flex-1" />
     </div>
+    <BottonBar />
   </div>
 </template>
