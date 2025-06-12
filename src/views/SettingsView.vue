@@ -1,6 +1,6 @@
 <script setup>
   import { ref } from 'vue';
-  import { loadAndProcessCards } from '@/utils';
+  import { fetchAllData } from '@/utils';
   import {
     useShuffeledCardsStore,
     usePlayerStore,
@@ -34,7 +34,7 @@
         Zamíchat balíček
       </Button>
       <Button
-        @click="loadAndProcessCards(cardCsv, allCards, shuffledCardsIds)"
+        @click="fetchAllData(cardCsv, allCards, shuffledCardsIds)"
         variant="outline"
       >
         Fetch data

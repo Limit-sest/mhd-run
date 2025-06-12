@@ -4,6 +4,7 @@ import {
   useHandCardsStore,
   useCompletedCardsStore,
   usePlayerStore,
+  useShopStore,
 } from './stores';
 import Papa from 'papaparse';
 import { storeToRefs } from 'pinia';
@@ -28,18 +29,27 @@ export const fetchCSV = async (csvUrl) => {
     );
   }
   const csvText = await response.text();
-  const parseResult = Papa.parse(csvText, { skipEmptyLines: true });
+  // Use header: true to get an array of objects
+  const parseResult = Papa.parse(csvText, {
+    header: true,
+    skipEmptyLines: true,
+  });
 
   if (parseResult.errors.length > 0) {
-    const errorMessages = parseResult.errors.map((e) => e.message).join('; ');
+    // parseResult.errors might contain more detailed error objects
+    const errorMessages = parseResult.errors
+      .map((e) => `Error: ${e.message} (řádek: ${e.row})`)
+      .join('; ');
     throw new Error(`Chyba při parsování CSV: ${errorMessages}`);
   }
 
   if (!parseResult.data || parseResult.data.length === 0) {
-    throw new Error('CSV soubor je prázdný nebo neobsahuje žádná data.');
+    throw new Error(
+      'CSV soubor je prázdný nebo neobsahuje žádná data (po zpracování hlaviček).'
+    );
   }
 
-  return parseResult.data; // Returns all rows, including potential headers
+  return parseResult.data; // Returns an array of objects
 };
 
 export const proccessCards = (dataRows, allCardsStore, shuffeledCardsStore) => {
@@ -50,28 +60,18 @@ export const proccessCards = (dataRows, allCardsStore, shuffeledCardsStore) => {
     );
   }
 
-  const actualDataRows = dataRows.slice(1); // Skip header row
-
-  if (actualDataRows.length === 0) {
-    throw new Error('CSV neobsahuje žádné datové řádky (pouze hlavičku).');
+  if (dataRows.length === 0) {
+    throw new Error('CSV neobsahuje žádné datové řádky');
   }
-
-  const parsedCards = actualDataRows
-    .map((columns) => {
-      if (!Array.isArray(columns) || columns.length < 5) {
-        console.warn(
-          'Přeskakuji řádek s nedostatečným počtem sloupců v CSV:',
-          columns
-        );
-        return null;
-      }
+  const parsedCards = dataRows
+    .map((row) => {
       return {
         id: generateUniqueId(),
-        title: columns[0]?.trim() || 'Neznámý titul',
-        description: columns[1]?.trim() || 'Žádný popis',
-        rewardCoins: columns[2]?.trim() || '0',
-        rewardPowerUp: columns[3]?.trim() || '0',
-        type: columns[4]?.trim() === 'Prokletí' ? 'Prokletí' : 'Úkol',
+        title: row['title']?.trim() || 'Neznámý titul',
+        description: row['description']?.trim() || 'Žádný popis',
+        rewardCoins: String(row['rewardCoins'])?.trim() || '0',
+        rewardPowerUp: String(row['rewardPowerUp'])?.trim() || '0',
+        type: String(row['type'])?.trim() === 'Prokletí' ? 'Prokletí' : 'Úkol',
       };
     })
     .filter((card) => card !== null);
@@ -86,31 +86,31 @@ export const proccessCards = (dataRows, allCardsStore, shuffeledCardsStore) => {
   shuffeledCardsStore.shuffleCards(); // Relies on allCardsStore being updated
 };
 
-export const loadAndProcessCards = async (
-  csvUrl,
-  allCardsStoreInstance,
-  shuffeledCardsStoreInstance
-) => {
-  if (!allCardsStoreInstance || !shuffeledCardsStoreInstance) {
-    console.error('Chyba: Store instance(s) nebyly poskytnuty.');
-    return;
-  }
+export const fetchAllData = async () => {
+  const cardCsv = import.meta.env.VITE_CARD_CSV_URL;
+  const transitCsv = import.meta.env.VITE_SHOP_TRANSIT_CSV_URL;
+  const powerupCsv = import.meta.env.VITE_SHOP_POWERUP_CSV_URL;
+
+  const shuffledCardsIds = useShuffeledCardsStore();
+  const allCards = useAllCardsStore();
+  const shop = useShopStore();
   try {
-    const dataRows = await fetchCSV(csvUrl);
-    proccessCards(dataRows, allCardsStoreInstance, shuffeledCardsStoreInstance);
+    const cardDataRows = await fetchCSV(cardCsv);
+    const transit = await fetchCSV(transitCsv);
+    const powerup = await fetchCSV(powerupCsv);
+
+    shop.setTransit(transit);
+    shop.setPowerups(powerup);
+    proccessCards(cardDataRows, allCards, shuffledCardsIds);
   } catch (err) {
     console.error(
       'Chyba při načítání nebo zpracování karet z CSV:',
       err.message
     );
     // Reset stores in case of an error
-    allCardsStoreInstance.setCards([]);
-    // Assuming shuffeledCardsStore might not have a setCards method,
-    // directly resetting its 'cards' state if necessary.
-    // It's better if shuffeledCardsStore also has a reset or setCards([]) action.
-    if (shuffeledCardsStoreInstance.cards) {
-      shuffeledCardsStoreInstance.cards = [];
-    }
+    shop.setTransit([]);
+    shop.setPowerups([]);
+    allCards.setCards([]);
   }
 };
 
@@ -137,5 +137,23 @@ export const completeCard = (cardId) => {
     );
     player.addCoins(cardDetails.rewardCoins);
     player.addPowerup(cardDetails.rewardPowerUp);
+  }
+};
+
+export const getFromLocalStorage = (key) => {
+  const item = localStorage.getItem(key);
+  try {
+    return item ? JSON.parse(item) : null;
+  } catch (e) {
+    console.error(`Error parsing localStorage item ${key}:`, e);
+    return null;
+  }
+};
+
+export const saveToLocalStorage = (key, value) => {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch (e) {
+    console.error(`Error saving to localStorage item ${key}:`, e);
   }
 };

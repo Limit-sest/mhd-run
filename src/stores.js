@@ -1,22 +1,5 @@
 import { defineStore } from 'pinia';
-
-const getFromLocalStorage = (key) => {
-  const item = localStorage.getItem(key);
-  try {
-    return item ? JSON.parse(item) : null;
-  } catch (e) {
-    console.error(`Error parsing localStorage item ${key}:`, e);
-    return null;
-  }
-};
-
-const saveToLocalStorage = (key, value) => {
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-  } catch (e) {
-    console.error(`Error saving to localStorage item ${key}:`, e);
-  }
-};
+import { getFromLocalStorage, saveToLocalStorage } from './utils';
 
 export const useAllCardsStore = defineStore('allCards', {
   state: () => ({
@@ -101,6 +84,21 @@ export const usePlayerStore = defineStore('player', {
   },
 });
 
+export const useShopStore = defineStore('shop', {
+  state: () => ({
+    transit: getFromLocalStorage('shop_transit') || [],
+    powerups: getFromLocalStorage('shop_powerups') || [],
+  }),
+  actions: {
+    setTransit(value) {
+      this.transit = value;
+    },
+    setPowerups(value) {
+      this.powerups = value;
+    },
+  },
+});
+
 // Function to setup persistence for all stores
 export function setupStorePersistence(piniaInstance) {
   const storesToPersist = [
@@ -115,6 +113,7 @@ export function setupStorePersistence(piniaInstance) {
       keyPrefix: 'shuffeledCards',
     },
     { store: usePlayerStore(piniaInstance), keyPrefix: 'player' },
+    { store: useShopStore(piniaInstance), keyPrefix: 'shop' },
   ];
 
   storesToPersist.forEach(({ store, keyPrefix }) => {
@@ -134,7 +133,12 @@ export function setupStorePersistence(piniaInstance) {
       if (state.powerup !== undefined) {
         saveToLocalStorage(`${keyPrefix}_powerup`, state.powerup);
       }
-      // Add other properties as needed
+      if (state.transit !== undefined) {
+        saveToLocalStorage(`${keyPrefix}_transit`, state.transit);
+      }
+      if (state.powerups !== undefined) {
+        saveToLocalStorage(`${keyPrefix}_powerups`, state.powerups);
+      }
     });
   });
 }
