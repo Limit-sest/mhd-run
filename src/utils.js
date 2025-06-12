@@ -122,7 +122,7 @@ export const drawCard = () => {
   handCards.cards.value.push(cardIdToDraw);
 };
 
-export const completeCard = (cardId) => {
+export const completeCard = (cardId, reward = true) => {
   const handCards = storeToRefs(useHandCardsStore());
   const completedCards = storeToRefs(useCompletedCardsStore());
   const allCards = useAllCardsStore();
@@ -135,8 +135,10 @@ export const completeCard = (cardId) => {
     const cardDetails = allCards.cards.find(
       (card) => card.id === cardToCompleteId
     );
-    player.addCoins(cardDetails.rewardCoins);
-    player.addPowerup(cardDetails.rewardPowerUp);
+    if (reward) {
+      player.addCoins(cardDetails.rewardCoins);
+      player.addPowerup(cardDetails.rewardPowerUp);
+    }
   }
 };
 

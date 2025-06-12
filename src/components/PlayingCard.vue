@@ -33,11 +33,18 @@
         Odměna: {{ card.rewardCoins }} 🪙 {{ card.rewardPowerUp }} ⚡️
       </div>
     </CardHeader>
-    <CardFooter class="flex justify-end">
+    <CardFooter class="flex gap-2 w-full">
+      <Button
+        @click="completeCard(card.id, false)"
+        variant="outline"
+        :disabled="disabled"
+        >Veto</Button
+      >
       <Button
         @click="completeCard(card.id)"
         variant="secondary"
         :disabled="disabled"
+        class="flex-1"
         >Dokončit</Button
       >
     </CardFooter>
