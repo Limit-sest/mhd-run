@@ -1,16 +1,23 @@
 <script setup>
   import { ref } from 'vue';
-  import { loadCardsFromPublishedCSV } from '@/utils';
-  import { useShuffeledCardsStore, usePlayerStore } from '@/stores';
+  import { loadAndProcessCards } from '@/utils';
+  import {
+    useShuffeledCardsStore,
+    usePlayerStore,
+    useAllCardsStore,
+  } from '@/stores';
   import { Button } from '@/components/ui/button';
   import { Input } from '@/components/ui/input';
   import { Label } from '@/components/ui/label';
 
   const shuffledCardsIds = useShuffeledCardsStore();
+  const allCards = useAllCardsStore();
   const playerStore = usePlayerStore();
 
   const coinsInput = ref(playerStore.coins);
   const powerupInput = ref(playerStore.powerup);
+
+  const cardCsv = import.meta.env.VITE_PUBLIC_CSV_URL;
 
   const handleSetCoins = () => {
     playerStore.setCoins(parseInt(coinsInput.value, 10) || 0);
@@ -26,7 +33,10 @@
       <Button @click="shuffledCardsIds.shuffleCards" variant="outline">
         Zamíchat balíček
       </Button>
-      <Button @click="loadCardsFromPublishedCSV" variant="outline">
+      <Button
+        @click="loadAndProcessCards(cardCsv, allCards, shuffledCardsIds)"
+        variant="outline"
+      >
         Fetch data
       </Button>
     </div>
