@@ -4,14 +4,17 @@
     useShuffeledCardsStore,
     useCompletedCardsStore,
     useHandCardsStore,
+    useDoublePowerupStore,
   } from '@/stores';
   import PlayingCardsContainer from '@/components/PlayingCardsContainer.vue';
   import { getCardDetails, drawCard } from '@/utils';
   import { Button } from '@/components/ui/button';
+  import { BadgeDollarSign } from 'lucide-vue-next';
 
   const shuffledCardsIds = useShuffeledCardsStore();
   const completedCardsIds = useCompletedCardsStore();
   const handCardsIds = useHandCardsStore();
+  const doublePowerup = useDoublePowerupStore();
 
   const handCards = computed(() =>
     handCardsIds.cards.map(getCardDetails).filter(Boolean)
@@ -41,14 +44,20 @@
       </div>
     </div>
 
-    <div class="bg-white flex flex-col gap-2 z-10">
+    <div class="bg-white flex gap-2 z-10">
+      <Button
+        @click="doublePowerup.toggle()"
+        :variant="doublePowerup.isActive ? '' : 'outline'"
+        class="aspect-square"
+        ><BadgeDollarSign
+      /></Button>
       <Button
         @click="drawCard"
         :disabled="
           handCards.length + completedCards.length ===
             shuffledCardsIds.cards.length || hasTaskCardInHand
         "
-        class="tabular-nums"
+        class="tabular-nums flex-1"
       >
         Líznout kartu
       </Button>

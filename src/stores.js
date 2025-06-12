@@ -111,9 +111,8 @@ export const useShopStore = defineStore('shop', {
     initializeTransitCart() {
       this.transit.forEach((_, index) => {
         this.shoppingCart.transit[index] = 0;
-        this.shoppingCart.totalCoins = 0
+        this.shoppingCart.totalCoins = 0;
       });
-      
     },
     addShopItem(itemIndex) {
       const currentCount = this.shoppingCart.transit[itemIndex] || 0;
@@ -126,6 +125,17 @@ export const useShopStore = defineStore('shop', {
         this.shoppingCart.transit[itemIndex] = currentCount - 1;
         this.shoppingCart.totalCoins -= parseInt(this.transit[itemIndex].price);
       }
+    },
+  },
+});
+
+export const useDoublePowerupStore = defineStore('doublePowerup', {
+  state: () => ({
+    isActive: false,
+  }),
+  actions: {
+    toggle() {
+      this.isActive ? (this.isActive = false) : (this.isActive = true);
     },
   },
 });

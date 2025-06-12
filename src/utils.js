@@ -5,6 +5,7 @@ import {
   useCompletedCardsStore,
   usePlayerStore,
   useShopStore,
+  useDoublePowerupStore,
 } from './stores';
 import Papa from 'papaparse';
 import { storeToRefs } from 'pinia';
@@ -127,6 +128,7 @@ export const completeCard = (cardId, reward = true) => {
   const completedCards = storeToRefs(useCompletedCardsStore());
   const allCards = useAllCardsStore();
   const player = usePlayerStore();
+  const doublePowerup = useDoublePowerupStore();
 
   const cardIndexInHand = handCards.cards.value.indexOf(cardId);
   if (cardIndexInHand > -1) {
@@ -136,8 +138,14 @@ export const completeCard = (cardId, reward = true) => {
       (card) => card.id === cardToCompleteId
     );
     if (reward) {
-      player.addCoins(cardDetails.rewardCoins);
-      player.addPowerup(cardDetails.rewardPowerUp);
+      if (doublePowerup.isActive) {
+        player.addCoins(cardDetails.rewardCoins * 2);
+        player.addPowerup(cardDetails.rewardPowerUp * 2);
+        doublePowerup.toggle();
+      } else {
+        player.addCoins(cardDetails.rewardCoins);
+        player.addPowerup(cardDetails.rewardPowerUp);
+      }
     }
   }
 };
