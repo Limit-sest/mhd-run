@@ -97,10 +97,20 @@ export const useShopStore = defineStore('shop', {
     shoppingCart: {
       transit: {},
       powerup: {},
-      totalCoins: 0,
       totalPowerups: 0,
     },
   }),
+  getters: {
+    totalCoins: (state) => {
+      let sum = 0;
+      for (const itemIndex in state.shoppingCart.transit) {
+        const quantity = state.shoppingCart.transit[itemIndex];
+        const price = parseInt(state.transit[itemIndex].price);
+        sum += quantity * price;
+      }
+      return sum;
+    },
+  },
   actions: {
     setTransit(value) {
       this.transit = value;
@@ -111,19 +121,16 @@ export const useShopStore = defineStore('shop', {
     initializeTransitCart() {
       this.transit.forEach((_, index) => {
         this.shoppingCart.transit[index] = 0;
-        this.shoppingCart.totalCoins = 0;
       });
     },
     addShopItem(itemIndex) {
       const currentCount = this.shoppingCart.transit[itemIndex] || 0;
       this.shoppingCart.transit[itemIndex] = currentCount + 1;
-      this.shoppingCart.totalCoins += parseInt(this.transit[itemIndex].price);
     },
     removeShopItem(itemIndex) {
       const currentCount = this.shoppingCart.transit[itemIndex] || 0;
       if (currentCount > 0) {
         this.shoppingCart.transit[itemIndex] = currentCount - 1;
-        this.shoppingCart.totalCoins -= parseInt(this.transit[itemIndex].price);
       }
     },
   },
