@@ -16,7 +16,7 @@
     }
   };
   const handlePay = () => {
-    player.removeCoins(shop.shoppingCart.value.totalCoins);
+    player.removeCoins(shopStore.totalCoins);
     shopStore.initializeTransitCart();
   };
 
@@ -64,11 +64,11 @@
     <div class="mt-auto">
       <Button
         @click="handlePay"
-        :disabled="shop.shoppingCart.value.totalCoins > player.coins"
+        :disabled="shopStore.totalCoins > player.coins"
         class="tabular-nums w-full"
       >
         Zaplatit
-        {{ shop.shoppingCart.value.totalCoins }}
+        {{ shopStore.totalCoins }}
         🪙
       </Button>
     </div>
