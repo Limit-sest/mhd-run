@@ -49,6 +49,7 @@
         @click="doublePowerup.toggle()"
         :variant="doublePowerup.isActive ? '' : 'outline'"
         class="aspect-square"
+        disabled
         ><BadgeDollarSign
       /></Button>
       <Button

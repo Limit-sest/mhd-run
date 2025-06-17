@@ -6,9 +6,12 @@
     CardHeader,
     CardTitle,
   } from '@/components/ui/card';
-  import { defineProps } from 'vue';
+  import { defineProps, onMounted } from 'vue';
   import { Button } from '@/components/ui/button';
   import { completeCard } from '@/utils';
+  import { usePlayerStore } from '@/stores';
+
+  const player = usePlayerStore();
 
   const props = defineProps({
     card: {
@@ -19,6 +22,13 @@
       type: Boolean,
       default: false,
     },
+  });
+
+  onMounted(() => {
+    if (props.card.type === 'Prokletí') {
+      player.addCoins(props.card.rewardCoins);
+      player.addPowerup(props.card.rewardPowerUp);
+    }
   });
 </script>
 
@@ -38,10 +48,11 @@
         @click="completeCard(card.id, false)"
         variant="outline"
         :disabled="disabled"
+        v-if="card.type !== 'Prokletí'"
         >Veto</Button
       >
       <Button
-        @click="completeCard(card.id)"
+        @click="completeCard(card.id, card.type === 'Úkol')"
         variant="secondary"
         :disabled="disabled"
         class="flex-1"
