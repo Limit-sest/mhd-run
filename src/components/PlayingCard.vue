@@ -23,13 +23,13 @@
       default: false,
     },
   });
-
-  onMounted(() => {
-    if (props.card.type === 'Prokletí') {
-      player.addCoins(props.card.rewardCoins);
-      player.addPowerup(props.card.rewardPowerUp);
-    }
-  });
+  // ISSUE: Duplicates on reload
+  // onMounted(() => {
+  //   if (props.card.type === 'Prokletí' {
+  //     player.addCoins(props.card.rewardCoins);
+  //     player.addPowerup(props.card.rewardPowerUp);
+  //   }
+  // });
 </script>
 
 <template>
@@ -52,7 +52,7 @@
         >Veto</Button
       >
       <Button
-        @click="completeCard(card.id, card.type === 'Úkol')"
+        @click="completeCard(card.id, true)"
         variant="secondary"
         :disabled="disabled"
         class="flex-1"
