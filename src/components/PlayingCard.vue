@@ -20,6 +20,15 @@
       default: false,
     },
   });
+
+  const formatTimestamp = (timestamp) => {
+    if (!timestamp) return 'Neznámé datum';
+    const date = new Date(timestamp);
+    return new Intl.DateTimeFormat('cs-CZ', {
+      dateStyle: 'long',
+      timeStyle: 'short',
+    }).format(date);
+  };
 </script>
 
 <template>
@@ -28,7 +37,12 @@
       <CardTitle class="uppercase text-base font-bold">{{
         card.title
       }}</CardTitle>
-      <CardDescription>{{ card.description }}</CardDescription>
+      <CardDescription class="text-gray-600">{{
+        formatTimestamp(card.timestamp)
+      }}</CardDescription>
+      <CardDescription class="text-base">{{
+        card.description
+      }}</CardDescription>
       <div class="font-bold tabular-nums">
         Odměna: {{ card.rewardCoins }} 🪙 {{ card.rewardPowerUp }} ⚡️
       </div>

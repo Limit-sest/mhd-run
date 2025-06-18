@@ -139,6 +139,8 @@ export const drawCard = () => {
   const cardIdToDraw = shuffledCards.cards.value.shift(); // Removes from top (start of array)
   handCards.cards.value.push(cardIdToDraw);
 
+  allCards.addTimestamp(cardIdToDraw);
+
   const card = allCards.cards.find((card) => card.id === cardIdToDraw);
   if (card.type === 'Prokletí') {
     rewardCard(cardIdToDraw);
@@ -162,7 +164,26 @@ export const completeCard = (cardId, reward = true) => {
 export const getFromLocalStorage = (key) => {
   const item = localStorage.getItem(key);
   try {
-    return item ? JSON.parse(item) : null;
+    const parsed = item ? JSON.parse(item) : null;
+
+    // Recursively convert ISO date strings to Date objects
+    const reviveDates = (obj) => {
+      if (
+        typeof obj === 'string' &&
+        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/.test(obj)
+      ) {
+        return new Date(obj);
+      } else if (Array.isArray(obj)) {
+        return obj.map(reviveDates);
+      } else if (obj && typeof obj === 'object') {
+        return Object.fromEntries(
+          Object.entries(obj).map(([key, value]) => [key, reviveDates(value)])
+        );
+      }
+      return obj;
+    };
+
+    return reviveDates(parsed);
   } catch (e) {
     console.error(`Error parsing localStorage item ${key}:`, e);
     return null;

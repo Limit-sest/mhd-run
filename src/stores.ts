@@ -1,26 +1,33 @@
 import { defineStore } from 'pinia';
 import { getFromLocalStorage, saveToLocalStorage } from './utils';
+import type { Card, ShopItem } from './types';
 
 export const useAllCardsStore = defineStore('allCards', {
   state: () => ({
-    cards: getFromLocalStorage('allCards_cards') || [],
+    cards: getFromLocalStorage('allCards_cards') || ([] as Card[]),
   }),
   actions: {
-    setCards(cards) {
+    setCards(cards: Card[]) {
       this.cards = cards;
     },
-    getCardDetails(cardId) {
+    getCardDetails(cardId: string) {
       return this.cards.find((card) => card.id === cardId);
+    },
+    addTimestamp(cardId: string) {
+      const card = this.getCardDetails(cardId);
+      if (card) {
+        card.timestamp = Date.now();
+      }
     },
   },
 });
 
 export const useHandCardsStore = defineStore('handCards', {
   state: () => ({
-    cards: getFromLocalStorage('handCards_cards') || [],
+    cards: getFromLocalStorage('handCards_cards') || ([] as string[]),
   }),
   actions: {
-    setCards(cards) {
+    setCards(cards: string[]) {
       this.cards = cards;
     },
   },
@@ -28,10 +35,10 @@ export const useHandCardsStore = defineStore('handCards', {
 
 export const useCompletedCardsStore = defineStore('completedCards', {
   state: () => ({
-    cards: getFromLocalStorage('completedCards_cards') || [],
+    cards: getFromLocalStorage('completedCards_cards') || ([] as string[]),
   }),
   actions: {
-    setCards(cards) {
+    setCards(cards: string[]) {
       this.cards = cards;
     },
   },
@@ -39,7 +46,7 @@ export const useCompletedCardsStore = defineStore('completedCards', {
 
 export const useShuffeledCardsStore = defineStore('shuffeledCards', {
   state: () => ({
-    cards: getFromLocalStorage('shuffeledCards_cards') || [],
+    cards: getFromLocalStorage('shuffeledCards_cards') || ([] as string[]),
   }),
   actions: {
     shuffleCards() {
@@ -48,7 +55,7 @@ export const useShuffeledCardsStore = defineStore('shuffeledCards', {
       const completedCardsStore = useCompletedCardsStore();
       // Ensure allCardsStore.cards is populated before mapping
       const cardIdsToShuffle = allCardsStore.cards
-        ? allCardsStore.cards.map((card) => card.id)
+        ? allCardsStore.cards.map((card: Card) => card.id)
         : [];
 
       for (let i = cardIdsToShuffle.length - 1; i > 0; i--) {
@@ -72,31 +79,31 @@ export const usePlayerStore = defineStore('player', {
     powerup: getFromLocalStorage('player_powerup') || 0,
   }),
   actions: {
-    setCoins(coins) {
-      this.coins = parseInt(coins);
+    setCoins(coins: number) {
+      this.coins = coins;
     },
-    setPowerup(powerup) {
-      this.powerup = parseInt(powerup);
+    setPowerup(powerup: number) {
+      this.powerup = powerup;
     },
-    addCoins(amount) {
-      this.coins += parseInt(amount);
+    addCoins(amount: number) {
+      this.coins += amount;
     },
-    addPowerup(amount) {
-      this.powerup += parseInt(amount);
+    addPowerup(amount: number) {
+      this.powerup += amount;
     },
-    removeCoins(amount) {
-      this.coins = Math.max(0, this.coins - parseInt(amount));
+    removeCoins(amount: number) {
+      this.coins = Math.max(0, this.coins - amount);
     },
-    removePowerup(amount) {
-      this.powerup = Math.max(0, this.powerup - parseInt(amount));
+    removePowerup(amount: number) {
+      this.powerup = Math.max(0, this.powerup - amount);
     },
   },
 });
 
 export const useShopStore = defineStore('shop', {
   state: () => ({
-    transit: getFromLocalStorage('shop_transit') || [],
-    powerups: getFromLocalStorage('shop_powerups') || [],
+    transit: getFromLocalStorage('shop_transit') || ([] as ShopItem[]),
+    powerups: getFromLocalStorage('shop_powerups') || ([] as ShopItem[]),
     shoppingCart: {
       transit: {},
       powerup: {},
@@ -115,10 +122,10 @@ export const useShopStore = defineStore('shop', {
     },
   },
   actions: {
-    setTransit(value) {
+    setTransit(value: ShopItem[]) {
       this.transit = value;
     },
-    setPowerups(value) {
+    setPowerups(value: ShopItem[]) {
       this.powerups = value;
     },
     initializeTransitCart() {
@@ -126,11 +133,11 @@ export const useShopStore = defineStore('shop', {
         this.shoppingCart.transit[index] = 0;
       });
     },
-    addShopItem(itemIndex) {
+    addShopItem(itemIndex: number) {
       const currentCount = this.shoppingCart.transit[itemIndex] || 0;
       this.shoppingCart.transit[itemIndex] = currentCount + 1;
     },
-    removeShopItem(itemIndex) {
+    removeShopItem(itemIndex: number) {
       const currentCount = this.shoppingCart.transit[itemIndex] || 0;
       if (currentCount > 0) {
         this.shoppingCart.transit[itemIndex] = currentCount - 1;
@@ -146,17 +153,6 @@ export const useDoublePowerupStore = defineStore('doublePowerup', {
   actions: {
     toggle() {
       this.isActive ? (this.isActive = false) : (this.isActive = true);
-    },
-  },
-});
-
-export const useCardPullTimeStore = defineStore('cardPullTime', {
-  state: () => ({
-    cards: getFromLocalStorage('cardPullTime_cards') || [],
-  }),
-  actions: {
-    setCards(cards) {
-      this.cards = cards;
     },
   },
 });
