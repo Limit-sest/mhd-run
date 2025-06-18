@@ -122,12 +122,12 @@ const rewardCard = (cardId) => {
 
   const cardDetails = allCards.getCardDetails(cardId);
   if (doublePowerup.isActive) {
-    player.addCoins(cardDetails.rewardCoins * 2);
-    player.addPowerup(cardDetails.rewardPowerUp * 2);
+    player.addCoins(parseInt(cardDetails.rewardCoins * 2));
+    player.addPowerup(parseInt(cardDetails.rewardPowerUp * 2));
     doublePowerup.toggle();
   } else {
-    player.addCoins(cardDetails.rewardCoins);
-    player.addPowerup(cardDetails.rewardPowerUp);
+    player.addCoins(parseInt(cardDetails.rewardCoins));
+    player.addPowerup(parseInt(cardDetails.rewardPowerUp));
   }
 };
 
@@ -137,7 +137,7 @@ export const drawCard = () => {
   const allCards = useAllCardsStore();
 
   const cardIdToDraw = shuffledCards.cards.value.shift(); // Removes from top (start of array)
-  handCards.cards.value.push(cardIdToDraw);
+  handCards.cards.value.unshift(cardIdToDraw);
 
   allCards.addTimestamp(cardIdToDraw);
 
@@ -154,7 +154,7 @@ export const completeCard = (cardId, reward = true) => {
   const cardIndexInHand = handCards.cards.value.indexOf(cardId);
   if (cardIndexInHand > -1) {
     const [cardToCompleteId] = handCards.cards.value.splice(cardIndexInHand, 1);
-    completedCards.cards.value.push(cardToCompleteId);
+    completedCards.cards.value.unshift(cardToCompleteId);
     if (reward) {
       rewardCard(cardToCompleteId);
     }

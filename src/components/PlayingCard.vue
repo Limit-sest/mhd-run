@@ -25,8 +25,7 @@
     if (!timestamp) return 'Neznámé datum';
     const date = new Date(timestamp);
     return new Intl.DateTimeFormat('cs-CZ', {
-      dateStyle: 'long',
-      timeStyle: 'short',
+      timeStyle: 'medium',
     }).format(date);
   };
 </script>
@@ -37,9 +36,9 @@
       <CardTitle class="uppercase text-base font-bold">{{
         card.title
       }}</CardTitle>
-      <CardDescription class="text-gray-600">{{
-        formatTimestamp(card.timestamp)
-      }}</CardDescription>
+      <CardDescription class="text-gray-600"
+        >Líznuto v {{ formatTimestamp(card.timestamp) }}</CardDescription
+      >
       <CardDescription class="text-base">{{
         card.description
       }}</CardDescription>
