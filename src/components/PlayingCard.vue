@@ -33,9 +33,7 @@
 <template>
   <Card :class="[card.type === 'Prokletí' ? 'curse-glow' : '']">
     <CardHeader>
-      <CardTitle class="uppercase text-base font-bold">{{
-        card.title
-      }}</CardTitle>
+      <CardTitle class="uppercase text-lg">{{ card.title }}</CardTitle>
       <CardDescription class="text-gray-600"
         >Líznuto v {{ formatTimestamp(card.timestamp) }}</CardDescription
       >
