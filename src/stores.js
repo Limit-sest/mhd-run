@@ -9,6 +9,9 @@ export const useAllCardsStore = defineStore('allCards', {
     setCards(cards) {
       this.cards = cards;
     },
+    getCardDetails(cardId) {
+      return this.cards.find((card) => card.id === cardId);
+    },
   },
 });
 
@@ -143,6 +146,17 @@ export const useDoublePowerupStore = defineStore('doublePowerup', {
   actions: {
     toggle() {
       this.isActive ? (this.isActive = false) : (this.isActive = true);
+    },
+  },
+});
+
+export const useCardPullTimeStore = defineStore('cardPullTime', {
+  state: () => ({
+    cards: getFromLocalStorage('cardPullTime_cards') || [],
+  }),
+  actions: {
+    setCards(cards) {
+      this.cards = cards;
     },
   },
 });

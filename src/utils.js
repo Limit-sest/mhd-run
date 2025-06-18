@@ -120,7 +120,7 @@ const rewardCard = (cardId) => {
   const player = usePlayerStore();
   const doublePowerup = useDoublePowerupStore();
 
-  const cardDetails = allCards.cards.find((card) => card.id === cardId);
+  const cardDetails = allCards.getCardDetails(cardId);
   if (doublePowerup.isActive) {
     player.addCoins(cardDetails.rewardCoins * 2);
     player.addPowerup(cardDetails.rewardPowerUp * 2);
