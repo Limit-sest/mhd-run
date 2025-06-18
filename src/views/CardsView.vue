@@ -27,7 +27,7 @@
   });
 </script>
 <template>
-  <div class="bg-white text-black p-4 w-screen flex flex-col">
+  <div class="bg-white text-black p-4 pb-0 w-screen flex flex-col">
     <div class="w-full h-full flex-1 overflow-y-auto">
       <div class="space-y-8">
         <!-- Hand Zone -->
@@ -44,7 +44,7 @@
       </div>
     </div>
 
-    <div class="bg-white flex gap-2 z-10">
+    <div class="bg-white flex gap-2 z-10 py-2">
       <Button
         @click="doublePowerup.toggle()"
         :variant="doublePowerup.isActive ? '' : 'outline'"

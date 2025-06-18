@@ -10,7 +10,7 @@
   import { Button } from '@/components/ui/button';
   import { completeCard } from '@/utils';
 
-  const props = defineProps({
+  defineProps({
     card: {
       type: Object,
       required: true,
