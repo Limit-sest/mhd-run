@@ -115,37 +115,46 @@ export const fetchAllData = async () => {
   }
 };
 
+const rewardCard = (cardId) => {
+  const allCards = useAllCardsStore();
+  const player = usePlayerStore();
+  const doublePowerup = useDoublePowerupStore();
+
+  const cardDetails = allCards.cards.find((card) => card.id === cardId);
+  if (doublePowerup.isActive) {
+    player.addCoins(cardDetails.rewardCoins * 2);
+    player.addPowerup(cardDetails.rewardPowerUp * 2);
+    doublePowerup.toggle();
+  } else {
+    player.addCoins(cardDetails.rewardCoins);
+    player.addPowerup(cardDetails.rewardPowerUp);
+  }
+};
+
 export const drawCard = () => {
   const shuffledCards = storeToRefs(useShuffeledCardsStore());
   const handCards = storeToRefs(useHandCardsStore());
+  const allCards = useAllCardsStore();
 
   const cardIdToDraw = shuffledCards.cards.value.shift(); // Removes from top (start of array)
   handCards.cards.value.push(cardIdToDraw);
+
+  const card = allCards.cards.find((card) => card.id === cardIdToDraw);
+  if (card.type === 'Prokletí') {
+    rewardCard(cardIdToDraw);
+  }
 };
 
 export const completeCard = (cardId, reward = true) => {
   const handCards = storeToRefs(useHandCardsStore());
   const completedCards = storeToRefs(useCompletedCardsStore());
-  const allCards = useAllCardsStore();
-  const player = usePlayerStore();
-  const doublePowerup = useDoublePowerupStore();
 
   const cardIndexInHand = handCards.cards.value.indexOf(cardId);
   if (cardIndexInHand > -1) {
     const [cardToCompleteId] = handCards.cards.value.splice(cardIndexInHand, 1);
     completedCards.cards.value.push(cardToCompleteId);
-    const cardDetails = allCards.cards.find(
-      (card) => card.id === cardToCompleteId
-    );
     if (reward) {
-      if (doublePowerup.isActive) {
-        player.addCoins(cardDetails.rewardCoins * 2);
-        player.addPowerup(cardDetails.rewardPowerUp * 2);
-        doublePowerup.toggle();
-      } else {
-        player.addCoins(cardDetails.rewardCoins);
-        player.addPowerup(cardDetails.rewardPowerUp);
-      }
+      rewardCard(cardToCompleteId);
     }
   }
 };

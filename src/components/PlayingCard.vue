@@ -6,12 +6,9 @@
     CardHeader,
     CardTitle,
   } from '@/components/ui/card';
-  import { defineProps, onMounted } from 'vue';
+  import { defineProps } from 'vue';
   import { Button } from '@/components/ui/button';
   import { completeCard } from '@/utils';
-  import { usePlayerStore } from '@/stores';
-
-  const player = usePlayerStore();
 
   const props = defineProps({
     card: {
@@ -23,13 +20,6 @@
       default: false,
     },
   });
-  // ISSUE: Duplicates on reload
-  // onMounted(() => {
-  //   if (props.card.type === 'Prokletí' {
-  //     player.addCoins(props.card.rewardCoins);
-  //     player.addPowerup(props.card.rewardPowerUp);
-  //   }
-  // });
 </script>
 
 <template>
@@ -52,7 +42,7 @@
         >Veto</Button
       >
       <Button
-        @click="completeCard(card.id, true)"
+        @click="completeCard(card.id, card.type === 'Úkol')"
         variant="secondary"
         :disabled="disabled"
         class="flex-1"
