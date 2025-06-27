@@ -6,7 +6,7 @@ import App from './App.vue';
 import router from './router';
 import { registerSW } from 'virtual:pwa-register';
 
-const updateSW = registerSW({
+registerSW({
   onNeedRefresh() {
     // optional: show a "Refresh" button
     console.log('New content available, refresh to update.');

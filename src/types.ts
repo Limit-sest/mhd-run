@@ -2,9 +2,9 @@ export interface Card {
   id: string;
   title: string;
   description: string;
-  rewardCoins: number;
-  rewardPowerup: number;
-  type: 'challenge' | 'curse';
+  rewardCoins: string;
+  rewardPowerUp: string;
+  type: 'Úkol' | 'Prokletí';
   timestamp?: Date;
 }
 
@@ -14,5 +14,16 @@ export interface ShopItem {
   price: number;
   type: 'transit' | 'powerup';
   icon: string;
+  function?: string;
+}
+
+export interface CSVRow {
+  title?: string;
+  description?: string;
+  rewardCoins?: string;
+  rewardPowerUp?: string;
+  type?: string;
+  price?: string;
+  icon?: string;
   function?: string;
 }

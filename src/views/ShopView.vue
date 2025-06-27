@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
   import { Button } from '@/components/ui/button';
   import { Input } from '@/components/ui/input';
   import { usePlayerStore, useShopStore } from '@/stores';
@@ -9,18 +9,20 @@
   const shop = storeToRefs(shopStore);
   const player = usePlayerStore();
 
-  const handleShopItemCountChange = (itemIndex, event) => {
-    const newCount = parseInt(event.target.value, 10);
+  const handleShopItemCountChange = (itemIndex: number, event: Event) => {
+    const target = event.target as HTMLInputElement;
+    const newCount = parseInt(target.value, 10);
     if (!isNaN(newCount) && newCount >= 0) {
       shop.shoppingCart.value.transit[itemIndex] = newCount;
     }
   };
-  const handlePay = () => {
+
+  const handlePay = (): void => {
     player.removeCoins(shopStore.totalCoins);
     shopStore.initializeTransitCart();
   };
 
-  const getShopItemCount = (itemIndex) => {
+  const getShopItemCount = (itemIndex: number) => {
     return computed(() => shop.shoppingCart.value.transit[itemIndex] || 0);
   };
 
@@ -36,7 +38,7 @@
       :key="index"
     >
       <div class="flex flex-col">
-        <span>{{ item.name }}</span>
+        <span>{{ item.title }}</span>
         <span class="text-sm text-gray-500" v-if="item.price"
           >Cena: {{ item.price }} 🪙
         </span>

@@ -1,3 +1,4 @@
+import type { Card, CSVRow, ShopItem } from './types';
 import {
   useAllCardsStore,
   useShuffeledCardsStore,
@@ -10,15 +11,15 @@ import {
 import Papa from 'papaparse';
 import { storeToRefs } from 'pinia';
 
-export const generateUniqueId = () =>
+export const generateUniqueId = (): string =>
   `card_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
 
-export const getCardDetails = (cardId) => {
+export const getCardDetails = (cardId: string): Card | undefined => {
   const allCards = useAllCardsStore();
-  return allCards.cards.find((card) => card.id === cardId);
+  return allCards.cards.find((card: Card) => card.id === cardId);
 };
 
-export const fetchCSV = async (csvUrl) => {
+export const fetchCSV = async (csvUrl: string): Promise<CSVRow[]> => {
   if (!csvUrl) {
     throw new Error('Chyba: URL pro CSV data nebyla poskytnuta.');
   }
@@ -30,14 +31,13 @@ export const fetchCSV = async (csvUrl) => {
     );
   }
   const csvText = await response.text();
-  // Use header: true to get an array of objects
-  const parseResult = Papa.parse(csvText, {
+
+  const parseResult = Papa.parse<CSVRow>(csvText, {
     header: true,
     skipEmptyLines: true,
   });
 
   if (parseResult.errors.length > 0) {
-    // parseResult.errors might contain more detailed error objects
     const errorMessages = parseResult.errors
       .map((e) => `Error: ${e.message} (řádek: ${e.row})`)
       .join('; ');
@@ -50,12 +50,28 @@ export const fetchCSV = async (csvUrl) => {
     );
   }
 
-  return parseResult.data; // Returns an array of objects
+  return parseResult.data;
 };
 
-export const proccessCards = (dataRows, allCardsStore, shuffeledCardsStore) => {
+const convertCSVToShopItems = (csvData: CSVRow[]): ShopItem[] => {
+  return csvData.map(
+    (row): ShopItem => ({
+      title: row.title || '',
+      description: row.description,
+      price: parseInt(row.price || '0'),
+      type: row.type === 'powerup' ? 'powerup' : 'transit',
+      icon: row.icon || '',
+      function: row.function,
+    })
+  );
+};
+
+export const proccessCards = (
+  dataRows: CSVRow[],
+  allCardsStore: ReturnType<typeof useAllCardsStore>,
+  shuffeledCardsStore: ReturnType<typeof useShuffeledCardsStore>
+): void => {
   if (!dataRows || dataRows.length <= 1) {
-    // Needs at least a header and one data row
     throw new Error(
       'CSV data neobsahuje žádné datové řádky (pouze hlavičku nebo je prázdné).'
     );
@@ -64,18 +80,25 @@ export const proccessCards = (dataRows, allCardsStore, shuffeledCardsStore) => {
   if (dataRows.length === 0) {
     throw new Error('CSV neobsahuje žádné datové řádky');
   }
-  const parsedCards = dataRows
-    .map((row) => {
+
+  const parsedCards: Card[] = dataRows
+    .map((row): Card | null => {
+      const title = row['title']?.trim();
+      const description = row['description']?.trim();
+      const rewardCoins = String(row['rewardCoins'])?.trim();
+      const rewardPowerUp = String(row['rewardPowerUp'])?.trim();
+      const type = String(row['type'])?.trim();
+
       return {
         id: generateUniqueId(),
-        title: row['title']?.trim() || 'Neznámý titul',
-        description: row['description']?.trim() || 'Žádný popis',
-        rewardCoins: String(row['rewardCoins'])?.trim() || '0',
-        rewardPowerUp: String(row['rewardPowerUp'])?.trim() || '0',
-        type: String(row['type'])?.trim() === 'Prokletí' ? 'Prokletí' : 'Úkol',
+        title: title || 'Neznámý titul',
+        description: description || 'Žádný popis',
+        rewardCoins: rewardCoins || '0',
+        rewardPowerUp: rewardPowerUp || '0',
+        type: type === 'Prokletí' ? 'Prokletí' : 'Úkol',
       };
     })
-    .filter((card) => card !== null);
+    .filter((card): card is Card => card !== null);
 
   if (parsedCards.length === 0) {
     throw new Error(
@@ -84,29 +107,31 @@ export const proccessCards = (dataRows, allCardsStore, shuffeledCardsStore) => {
   }
 
   allCardsStore.setCards(parsedCards);
-  shuffeledCardsStore.shuffleCards(); // Relies on allCardsStore being updated
+  shuffeledCardsStore.shuffleCards();
 };
 
-export const fetchAllData = async () => {
-  const cardCsv = import.meta.env.VITE_CARD_CSV_URL;
-  const transitCsv = import.meta.env.VITE_SHOP_TRANSIT_CSV_URL;
-  const powerupCsv = import.meta.env.VITE_SHOP_POWERUP_CSV_URL;
+export const fetchAllData = async (): Promise<void> => {
+  const cardCsv = import.meta.env.VITE_CARD_CSV_URL as string;
+  const transitCsv = import.meta.env.VITE_SHOP_TRANSIT_CSV_URL as string;
+  const powerupCsv = import.meta.env.VITE_SHOP_POWERUP_CSV_URL as string;
 
   const shuffledCardsIds = useShuffeledCardsStore();
   const allCards = useAllCardsStore();
   const shop = useShopStore();
+
   try {
     const cardDataRows = await fetchCSV(cardCsv);
     const transit = await fetchCSV(transitCsv);
     const powerup = await fetchCSV(powerupCsv);
 
-    shop.setTransit(transit);
-    shop.setPowerups(powerup);
+    shop.setTransit(convertCSVToShopItems(transit));
+    shop.setPowerups(convertCSVToShopItems(powerup));
     proccessCards(cardDataRows, allCards, shuffledCardsIds);
   } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
     console.error(
       'Chyba při načítání nebo zpracování karet z CSV:',
-      err.message
+      errorMessage
     );
     // Reset stores in case of an error
     shop.setTransit([]);
@@ -115,39 +140,45 @@ export const fetchAllData = async () => {
   }
 };
 
-const rewardCard = (cardId) => {
+const rewardCard = (cardId: string): void => {
   const allCards = useAllCardsStore();
   const player = usePlayerStore();
   const doublePowerup = useDoublePowerupStore();
 
   const cardDetails = allCards.getCardDetails(cardId);
+  if (!cardDetails) return;
+
+  const coinsReward = parseInt(cardDetails.rewardCoins);
+  const powerupReward = parseInt(cardDetails.rewardPowerUp);
+
   if (doublePowerup.isActive) {
-    player.addCoins(parseInt(cardDetails.rewardCoins * 2));
-    player.addPowerup(parseInt(cardDetails.rewardPowerUp * 2));
+    player.addCoins(coinsReward * 2);
+    player.addPowerup(powerupReward * 2);
     doublePowerup.toggle();
   } else {
-    player.addCoins(parseInt(cardDetails.rewardCoins));
-    player.addPowerup(parseInt(cardDetails.rewardPowerUp));
+    player.addCoins(coinsReward);
+    player.addPowerup(powerupReward);
   }
 };
 
-export const drawCard = () => {
+export const drawCard = (): void => {
   const shuffledCards = storeToRefs(useShuffeledCardsStore());
   const handCards = storeToRefs(useHandCardsStore());
   const allCards = useAllCardsStore();
 
-  const cardIdToDraw = shuffledCards.cards.value.shift(); // Removes from top (start of array)
-  handCards.cards.value.unshift(cardIdToDraw);
+  const cardIdToDraw = shuffledCards.cards.value.shift();
+  if (!cardIdToDraw) return;
 
+  handCards.cards.value.unshift(cardIdToDraw);
   allCards.addTimestamp(cardIdToDraw);
 
-  const card = allCards.cards.find((card) => card.id === cardIdToDraw);
-  if (card.type === 'Prokletí') {
+  const card = allCards.cards.find((card: Card) => card.id === cardIdToDraw);
+  if (card?.type === 'Prokletí') {
     rewardCard(cardIdToDraw);
   }
 };
 
-export const completeCard = (cardId, reward = true) => {
+export const completeCard = (cardId: string, reward: boolean = true): void => {
   const handCards = storeToRefs(useHandCardsStore());
   const completedCards = storeToRefs(useCompletedCardsStore());
 
@@ -161,13 +192,12 @@ export const completeCard = (cardId, reward = true) => {
   }
 };
 
-export const getFromLocalStorage = (key) => {
+export const getFromLocalStorage = <T = unknown>(key: string): T | null => {
   const item = localStorage.getItem(key);
   try {
     const parsed = item ? JSON.parse(item) : null;
 
-    // Recursively convert ISO date strings to Date objects
-    const reviveDates = (obj) => {
+    const reviveDates = (obj: unknown): unknown => {
       if (
         typeof obj === 'string' &&
         /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/.test(obj)
@@ -183,14 +213,14 @@ export const getFromLocalStorage = (key) => {
       return obj;
     };
 
-    return reviveDates(parsed);
+    return reviveDates(parsed) as T;
   } catch (e) {
     console.error(`Error parsing localStorage item ${key}:`, e);
     return null;
   }
 };
 
-export const saveToLocalStorage = (key, value) => {
+export const saveToLocalStorage = (key: string, value: unknown): void => {
   try {
     localStorage.setItem(key, JSON.stringify(value));
   } catch (e) {

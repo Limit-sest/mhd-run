@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
   import { computed } from 'vue';
   import {
     useShuffeledCardsStore,
@@ -10,6 +10,7 @@
   import { getCardDetails, drawCard } from '@/utils';
   import { Button } from '@/components/ui/button';
   import { BadgeDollarSign } from 'lucide-vue-next';
+  import type { Card } from '@/types';
 
   const shuffledCardsIds = useShuffeledCardsStore();
   const completedCardsIds = useCompletedCardsStore();
@@ -17,13 +18,17 @@
   const doublePowerup = useDoublePowerupStore();
 
   const handCards = computed(() =>
-    handCardsIds.cards.map(getCardDetails).filter(Boolean)
+    handCardsIds.cards
+      .map(getCardDetails)
+      .filter((card): card is Card => Boolean(card))
   );
   const completedCards = computed(() =>
-    completedCardsIds.cards.map(getCardDetails).filter(Boolean)
+    completedCardsIds.cards
+      .map(getCardDetails)
+      .filter((card): card is Card => Boolean(card))
   );
   const hasTaskCardInHand = computed(() => {
-    return handCards.value.some((card) => card.type === 'Úkol');
+    return handCards.value.some((card: Card) => card.type === 'Úkol');
   });
 </script>
 <template>

@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
   import { BookCopy, Store, Settings } from 'lucide-vue-next';
   import { Button } from '@/components/ui/button';
   import { useRoute } from 'vue-router';

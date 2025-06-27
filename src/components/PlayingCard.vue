@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
   import {
     Card,
     CardDescription,
@@ -6,22 +6,18 @@
     CardHeader,
     CardTitle,
   } from '@/components/ui/card';
-  import { defineProps } from 'vue';
   import { Button } from '@/components/ui/button';
   import { completeCard } from '@/utils';
+  import type { Card as CardType } from '@/types';
 
-  defineProps({
-    card: {
-      type: Object,
-      required: true,
-    },
-    disabled: {
-      type: Boolean,
-      default: false,
-    },
-  });
+  interface Props {
+    card: CardType;
+    disabled?: boolean;
+  }
 
-  const formatTimestamp = (timestamp) => {
+  defineProps<Props>();
+
+  const formatTimestamp = (timestamp?: Date): string => {
     if (!timestamp) return 'Neznámé datum';
     const date = new Date(timestamp);
     return new Intl.DateTimeFormat('cs-CZ', {

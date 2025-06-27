@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
   import { ref } from 'vue';
   import { fetchAllData } from '@/utils';
   import { useShuffeledCardsStore, usePlayerStore } from '@/stores';
@@ -12,12 +12,12 @@
   const coinsInput = ref(playerStore.coins);
   const powerupInput = ref(playerStore.powerup);
 
-  const handleSetCoins = () => {
-    playerStore.setCoins(parseInt(coinsInput.value, 10) || 0);
+  const handleSetCoins = (): void => {
+    playerStore.setCoins(parseInt(coinsInput.value.toString(), 10) || 0);
   };
 
-  const handleSetPowerup = () => {
-    playerStore.setPowerup(parseInt(powerupInput.value, 10) || 0);
+  const handleSetPowerup = (): void => {
+    playerStore.setPowerup(parseInt(powerupInput.value.toString(), 10) || 0);
   };
 </script>
 <template>

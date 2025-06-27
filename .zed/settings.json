@@ -1,0 +1,87 @@
+{
+  "languages": {
+    "TypeScript": {
+      "language_servers": ["typescript-language-server", "volar"],
+      "formatter": "prettier"
+    },
+    "Vue": {
+      "language_servers": ["volar"],
+      "formatter": "prettier"
+    },
+    "JavaScript": {
+      "language_servers": ["typescript-language-server"],
+      "formatter": "prettier"
+    }
+  },
+  "lsp": {
+    "typescript-language-server": {
+      "settings": {
+        "preferences": {
+          "includeInlayParameterNameHints": "all",
+          "includeInlayParameterNameHintsWhenArgumentMatchesName": true,
+          "includeInlayFunctionParameterTypeHints": true,
+          "includeInlayVariableTypeHints": true,
+          "includeInlayPropertyDeclarationTypeHints": true,
+          "includeInlayFunctionLikeReturnTypeHints": true,
+          "includeInlayEnumMemberValueHints": true
+        },
+        "suggest": {
+          "includeCompletionsForModuleExports": true,
+          "includeAutomaticOptionalChainCompletions": true
+        }
+      }
+    },
+    "volar": {
+      "settings": {
+        "vue": {
+          "complete": {
+            "casing": {
+              "tags": "kebab",
+              "props": "camel"
+            }
+          }
+        },
+        "typescript": {
+          "preferences": {
+            "includeInlayParameterNameHints": "all",
+            "includeInlayFunctionParameterTypeHints": true,
+            "includeInlayVariableTypeHints": true
+          }
+        }
+      }
+    }
+  },
+  "formatter": "prettier",
+  "format_on_save": "on",
+  "tab_size": 2,
+  "soft_wrap": "editor_width",
+  "wrap_guides": [80, 100],
+  "show_inline_completions": true,
+  "inlay_hints": {
+    "enabled": true,
+    "show_type_hints": true,
+    "show_parameter_hints": true,
+    "show_other_hints": true
+  },
+  "auto_save": "on_focus_change",
+  "file_types": {
+    "Vue": ["vue"],
+    "TypeScript": ["ts", "tsx"],
+    "JavaScript": ["js", "jsx", "mjs", "cjs"]
+  },
+  "code_actions_on_format": {
+    "source.fixAll.eslint": true,
+    "source.organizeImports": true
+  },
+  "prettier": {
+    "singleQuote": true,
+    "semi": true,
+    "trailingComma": "es5",
+    "tabWidth": 2,
+    "useTabs": false,
+    "bracketSpacing": true,
+    "arrowParens": "always",
+    "vueIndentScriptAndStyle": true,
+    "printWidth": 80
+  }
+}

@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
   import { usePlayerStore } from '@/stores';
 
   const playerStore = usePlayerStore();

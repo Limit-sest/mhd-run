@@ -1,6 +1,13 @@
 import { defineStore } from 'pinia';
+import type { Pinia } from 'pinia';
 import { getFromLocalStorage, saveToLocalStorage } from './utils';
 import type { Card, ShopItem } from './types';
+
+interface ShoppingCart {
+  transit: Record<number, number>;
+  powerup: Record<number, number>;
+  totalPowerups: number;
+}
 
 export const useAllCardsStore = defineStore('allCards', {
   state: () => ({
@@ -10,13 +17,13 @@ export const useAllCardsStore = defineStore('allCards', {
     setCards(cards: Card[]) {
       this.cards = cards;
     },
-    getCardDetails(cardId: string) {
-      return this.cards.find((card) => card.id === cardId);
+    getCardDetails(cardId: string): Card | undefined {
+      return this.cards.find((card: Card) => card.id === cardId);
     },
     addTimestamp(cardId: string) {
       const card = this.getCardDetails(cardId);
       if (card) {
-        card.timestamp = Date.now();
+        card.timestamp = new Date();
       }
     },
   },
@@ -108,14 +115,14 @@ export const useShopStore = defineStore('shop', {
       transit: {},
       powerup: {},
       totalPowerups: 0,
-    },
+    } as ShoppingCart,
   }),
   getters: {
     totalCoins: (state) => {
       let sum = 0;
       for (const itemIndex in state.shoppingCart.transit) {
-        const quantity = state.shoppingCart.transit[itemIndex];
-        const price = parseInt(state.transit[itemIndex].price);
+        const quantity = state.shoppingCart.transit[parseInt(itemIndex)];
+        const price = state.transit[parseInt(itemIndex)]?.price || 0;
         sum += quantity * price;
       }
       return sum;
@@ -129,7 +136,7 @@ export const useShopStore = defineStore('shop', {
       this.powerups = value;
     },
     initializeTransitCart() {
-      this.transit.forEach((_, index) => {
+      this.transit.forEach((_: ShopItem, index: number) => {
         this.shoppingCart.transit[index] = 0;
       });
     },
@@ -158,7 +165,7 @@ export const useDoublePowerupStore = defineStore('doublePowerup', {
 });
 
 // Function to setup persistence for all stores
-export function setupStorePersistence(piniaInstance) {
+export function setupStorePersistence(piniaInstance: Pinia): void {
   const storesToPersist = [
     { store: useAllCardsStore(piniaInstance), keyPrefix: 'allCards' },
     { store: useHandCardsStore(piniaInstance), keyPrefix: 'handCards' },
@@ -178,7 +185,7 @@ export function setupStorePersistence(piniaInstance) {
     // Initial load is handled by the state definition itself
 
     // Subscribe to changes for saving
-    store.$subscribe((mutation, state) => {
+    store.$subscribe((_mutation, state: any) => {
       // 'mutation' provides details about the change, 'state' is the new state
       // We can save the entire state or specific parts
       // For simplicity, saving specific known properties:

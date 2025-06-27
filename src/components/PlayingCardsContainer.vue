@@ -1,19 +1,14 @@
-<script setup>
-  import { defineProps } from 'vue';
+<script setup lang="ts">
   import PlayingCard from '@/components/PlayingCard.vue';
+  import type { Card } from '@/types';
 
-  defineProps({
-    cards: {
-      type: Array,
-      required: true,
-    },
-    title: {
-      type: String,
-    },
-    cardsDisabled: {
-      type: Boolean,
-    },
-  });
+  interface Props {
+    cards: Card[];
+    title?: string;
+    cardsDisabled?: boolean;
+  }
+
+  defineProps<Props>();
 </script>
 
 <template>
