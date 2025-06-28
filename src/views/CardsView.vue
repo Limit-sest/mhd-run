@@ -48,11 +48,10 @@
         />
       </div>
     </div>
-
-    <div class="bg-white flex gap-2 z-10 py-2">
+    <div class="bg-white flex gap-2 z-10 py-4">
       <Button
         @click="doublePowerup.toggle()"
-        :variant="doublePowerup.isActive ? '' : 'outline'"
+        :variant="doublePowerup.isActive ? null : 'outline'"
         class="aspect-square"
         disabled
         ><BadgeDollarSign

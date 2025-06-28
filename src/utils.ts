@@ -7,9 +7,12 @@ import {
   usePlayerStore,
   useShopStore,
   useDoublePowerupStore,
+  useLocationsStore
 } from './stores';
 import Papa from 'papaparse';
 import { storeToRefs } from 'pinia';
+import OpenLocationCode from 'open-location-code-typescript';
+import type { Location } from './types';
 
 export const generateUniqueId = (): string =>
   `card_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
@@ -66,7 +69,7 @@ const convertCSVToShopItems = (csvData: CSVRow[]): ShopItem[] => {
   );
 };
 
-export const proccessCards = (
+const proccessCards = (
   dataRows: CSVRow[],
   allCardsStore: ReturnType<typeof useAllCardsStore>,
   shuffeledCardsStore: ReturnType<typeof useShuffeledCardsStore>
@@ -110,23 +113,55 @@ export const proccessCards = (
   shuffeledCardsStore.shuffleCards();
 };
 
+const proccessLocations = (
+  dataRows: CSVRow[],
+): Location[] => {
+  const locations = dataRows.map((row) => {
+    const referenceLat: number = 50.0755; // Prague latitude
+    const referenceLng: number = 14.4378; // Prague longitude
+    const shortCode = row.plusCode.split(' ')[0]
+    const fullCode: string = OpenLocationCode.recoverNearest(
+      shortCode as string,
+      referenceLat,
+      referenceLng
+    );
+    const decoded = OpenLocationCode.decode(fullCode);
+
+    const latitude = decoded.latitudeCenter;
+    const longitude = decoded.longitudeCenter;
+
+    return {
+      title: row.title,
+      description: row.description,
+      url: row.url,
+      latitude,
+      longitude,
+    };
+  })
+  return locations;
+}
+
 export const fetchAllData = async (): Promise<void> => {
   const cardCsv = import.meta.env.VITE_CARD_CSV_URL as string;
   const transitCsv = import.meta.env.VITE_SHOP_TRANSIT_CSV_URL as string;
   const powerupCsv = import.meta.env.VITE_SHOP_POWERUP_CSV_URL as string;
+  const locationCsv = import.meta.env.VITE_LOCATION_CSV_URL as string;
 
   const shuffledCardsIds = useShuffeledCardsStore();
   const allCards = useAllCardsStore();
   const shop = useShopStore();
+  const locationStore = useLocationsStore()
 
   try {
     const cardDataRows = await fetchCSV(cardCsv);
     const transit = await fetchCSV(transitCsv);
     const powerup = await fetchCSV(powerupCsv);
+    const locations = await fetchCSV(locationCsv);
 
     shop.setTransit(convertCSVToShopItems(transit));
     shop.setPowerups(convertCSVToShopItems(powerup));
     proccessCards(cardDataRows, allCards, shuffledCardsIds);
+    locationStore.setAllLocations(proccessLocations(locations))
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : 'Unknown error';
     console.error(
@@ -227,3 +262,41 @@ export const saveToLocalStorage = (key: string, value: unknown): void => {
     console.error(`Error saving to localStorage item ${key}:`, e);
   }
 };
+
+function toRadians(degrees: number): number {
+  return degrees * (Math.PI / 180);
+}
+
+export function getDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371; // Earth's radius in kilometers
+
+  const dLat = toRadians(lat2 - lat1);
+  const dLon = toRadians(lon2 - lon1);
+
+  const a = Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
+    Math.sin(dLon / 2) ** 2;
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return R * c; // Distance in kilometers
+}
+
+export function getCurrentLocation(): Promise<GeolocationPosition> {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject(new Error("Geolocation not supported"));
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position: GeolocationPosition) => resolve(position),
+      (error: GeolocationPositionError) => reject(error),
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
+  });
+}

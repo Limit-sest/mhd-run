@@ -26,4 +26,14 @@ export interface CSVRow {
   price?: string;
   icon?: string;
   function?: string;
+  plusCode?: string;
+  url?: string;
+}
+
+export interface Location {
+  title: string,
+  description?: string,
+  latitude: number,
+  longitude: number,
+  url: string
 }

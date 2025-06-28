@@ -1,7 +1,7 @@
 <script setup lang="ts">
-  import { BookCopy, Store, Settings } from 'lucide-vue-next';
   import { Button } from '@/components/ui/button';
-  import { useRoute } from 'vue-router';
+import { BookCopy, MapPin, Settings, Store } from 'lucide-vue-next';
+import { useRoute } from 'vue-router';
 
   const route = useRoute();
 </script>
@@ -27,6 +27,16 @@
           :variant="route.path === '/shop' ? 'secondary' : 'ghost'"
         >
           <Store class="text-gray-800" />
+        </Button>
+      </div>
+    </RouterLink>
+    <RouterLink to="/location" class="flex-1 flex">
+      <div class="w-full flex items-center justify-center">
+        <Button
+          size="icon"
+          :variant="route.path === '/location' ? 'secondary' : 'ghost'"
+        >
+          <MapPin class="text-gray-800" />
         </Button>
       </div>
     </RouterLink>

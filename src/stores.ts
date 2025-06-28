@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import type { Pinia } from 'pinia';
-import { getFromLocalStorage, saveToLocalStorage } from './utils';
-import type { Card, ShopItem } from './types';
+import { getFromLocalStorage, saveToLocalStorage, getDistance } from './utils';
+import type { Card, ShopItem, Location } from './types';
 
 interface ShoppingCart {
   transit: Record<number, number>;
@@ -164,6 +164,69 @@ export const useDoublePowerupStore = defineStore('doublePowerup', {
   },
 });
 
+export const useLocationsStore = defineStore('locations', {
+  state: () => ({
+    currentLocation: undefined as Location | undefined,
+    radiusSetting: getFromLocalStorage('location_radiusSetting') as { min: number, max: number } || { min: 4.5, max: 6 } as { min: number, max: number },
+    allLocations: getFromLocalStorage('location_allLocations') || [] as Location[],
+    latestGps: undefined as GeolocationPosition | undefined,
+  }),
+  actions: {
+    drawLocation(gpsLat: number, gpsLon: number) {
+      const validLocations: Location[] = this.allLocations.filter((location: Location) => {
+        const distance = getDistance(gpsLat, gpsLon, location.latitude, location.longitude);
+        return distance >= this.radiusSetting.min && distance <= this.radiusSetting.max;
+      });
+
+      if (validLocations.length > 0) {
+        // If we found locations within the radius, pick one randomly
+        this.currentLocation = validLocations[Math.floor(Math.random() * validLocations.length)];
+      } else {
+        // Fallback: find the location closest to the radius boundaries
+        if (this.allLocations.length > 0) {
+          let bestLocation = this.allLocations[0];
+          let bestDistance = getDistance(gpsLat, gpsLon, bestLocation.latitude, bestLocation.longitude);
+          let bestDistanceFromBoundary = Math.min(
+            Math.abs(bestDistance - this.radiusSetting.min),
+            Math.abs(bestDistance - this.radiusSetting.max)
+          );
+
+          for (const location of this.allLocations) {
+            const distance = getDistance(gpsLat, gpsLon, location.latitude, location.longitude);
+
+            const distanceFromMinBoundary = Math.abs(distance - this.radiusSetting.min);
+            const distanceFromMaxBoundary = Math.abs(distance - this.radiusSetting.max);
+            const distanceFromBoundary = Math.min(distanceFromMinBoundary, distanceFromMaxBoundary);
+
+            if (distanceFromBoundary < bestDistanceFromBoundary) {
+              bestDistanceFromBoundary = distanceFromBoundary;
+              bestLocation = location;
+            }
+          }
+
+          this.currentLocation = bestLocation;
+        } else {
+          this.currentLocation = undefined;
+        }
+      }
+    },
+    setAllLocations(locations: Location[]) {
+      this.allLocations = locations;
+      saveToLocalStorage('location_allLocations', locations);
+    },
+    resetLocation() {
+      this.currentLocation = undefined;
+    },
+    setRadiusSetting(min: number, max: number) {
+      this.radiusSetting = { min, max };
+      saveToLocalStorage('location_radiusSetting', this.radiusSetting);
+    },
+    setLatestGps(gps: GeolocationPosition) {
+      this.latestGps = gps;
+    },
+  },
+});
+
 // Function to setup persistence for all stores
 export function setupStorePersistence(piniaInstance: Pinia): void {
   const storesToPersist = [
@@ -179,6 +242,8 @@ export function setupStorePersistence(piniaInstance: Pinia): void {
     },
     { store: usePlayerStore(piniaInstance), keyPrefix: 'player' },
     { store: useShopStore(piniaInstance), keyPrefix: 'shop' },
+    { store: useLocationsStore(piniaInstance), keyPrefix: 'location' },
+
   ];
 
   storesToPersist.forEach(({ store, keyPrefix }) => {
@@ -203,6 +268,9 @@ export function setupStorePersistence(piniaInstance: Pinia): void {
       }
       if (state.powerups !== undefined) {
         saveToLocalStorage(`${keyPrefix}_powerups`, state.powerups);
+      }
+      if (state.currentLocation !== undefined) {
+        saveToLocalStorage(`${keyPrefix}_currentLocation`, state.currentLocation);
       }
     });
   });

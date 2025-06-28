@@ -20,7 +20,7 @@
     </h2>
     <div
       v-if="cards.length === 0"
-      class="text-slate-400 italic p-4 text-center"
+      class="text-slate-600 italic p-4 text-center"
     >
       Žádné karty
     </div>
