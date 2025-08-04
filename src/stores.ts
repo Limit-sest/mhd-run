@@ -5,7 +5,7 @@ import type { Card, ShopItem, Location } from './types';
 
 interface ShoppingCart {
   transit: Record<number, number>;
-  powerup: Record<number, number>;
+  powerup: Record<number, boolean>;
   totalPowerups: number;
 }
 
@@ -84,6 +84,7 @@ export const usePlayerStore = defineStore('player', {
   state: () => ({
     coins: getFromLocalStorage('player_coins') || 0,
     powerup: getFromLocalStorage('player_powerup') || 0,
+    ownedPowerups: getFromLocalStorage('player_ownedPowerups') || ([] as number[]),
   }),
   actions: {
     setCoins(coins: number) {
@@ -104,6 +105,14 @@ export const usePlayerStore = defineStore('player', {
     removePowerup(amount: number) {
       this.powerup = Math.max(0, this.powerup - amount);
     },
+    addOwnedPowerup(powerupIndex: number) {
+      if (!this.ownedPowerups.includes(powerupIndex)) {
+        this.ownedPowerups.push(powerupIndex);
+      }
+    },
+    hasOwnedPowerup(powerupIndex: number): boolean {
+      return this.ownedPowerups.includes(powerupIndex);
+    },
   },
 });
 
@@ -112,18 +121,31 @@ export const useShopStore = defineStore('shop', {
     transit: getFromLocalStorage('shop_transit') || ([] as ShopItem[]),
     powerups: getFromLocalStorage('shop_powerups') || ([] as ShopItem[]),
     shoppingCart: {
-      transit: {},
-      powerup: {},
+      transit: {} as Record<number, number>,
+      powerup: {} as Record<number, boolean>,
       totalPowerups: 0,
     } as ShoppingCart,
   }),
   getters: {
     totalCoins: (state) => {
       let sum = 0;
+      // Transit items (quantity-based)
       for (const itemIndex in state.shoppingCart.transit) {
         const quantity = state.shoppingCart.transit[parseInt(itemIndex)];
         const price = state.transit[parseInt(itemIndex)]?.price || 0;
         sum += quantity * price;
+      }
+      return sum;
+    },
+    totalPowerups: (state) => {
+      let sum = 0;
+      // Powerup items (boolean-based)
+      for (const itemIndex in state.shoppingCart.powerup) {
+        const isSelected = state.shoppingCart.powerup[parseInt(itemIndex)];
+        if (isSelected) {
+          const price = state.powerups[parseInt(itemIndex)]?.price || 0;
+          sum += price;
+        }
       }
       return sum;
     },
@@ -140,6 +162,11 @@ export const useShopStore = defineStore('shop', {
         this.shoppingCart.transit[index] = 0;
       });
     },
+    initializePowerupCart() {
+      this.powerups.forEach((_: ShopItem, index: number) => {
+        this.shoppingCart.powerup[index] = false;
+      });
+    },
     addShopItem(itemIndex: number) {
       const currentCount = this.shoppingCart.transit[itemIndex] || 0;
       this.shoppingCart.transit[itemIndex] = currentCount + 1;
@@ -150,6 +177,9 @@ export const useShopStore = defineStore('shop', {
         this.shoppingCart.transit[itemIndex] = currentCount - 1;
       }
     },
+    togglePowerupItem(itemIndex: number) {
+      this.shoppingCart.powerup[itemIndex] = !this.shoppingCart.powerup[itemIndex];
+    },
   },
 });
 
@@ -159,7 +189,7 @@ export const useDoublePowerupStore = defineStore('doublePowerup', {
   }),
   actions: {
     toggle() {
-      this.isActive ? (this.isActive = false) : (this.isActive = true);
+      this.isActive = !this.isActive;
     },
   },
 });
@@ -250,7 +280,7 @@ export function setupStorePersistence(piniaInstance: Pinia): void {
     // Initial load is handled by the state definition itself
 
     // Subscribe to changes for saving
-    store.$subscribe((_mutation, state: any) => {
+    store.$subscribe((_mutation, state: Record<string, any>) => {
       // 'mutation' provides details about the change, 'state' is the new state
       // We can save the entire state or specific parts
       // For simplicity, saving specific known properties:
@@ -268,6 +298,9 @@ export function setupStorePersistence(piniaInstance: Pinia): void {
       }
       if (state.powerups !== undefined) {
         saveToLocalStorage(`${keyPrefix}_powerups`, state.powerups);
+      }
+      if (state.ownedPowerups !== undefined) {
+        saveToLocalStorage(`${keyPrefix}_ownedPowerups`, state.ownedPowerups);
       }
       if (state.currentLocation !== undefined) {
         saveToLocalStorage(`${keyPrefix}_currentLocation`, state.currentLocation);
