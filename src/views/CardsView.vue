@@ -33,7 +33,7 @@
 </script>
 <template>
   <div class="bg-white text-black p-4 pb-0 w-screen flex flex-col">
-    <div class="w-full h-full flex-1 overflow-y-auto">
+    <div class="w-full h-full flex-1 overflow-y-scroll">
       <div class="space-y-8">
         <!-- Hand Zone -->
         <PlayingCardsContainer
@@ -48,21 +48,14 @@
         />
       </div>
     </div>
-    <div class="bg-white flex gap-2 z-10 py-4">
-      <Button
-        @click="doublePowerup.toggle()"
-        :variant="doublePowerup.isActive ? null : 'outline'"
-        class="aspect-square"
-        disabled
-        ><BadgeDollarSign
-      /></Button>
+    <div class="bg-white z-10 py-4">
       <Button
         @click="drawCard"
         :disabled="
           handCards.length + completedCards.length ===
             shuffledCardsIds.cards.length || hasTaskCardInHand
         "
-        class="tabular-nums flex-1"
+        class="tabular-nums w-full"
       >
         Líznout kartu
       </Button>

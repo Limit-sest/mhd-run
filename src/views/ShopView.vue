@@ -42,118 +42,119 @@
   });
 </script>
 <template>
-  <div class="flex flex-col gap-3 m-4 justify-start">
-    <!-- Transit Section -->
-    <div v-if="shop.transit.value.length > 0">
-      <h2 class="text-lg font-semibold mb-2">Doprava</h2>
-      <div
-        class="flex justify-between items-center gap-2 p-2 border-b"
-        v-for="(item, index) in shop.transit.value"
-        :key="`transit-${index}`"
-      >
-        <div class="flex flex-col">
-          <span>{{ item.title }}</span>
-          <span class="text-sm text-gray-500" v-if="item.price"
-            >{{ item.price }} 🪙/min
-          </span>
-        </div>
-        <div class="flex items-center gap-2">
-          <Button
-            @click="shopStore.removeShopItem(index)"
-            variant="outline"
-            :disabled="!getShopItemCount(index).value"
-            size="icon"
-          >
-            <Minus class="w-4 h-4" />
-          </Button>
-          <Input
-            type="number"
-            @input="handleShopItemCountChange(index, $event)"
-            v-model="shop.shoppingCart.value.transit[index]"
-            min="0"
-            class="w-16 tabular-nums"
-          />
-          <Button
-            @click="shopStore.addShopItem(index)"
-            variant="outline"
-            size="icon"
-          >
-            <Plus class="w-4 h-4" />
-          </Button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Powerups Section -->
-    <div v-if="shop.powerups.value.length > 0">
-      <h2 class="text-lg font-semibold mb-2">Vylepšení</h2>
-      <div
-        class="flex justify-between items-center gap-2 p-2 border-b"
-        v-for="(item, index) in shop.powerups.value"
-        :key="`powerup-${index}`"
-      >
-        <div class="flex flex-col gap-0.5">
-          <span>{{ item.title }}</span>
-          <p class="text-sm text-gray-700">{{ item.description }}</p>
-          <div class="flex gap-1">
+  <div class="flex flex-col gap-3 m-4 mb-0 justify-start relative">
+    <div class="w-full h-full flex-1 overflow-y-scroll">
+      <!-- Transit Section -->
+      <div v-if="shop.transit.value.length > 0">
+        <h2 class="text-lg font-semibold mb-2">Doprava</h2>
+        <div
+          class="flex justify-between items-center gap-2 p-2 border-b"
+          v-for="(item, index) in shop.transit.value"
+          :key="`transit-${index}`"
+        >
+          <div class="flex flex-col">
+            <span>{{ item.title }}</span>
             <span class="text-sm text-gray-500" v-if="item.price"
-              >{{ item.price }} ⚡
-            </span>
-            <span
-              class="text-sm text-gray-500"
-              v-if="player.hasOwnedPowerup(index) && item.price"
-            >
-              •
-            </span>
-            <span
-              class="text-sm text-gray-500"
-              v-if="player.hasOwnedPowerup(index)"
-            >
-              Vlastněno
+              >{{ item.price }} 🪙/min
             </span>
           </div>
+          <div class="flex items-center gap-2">
+            <Button
+              @click="shopStore.removeShopItem(index)"
+              variant="outline"
+              :disabled="!getShopItemCount(index).value"
+              size="icon"
+            >
+              <Minus class="w-4 h-4" />
+            </Button>
+            <Input
+              type="number"
+              @input="handleShopItemCountChange(index, $event)"
+              v-model="shop.shoppingCart.value.transit[index]"
+              min="0"
+              class="w-16 tabular-nums"
+            />
+            <Button
+              @click="shopStore.addShopItem(index)"
+              variant="outline"
+              size="icon"
+            >
+              <Plus class="w-4 h-4" />
+            </Button>
+          </div>
         </div>
-        <div class="flex items-center gap-2">
-          <Button
-            @click="shopStore.togglePowerupItem(index)"
-            :variant="
-              shop.shoppingCart.value.powerup[index] ? 'default' : 'outline'
-            "
-            :disabled="player.hasOwnedPowerup(index)"
-            size="icon"
-          >
-            <Check
-              v-if="shop.shoppingCart.value.powerup[index]"
-              class="w-4 h-4"
-            />
-            <CheckCheck
-              v-else-if="player.hasOwnedPowerup(index)"
-              class="w-4 h-4"
-            />
-            <Plus v-else class="w-4 h-4" />
-          </Button>
+      </div>
+
+      <!-- Powerups Section -->
+      <div v-if="shop.powerups.value.length > 0" class="mb-20">
+        <h2 class="text-lg font-semibold mb-2">Vylepšení</h2>
+        <div
+          class="flex justify-between items-center gap-2 p-2 border-b"
+          v-for="(item, index) in shop.powerups.value"
+          :key="`powerup-${index}`"
+        >
+          <div class="flex flex-col gap-0.5">
+            <span>{{ item.title }}</span>
+            <p class="text-sm text-gray-700">{{ item.description }}</p>
+            <div class="flex gap-1">
+              <span class="text-sm text-gray-500" v-if="item.price"
+                >{{ item.price }} ⚡
+              </span>
+              <span
+                class="text-sm text-gray-500"
+                v-if="player.hasOwnedPowerup(index) && item.price"
+              >
+                •
+              </span>
+              <span
+                class="text-sm text-gray-500"
+                v-if="player.hasOwnedPowerup(index)"
+              >
+                Aktivní
+              </span>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <Button
+              @click="shopStore.togglePowerupItem(index)"
+              :variant="
+                shop.shoppingCart.value.powerup[index] ? 'default' : 'outline'
+              "
+              :disabled="player.hasOwnedPowerup(index)"
+              size="icon"
+            >
+              <Check
+                v-if="shop.shoppingCart.value.powerup[index]"
+                class="w-4 h-4"
+              />
+              <CheckCheck
+                v-else-if="player.hasOwnedPowerup(index)"
+                class="w-4 h-4"
+              />
+              <Plus v-else class="w-4 h-4" />
+            </Button>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="mt-auto">
-      <Button
-        @click="handlePay"
-        :disabled="
-          shopStore.totalCoins > player.coins ||
-          (shopStore.totalCoins === 0 && shopStore.totalPowerups === 0) ||
-          shopStore.totalPowerups > player.powerup
-        "
-        class="tabular-nums w-full"
-      >
-        Zaplatit
-        {{ shopStore.totalCoins }}
-        🪙
-        {{ shopStore.totalPowerups }} ⚡
-      </Button>
+    <div class="py-4 z-10 absolute bottom-0 w-full">
+      <div class="bg-white">
+        <Button
+          @click="handlePay"
+          :disabled="
+            shopStore.totalCoins > player.coins ||
+            (shopStore.totalCoins === 0 && shopStore.totalPowerups === 0) ||
+            shopStore.totalPowerups > player.powerup
+          "
+          class="tabular-nums w-full"
+        >
+          Zaplatit
+          {{ shopStore.totalCoins }}
+          🪙
+          {{ shopStore.totalPowerups }} ⚡
+        </Button>
+      </div>
     </div>
-
-    <span>{{ player.ownedPowerups }}</span>
-    <span>{{ shop.powerups }}</span>
   </div>
 </template>
