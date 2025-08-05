@@ -10,6 +10,7 @@
   import { completeCard } from '@/utils';
   import type { Card as CardType } from '@/types';
   import { usePlayerStore } from '@/stores';
+  import Badge from '@/components/Badge.vue';
 
   const player = usePlayerStore();
 
@@ -39,26 +40,27 @@
       <CardDescription class="text-base">{{
         card.description
       }}</CardDescription>
-      <div
-        class="font-bold tabular-nums"
-        v-if="player.doublePowerupCard.includes(card.id)"
-      >
-        Odměna:
-        <span
-          class="line-through font-normal text-gray-600"
-          v-if="parseInt(card.rewardCoins) !== 0"
-          >{{ card.rewardCoins }}
-        </span>
-        {{ parseInt(card.rewardCoins) * 2 }} 🪙
-        <span
-          class="line-through font-normal text-gray-600"
-          v-if="parseInt(card.rewardPowerUp) !== 0"
-          >{{ card.rewardPowerUp }}
-        </span>
-        {{ parseInt(card.rewardPowerUp) * 2 }} ⚡️
-      </div>
-      <div class="font-bold tabular-nums" v-else>
-        Odměna: {{ card.rewardCoins }} 🪙 {{ card.rewardPowerUp }} ⚡️
+      <div class="flex gap-2">
+        <Badge
+          variant="coin"
+          v-if="
+            player.doublePowerupCard.includes(card.id) &&
+            parseInt(card.rewardCoins) !== 0
+          "
+          ><span class="opacity-40 line-through">{{ card.rewardCoins }}</span>
+          {{ parseInt(card.rewardCoins) * 2 }}</Badge
+        >
+        <Badge variant="coin" v-else>{{ card.rewardCoins }}</Badge>
+        <Badge
+          variant="gem"
+          v-if="
+            player.doublePowerupCard.includes(card.id) &&
+            parseInt(card.rewardPowerUp) !== 0
+          "
+          ><span class="opacity-40 line-through">{{ card.rewardPowerUp }}</span>
+          {{ parseInt(card.rewardPowerUp) * 2 }}</Badge
+        >
+        <Badge variant="gem" v-else>{{ card.rewardPowerUp }}</Badge>
       </div>
     </CardHeader>
     <CardFooter class="flex gap-2 w-full">

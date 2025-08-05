@@ -1,16 +1,15 @@
 <script setup lang="ts">
   import { usePlayerStore } from '@/stores';
+  import Badge from './Badge.vue';
 
   const playerStore = usePlayerStore();
 </script>
 
 <template>
   <div class="w-full h-12 border-b border-gray-300 bg-white px-4">
-    <div
-      class="flex items-center justify-center h-full w-full gap-4 text-gray-800 text-lg font-semibold"
-    >
-      <span>{{ playerStore.coins }} 🪙</span>
-      <span>{{ playerStore.powerup }} ⚡️</span>
+    <div class="flex items-center justify-center h-full w-full gap-3">
+      <Badge variant="coin" size="large">{{ playerStore.coins }}</Badge>
+      <Badge variant="gem" size="large">{{ playerStore.powerup }}</Badge>
     </div>
   </div>
 </template>
