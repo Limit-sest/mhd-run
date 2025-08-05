@@ -34,6 +34,7 @@
   const handleReset = (): void => {
     playerStore.setCoins(70);
     playerStore.setPowerup(0);
+    playerStore.resetOwnedPowerups();
     shuffledCardsIds.shuffleCards();
     locationsStore.resetLocation();
   };

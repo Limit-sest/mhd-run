@@ -6,8 +6,7 @@ import {
   useCompletedCardsStore,
   usePlayerStore,
   useShopStore,
-  useDoublePowerupStore,
-  useLocationsStore
+  useLocationsStore,
 } from './stores';
 import Papa from 'papaparse';
 import { storeToRefs } from 'pinia';
@@ -113,13 +112,11 @@ const proccessCards = (
   shuffeledCardsStore.shuffleCards();
 };
 
-const proccessLocations = (
-  dataRows: CSVRow[],
-): Location[] => {
+const proccessLocations = (dataRows: CSVRow[]): Location[] => {
   const locations = dataRows.map((row) => {
     const referenceLat: number = 50.0755; // Prague latitude
     const referenceLng: number = 14.4378; // Prague longitude
-    const shortCode = row.plusCode.split(' ')[0]
+    const shortCode = row.plusCode.split(' ')[0];
     const fullCode: string = OpenLocationCode.recoverNearest(
       shortCode as string,
       referenceLat,
@@ -137,9 +134,9 @@ const proccessLocations = (
       latitude,
       longitude,
     };
-  })
+  });
   return locations;
-}
+};
 
 export const fetchAllData = async (): Promise<void> => {
   const cardCsv = import.meta.env.VITE_CARD_CSV_URL as string;
@@ -150,7 +147,7 @@ export const fetchAllData = async (): Promise<void> => {
   const shuffledCardsIds = useShuffeledCardsStore();
   const allCards = useAllCardsStore();
   const shop = useShopStore();
-  const locationStore = useLocationsStore()
+  const locationStore = useLocationsStore();
 
   try {
     const cardDataRows = await fetchCSV(cardCsv);
@@ -161,7 +158,7 @@ export const fetchAllData = async (): Promise<void> => {
     shop.setTransit(convertCSVToShopItems(transit));
     shop.setPowerups(convertCSVToShopItems(powerup));
     proccessCards(cardDataRows, allCards, shuffledCardsIds);
-    locationStore.setAllLocations(proccessLocations(locations))
+    locationStore.setAllLocations(proccessLocations(locations));
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : 'Unknown error';
     console.error(
@@ -178,18 +175,17 @@ export const fetchAllData = async (): Promise<void> => {
 const rewardCard = (cardId: string): void => {
   const allCards = useAllCardsStore();
   const player = usePlayerStore();
-  const doublePowerup = useDoublePowerupStore();
-
   const cardDetails = allCards.getCardDetails(cardId);
   if (!cardDetails) return;
 
   const coinsReward = parseInt(cardDetails.rewardCoins);
   const powerupReward = parseInt(cardDetails.rewardPowerUp);
+  console.log(player.doublePowerupCard);
+  console.log(cardId);
 
-  if (doublePowerup.isActive) {
+  if (player.doublePowerupCard.includes(cardId)) {
     player.addCoins(coinsReward * 2);
     player.addPowerup(powerupReward * 2);
-    doublePowerup.toggle();
   } else {
     player.addCoins(coinsReward);
     player.addPowerup(powerupReward);
@@ -200,6 +196,7 @@ export const drawCard = (): void => {
   const shuffledCards = storeToRefs(useShuffeledCardsStore());
   const handCards = storeToRefs(useHandCardsStore());
   const allCards = useAllCardsStore();
+  const player = usePlayerStore();
 
   const cardIdToDraw = shuffledCards.cards.value.shift();
   if (!cardIdToDraw) return;
@@ -210,6 +207,11 @@ export const drawCard = (): void => {
   const card = allCards.cards.find((card: Card) => card.id === cardIdToDraw);
   if (card?.type === 'Prokletí') {
     rewardCard(cardIdToDraw);
+  }
+
+  if (player.hasOwnedPowerup(0)) {
+    player.addDoublePowerupCard(cardIdToDraw);
+    player.removeOwnedPowerup(0);
   }
 };
 
@@ -267,15 +269,22 @@ function toRadians(degrees: number): number {
   return degrees * (Math.PI / 180);
 }
 
-export function getDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+export function getDistance(
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number
+): number {
   const R = 6371; // Earth's radius in kilometers
 
   const dLat = toRadians(lat2 - lat1);
   const dLon = toRadians(lon2 - lon1);
 
-  const a = Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
-    Math.sin(dLon / 2) ** 2;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRadians(lat1)) *
+      Math.cos(toRadians(lat2)) *
+      Math.sin(dLon / 2) ** 2;
 
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
@@ -285,7 +294,7 @@ export function getDistance(lat1: number, lon1: number, lat2: number, lon2: numb
 export function getCurrentLocation(): Promise<GeolocationPosition> {
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) {
-      reject(new Error("Geolocation not supported"));
+      reject(new Error('Geolocation not supported'));
       return;
     }
 

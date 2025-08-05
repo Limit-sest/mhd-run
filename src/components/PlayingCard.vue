@@ -9,6 +9,9 @@
   import { Button } from '@/components/ui/button';
   import { completeCard } from '@/utils';
   import type { Card as CardType } from '@/types';
+  import { usePlayerStore } from '@/stores';
+
+  const player = usePlayerStore();
 
   interface Props {
     card: CardType;
@@ -36,7 +39,25 @@
       <CardDescription class="text-base">{{
         card.description
       }}</CardDescription>
-      <div class="font-bold tabular-nums">
+      <div
+        class="font-bold tabular-nums"
+        v-if="player.doublePowerupCard.includes(card.id)"
+      >
+        Odměna:
+        <span
+          class="line-through font-normal text-gray-600"
+          v-if="parseInt(card.rewardCoins) !== 0"
+          >{{ card.rewardCoins }}
+        </span>
+        {{ parseInt(card.rewardCoins) * 2 }} 🪙
+        <span
+          class="line-through font-normal text-gray-600"
+          v-if="parseInt(card.rewardPowerUp) !== 0"
+          >{{ card.rewardPowerUp }}
+        </span>
+        {{ parseInt(card.rewardPowerUp) * 2 }} ⚡️
+      </div>
+      <div class="font-bold tabular-nums" v-else>
         Odměna: {{ card.rewardCoins }} 🪙 {{ card.rewardPowerUp }} ⚡️
       </div>
     </CardHeader>

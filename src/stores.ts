@@ -82,9 +82,12 @@ export const useShuffeledCardsStore = defineStore('shuffeledCards', {
 
 export const usePlayerStore = defineStore('player', {
   state: () => ({
-    coins: getFromLocalStorage('player_coins') || 0,
+    coins: getFromLocalStorage('player_coins') || 70,
     powerup: getFromLocalStorage('player_powerup') || 0,
-    ownedPowerups: getFromLocalStorage('player_ownedPowerups') || ([] as number[]),
+    ownedPowerups:
+      getFromLocalStorage('player_ownedPowerups') || ([] as number[]),
+    doublePowerupCard:
+      getFromLocalStorage('doublePowerupCard') || ([] as string[]),
   }),
   actions: {
     setCoins(coins: number) {
@@ -110,8 +113,19 @@ export const usePlayerStore = defineStore('player', {
         this.ownedPowerups.push(powerupIndex);
       }
     },
+    removeOwnedPowerup(powerupIndex: number) {
+      this.ownedPowerups = this.ownedPowerups.filter((item) => {
+        return item !== powerupIndex;
+      });
+    },
     hasOwnedPowerup(powerupIndex: number): boolean {
       return this.ownedPowerups.includes(powerupIndex);
+    },
+    resetOwnedPowerups() {
+      this.ownedPowerups = [] as number[];
+    },
+    addDoublePowerupCard(card: string): void {
+      this.doublePowerupCard.push(card);
     },
   },
 });
@@ -123,7 +137,6 @@ export const useShopStore = defineStore('shop', {
     shoppingCart: {
       transit: {} as Record<number, number>,
       powerup: {} as Record<number, boolean>,
-      totalPowerups: 0,
     } as ShoppingCart,
   }),
   getters: {
@@ -178,18 +191,8 @@ export const useShopStore = defineStore('shop', {
       }
     },
     togglePowerupItem(itemIndex: number) {
-      this.shoppingCart.powerup[itemIndex] = !this.shoppingCart.powerup[itemIndex];
-    },
-  },
-});
-
-export const useDoublePowerupStore = defineStore('doublePowerup', {
-  state: () => ({
-    isActive: false,
-  }),
-  actions: {
-    toggle() {
-      this.isActive = !this.isActive;
+      this.shoppingCart.powerup[itemIndex] =
+        !this.shoppingCart.powerup[itemIndex];
     },
   },
 });
@@ -197,36 +200,69 @@ export const useDoublePowerupStore = defineStore('doublePowerup', {
 export const useLocationsStore = defineStore('locations', {
   state: () => ({
     currentLocation: undefined as Location | undefined,
-    radiusSetting: getFromLocalStorage('location_radiusSetting') as { min: number, max: number } || { min: 4.5, max: 6 } as { min: number, max: number },
-    allLocations: getFromLocalStorage('location_allLocations') || [] as Location[],
+    radiusSetting:
+      (getFromLocalStorage('location_radiusSetting') as {
+        min: number;
+        max: number;
+      }) || ({ min: 4.5, max: 6 } as { min: number; max: number }),
+    allLocations:
+      getFromLocalStorage('location_allLocations') || ([] as Location[]),
     latestGps: undefined as GeolocationPosition | undefined,
   }),
   actions: {
     drawLocation(gpsLat: number, gpsLon: number) {
-      const validLocations: Location[] = this.allLocations.filter((location: Location) => {
-        const distance = getDistance(gpsLat, gpsLon, location.latitude, location.longitude);
-        return distance >= this.radiusSetting.min && distance <= this.radiusSetting.max;
-      });
+      const validLocations: Location[] = this.allLocations.filter(
+        (location: Location) => {
+          const distance = getDistance(
+            gpsLat,
+            gpsLon,
+            location.latitude,
+            location.longitude
+          );
+          return (
+            distance >= this.radiusSetting.min &&
+            distance <= this.radiusSetting.max
+          );
+        }
+      );
 
       if (validLocations.length > 0) {
         // If we found locations within the radius, pick one randomly
-        this.currentLocation = validLocations[Math.floor(Math.random() * validLocations.length)];
+        this.currentLocation =
+          validLocations[Math.floor(Math.random() * validLocations.length)];
       } else {
         // Fallback: find the location closest to the radius boundaries
         if (this.allLocations.length > 0) {
           let bestLocation = this.allLocations[0];
-          let bestDistance = getDistance(gpsLat, gpsLon, bestLocation.latitude, bestLocation.longitude);
+          let bestDistance = getDistance(
+            gpsLat,
+            gpsLon,
+            bestLocation.latitude,
+            bestLocation.longitude
+          );
           let bestDistanceFromBoundary = Math.min(
             Math.abs(bestDistance - this.radiusSetting.min),
             Math.abs(bestDistance - this.radiusSetting.max)
           );
 
           for (const location of this.allLocations) {
-            const distance = getDistance(gpsLat, gpsLon, location.latitude, location.longitude);
+            const distance = getDistance(
+              gpsLat,
+              gpsLon,
+              location.latitude,
+              location.longitude
+            );
 
-            const distanceFromMinBoundary = Math.abs(distance - this.radiusSetting.min);
-            const distanceFromMaxBoundary = Math.abs(distance - this.radiusSetting.max);
-            const distanceFromBoundary = Math.min(distanceFromMinBoundary, distanceFromMaxBoundary);
+            const distanceFromMinBoundary = Math.abs(
+              distance - this.radiusSetting.min
+            );
+            const distanceFromMaxBoundary = Math.abs(
+              distance - this.radiusSetting.max
+            );
+            const distanceFromBoundary = Math.min(
+              distanceFromMinBoundary,
+              distanceFromMaxBoundary
+            );
 
             if (distanceFromBoundary < bestDistanceFromBoundary) {
               bestDistanceFromBoundary = distanceFromBoundary;
@@ -273,7 +309,6 @@ export function setupStorePersistence(piniaInstance: Pinia): void {
     { store: usePlayerStore(piniaInstance), keyPrefix: 'player' },
     { store: useShopStore(piniaInstance), keyPrefix: 'shop' },
     { store: useLocationsStore(piniaInstance), keyPrefix: 'location' },
-
   ];
 
   storesToPersist.forEach(({ store, keyPrefix }) => {
@@ -281,30 +316,13 @@ export function setupStorePersistence(piniaInstance: Pinia): void {
 
     // Subscribe to changes for saving
     store.$subscribe((_mutation, state: Record<string, any>) => {
-      // 'mutation' provides details about the change, 'state' is the new state
-      // We can save the entire state or specific parts
-      // For simplicity, saving specific known properties:
-      if (state.cards !== undefined) {
-        saveToLocalStorage(`${keyPrefix}_cards`, state.cards);
-      }
-      if (state.coins !== undefined) {
-        saveToLocalStorage(`${keyPrefix}_coins`, state.coins);
-      }
-      if (state.powerup !== undefined) {
-        saveToLocalStorage(`${keyPrefix}_powerup`, state.powerup);
-      }
-      if (state.transit !== undefined) {
-        saveToLocalStorage(`${keyPrefix}_transit`, state.transit);
-      }
-      if (state.powerups !== undefined) {
-        saveToLocalStorage(`${keyPrefix}_powerups`, state.powerups);
-      }
-      if (state.ownedPowerups !== undefined) {
-        saveToLocalStorage(`${keyPrefix}_ownedPowerups`, state.ownedPowerups);
-      }
-      if (state.currentLocation !== undefined) {
-        saveToLocalStorage(`${keyPrefix}_currentLocation`, state.currentLocation);
-      }
+      // Automatically save all state properties with the storeName_propertyName format
+      Object.keys(state).forEach((propertyName) => {
+        const propertyValue = state[propertyName];
+        if (propertyValue !== undefined) {
+          saveToLocalStorage(`${keyPrefix}_${propertyName}`, propertyValue);
+        }
+      });
     });
   });
 }

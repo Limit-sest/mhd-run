@@ -4,18 +4,15 @@
     useShuffeledCardsStore,
     useCompletedCardsStore,
     useHandCardsStore,
-    useDoublePowerupStore,
   } from '@/stores';
   import PlayingCardsContainer from '@/components/PlayingCardsContainer.vue';
   import { getCardDetails, drawCard } from '@/utils';
   import { Button } from '@/components/ui/button';
-  import { BadgeDollarSign } from 'lucide-vue-next';
   import type { Card } from '@/types';
 
   const shuffledCardsIds = useShuffeledCardsStore();
   const completedCardsIds = useCompletedCardsStore();
   const handCardsIds = useHandCardsStore();
-  const doublePowerup = useDoublePowerupStore();
 
   const handCards = computed(() =>
     handCardsIds.cards
