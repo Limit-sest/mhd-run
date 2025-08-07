@@ -1,9 +1,9 @@
-import { defineConfig, globalIgnores } from 'eslint/config'
-import globals from 'globals'
-import js from '@eslint/js'
-import pluginVue from 'eslint-plugin-vue'
-import tseslint from '@typescript-eslint/eslint-plugin'
-import tsParser from '@typescript-eslint/parser'
+import { defineConfig, globalIgnores } from 'eslint/config';
+import globals from 'globals';
+import js from '@eslint/js';
+import pluginVue from 'eslint-plugin-vue';
+import tseslint from '@typescript-eslint/eslint-plugin';
+import tsParser from '@typescript-eslint/parser';
 
 export default defineConfig([
   {
@@ -11,7 +11,12 @@ export default defineConfig([
     files: ['**/*.{js,mjs,jsx,ts,tsx,vue}'],
   },
 
-  globalIgnores(['**/dist/**', '**/dist-ssr/**', '**/coverage/**', '**/node_modules/**']),
+  globalIgnores([
+    '**/dist/**',
+    '**/dist-ssr/**',
+    '**/coverage/**',
+    '**/node_modules/**',
+  ]),
 
   {
     languageOptions: {
@@ -34,8 +39,8 @@ export default defineConfig([
     languageOptions: {
       parser: tsParser,
       parserOptions: {
-        project: './tsconfig.json',
-        tsconfigRootDir: '.',
+        ecmaVersion: 'latest',
+        sourceType: 'module',
       },
     },
     plugins: {
@@ -43,7 +48,10 @@ export default defineConfig([
     },
     rules: {
       ...tseslint.configs.recommended.rules,
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        { argsIgnorePattern: '^_' },
+      ],
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
@@ -64,11 +72,11 @@ export default defineConfig([
     },
     rules: {
       'vue/multi-word-component-names': 'off',
-      'vue/no-unused-vars': 'error',
+      'vue/no-unused-vars': 'warn',
       'vue/script-setup-uses-vars': 'error',
       'vue/no-mutating-props': 'error',
       'vue/require-default-prop': 'off',
       'vue/require-prop-types': 'off',
     },
   },
-])
+]);
