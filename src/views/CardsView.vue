@@ -1,18 +1,22 @@
 <script setup lang="ts">
-  import { computed } from 'vue';
+  import { computed, onMounted } from 'vue';
   import {
     useShuffeledCardsStore,
     useCompletedCardsStore,
     useHandCardsStore,
+    useTimersStore,
   } from '@/stores';
   import PlayingCardsContainer from '@/components/PlayingCardsContainer.vue';
   import { getCardDetails, drawCard } from '@/utils';
   import { Button } from '@/components/ui/button';
   import type { Card } from '@/types';
+  import Badge from '@/components/Badge.vue';
+  import { BookPlus } from 'lucide-vue-next';
 
   const shuffledCardsIds = useShuffeledCardsStore();
   const completedCardsIds = useCompletedCardsStore();
   const handCardsIds = useHandCardsStore();
+  const timers = useTimersStore();
 
   const handCards = computed(() =>
     handCardsIds.cards
@@ -26,6 +30,10 @@
   );
   const hasTaskCardInHand = computed(() => {
     return handCards.value.some((card: Card) => card.type === 'Úkol');
+  });
+
+  onMounted(() => {
+    timers.startTimerUpdates();
   });
 </script>
 <template>
@@ -53,8 +61,13 @@
             shuffledCardsIds.cards.length || hasTaskCardInHand
         "
         class="tabular-nums w-full"
+        v-if="!timers.isVetoActive"
       >
+        <BookPlus class="w-4 h-4 mr-1" />
         Líznout kartu
+      </Button>
+      <Button class="w-full bg-gray-900/50 pointer-events-none" v-else
+        ><Badge variant="veto">{{ timers.vetoTimeRemaining }}</Badge>
       </Button>
     </div>
   </div>

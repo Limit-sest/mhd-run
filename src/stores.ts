@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import type { Pinia } from 'pinia';
 import { getFromLocalStorage, saveToLocalStorage, getDistance } from './utils';
-import type { Card, ShopItem, Location } from './types';
+import type { Card, ShopItem, Location, Timer } from './types';
 
 interface ShoppingCart {
   transit: Record<number, number>;
@@ -31,6 +31,154 @@ export const useAllCardsStore = defineStore('allCards', {
       if (card) {
         card.timerEnd = new Date(card.timestamp.getTime() + duration * 60000);
       }
+    },
+  },
+});
+
+export const useTimersStore = defineStore('timersStore', {
+  state: () => {
+    const savedVeto = getFromLocalStorage('timersStore_veto') as any;
+    const savedPowerups = getFromLocalStorage('timersStore_powerups') as any[];
+
+    return {
+      veto:
+        savedVeto && savedVeto.start && savedVeto.end
+          ? ({
+              start: new Date(savedVeto.start),
+              end: new Date(savedVeto.end),
+            } as Timer)
+          : ({} as Timer),
+      powerups: savedPowerups
+        ? savedPowerups.map((p: any) => ({
+            ...p,
+            start: p.start ? new Date(p.start) : undefined,
+            end: p.end ? new Date(p.end) : undefined,
+          }))
+        : ([] as Timer[]),
+      currentTime: new Date().getTime(),
+    };
+  },
+  getters: {
+    vetoTimeRemaining: (state) => {
+      if (!state.veto.start || !state.veto.end) return null;
+
+      const distance = state.veto.end.getTime() - state.currentTime;
+
+      if (distance < 0) return null;
+
+      const _second = 1000;
+      const _minute = _second * 60;
+      const _hour = _minute * 60;
+
+      const minutes = Math.floor((distance % _hour) / _minute);
+      const seconds = String(
+        Math.floor((distance % _minute) / _second)
+      ).padStart(2, '0');
+
+      return `${minutes}m${seconds}s`;
+    },
+    vetoProgress: (state) => {
+      if (!state.veto.start || !state.veto.end) return 0;
+
+      const total = state.veto.end.getTime() - state.veto.start.getTime();
+      const elapsed = state.currentTime - state.veto.start.getTime();
+
+      if (elapsed < 0) return 0;
+      if (elapsed >= total) return 100;
+
+      return (elapsed / total) * 100;
+    },
+    isVetoActive: (state) => {
+      if (!state.veto.start || !state.veto.end) return false;
+      return state.currentTime < state.veto.end.getTime();
+    },
+    powerupTimeRemaining: (state) => (powerupId: number) => {
+      const timer = state.powerups.find((t) => t.powerupId === powerupId);
+      if (!timer || !timer.start || !timer.end) return null;
+
+      const distance = timer.end.getTime() - state.currentTime;
+
+      if (distance < 0) return null;
+
+      const _second = 1000;
+      const _minute = _second * 60;
+      const _hour = _minute * 60;
+
+      const minutes = Math.floor((distance % _hour) / _minute);
+      const seconds = String(
+        Math.floor((distance % _minute) / _second)
+      ).padStart(2, '0');
+
+      return `${minutes}m${seconds}s`;
+    },
+    powerupProgress: (state) => (powerupId: number) => {
+      const timer = state.powerups.find((t) => t.powerupId === powerupId);
+      if (!timer || !timer.start || !timer.end) return 0;
+
+      const total = timer.end.getTime() - timer.start.getTime();
+      const elapsed = state.currentTime - timer.start.getTime();
+
+      if (elapsed < 0) return 0;
+      if (elapsed >= total) return 100;
+
+      return (elapsed / total) * 100;
+    },
+    isPowerupActive: (state) => (powerupId: number) => {
+      const timer = state.powerups.find((t) => t.powerupId === powerupId);
+      if (!timer || !timer.start || !timer.end) return false;
+      return state.currentTime < timer.end.getTime();
+    },
+    activePowerups: (state) => {
+      return state.powerups.filter(
+        (timer) =>
+          timer.start && timer.end && state.currentTime < timer.end.getTime()
+      );
+    },
+  },
+  actions: {
+    set(
+      type: 'veto' | 'powerup',
+      duration: number,
+      powerupId: number | null = null
+    ): void {
+      switch (type) {
+        case 'veto':
+          this.veto.start = new Date();
+          this.veto.end = new Date(
+            this.veto.start.getTime() + duration * 60000
+          );
+          return;
+        case 'powerup': {
+          let timer = {} as Timer;
+          timer.start = new Date();
+          timer.end = new Date(timer.start.getTime() + duration * 60000);
+          timer.powerupId = powerupId;
+          this.powerups.push(timer);
+          return;
+        }
+      }
+    },
+    updateCurrentTime() {
+      this.currentTime = new Date().getTime();
+      this.cleanupExpiredTimers();
+    },
+    cleanupExpiredTimers() {
+      this.powerups = this.powerups.filter(
+        (timer) => timer.end && this.currentTime < timer.end.getTime()
+      );
+
+      // Clear expired veto timer
+      if (this.veto.end && this.currentTime >= this.veto.end.getTime()) {
+        this.veto = {} as Timer;
+      }
+    },
+    startTimerUpdates() {
+      // Update current time immediately on initialization
+      this.updateCurrentTime();
+      // Update every second
+      setInterval(() => {
+        this.updateCurrentTime();
+      }, 1000);
     },
   },
 });
@@ -315,6 +463,7 @@ export function setupStorePersistence(piniaInstance: Pinia): void {
     { store: usePlayerStore(piniaInstance), keyPrefix: 'player' },
     { store: useShopStore(piniaInstance), keyPrefix: 'shop' },
     { store: useLocationsStore(piniaInstance), keyPrefix: 'location' },
+    { store: useTimersStore(piniaInstance), keyPrefix: 'timersStore' },
   ];
 
   storesToPersist.forEach(({ store, keyPrefix }) => {

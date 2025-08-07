@@ -1,14 +1,16 @@
 <script setup lang="ts">
   import { Button } from '@/components/ui/button';
   import { Input } from '@/components/ui/input';
-  import { usePlayerStore, useShopStore } from '@/stores';
+  import { usePlayerStore, useShopStore, useTimersStore } from '@/stores';
   import { computed, onMounted } from 'vue';
   import { storeToRefs } from 'pinia';
   import { Plus, Minus, Check, CheckCheck } from 'lucide-vue-next';
+  import Badge from '@/components/Badge.vue';
 
   const shopStore = useShopStore();
   const shop = storeToRefs(shopStore);
   const player = usePlayerStore();
+  const timers = useTimersStore();
 
   const handleShopItemCountChange = (itemIndex: number, event: Event) => {
     const target = event.target as HTMLInputElement;
@@ -97,21 +99,10 @@
             <span>{{ item.title }}</span>
             <p class="text-sm text-gray-700">{{ item.description }}</p>
             <div class="flex gap-1">
-              <span class="text-sm text-gray-500" v-if="item.price"
-                >{{ item.price }} ⚡
-              </span>
-              <span
-                class="text-sm text-gray-500"
-                v-if="player.hasOwnedPowerup(index) && item.price"
-              >
-                •
-              </span>
-              <span
-                class="text-sm text-gray-500"
-                v-if="player.hasOwnedPowerup(index)"
-              >
-                Aktivní
-              </span>
+              <Badge variant="gem" v-if="item.price">{{ item.price }}</Badge>
+              <Badge variant="timer" v-if="timers.isPowerupActive(index)">{{
+                timers.powerupTimeRemaining
+              }}</Badge>
             </div>
           </div>
           <div class="flex items-center gap-2">
@@ -148,11 +139,15 @@
             shopStore.totalPowerups > player.powerup
           "
           class="tabular-nums w-full"
+          v-if="!timers.isVetoActive"
         >
           Zaplatit
           {{ shopStore.totalCoins }}
           🪙
           {{ shopStore.totalPowerups }} ⚡
+        </Button>
+        <Button class="w-full bg-gray-900/50 pointer-events-none" v-else
+          ><Badge variant="veto">{{ timers.vetoTimeRemaining }}</Badge>
         </Button>
       </div>
     </div>

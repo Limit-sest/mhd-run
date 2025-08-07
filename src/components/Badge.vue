@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-  import { CircleDollarSign, Gem, Timer } from 'lucide-vue-next';
+  import { CircleDollarSign, Gem, Timer, Ban } from 'lucide-vue-next';
   import { cn } from '@/lib/utils';
   import { computed } from 'vue';
 
   interface Props {
-    variant: 'coin' | 'gem' | 'timer';
+    variant?: 'coin' | 'gem' | 'timer' | 'veto';
     size?: 'small' | 'large';
     class?: string;
   }
@@ -18,6 +18,8 @@
         return Gem;
       case 'timer':
         return Timer;
+      case 'veto':
+        return Ban;
     }
   });
 
@@ -30,18 +32,27 @@
     }
   });
 
-  const variants = {
-    coin: 'bg-yellow-100 text-yellow-950',
-    gem: 'bg-sky-100 text-sky-950',
-    timer: 'bg-slate-100 text-slate-950',
-  };
+  const variants = computed(() => {
+    switch (props.variant) {
+      case 'coin':
+        return 'bg-yellow-100 text-yellow-950';
+      case 'gem':
+        return 'bg-sky-100 text-sky-950';
+      case 'timer':
+        return 'bg-slate-100 text-slate-950';
+      case 'veto':
+        return 'bg-red-100 text-red-950';
+      default:
+        return 'bg-slate-100 text-slate-950';
+    }
+  });
 </script>
 <template>
   <div
     :class="
       cn(
-        'flex items-center rounded-full font-bold w-min',
-        variants[variant],
+        'flex items-center rounded-full font-bold tabular-nums w-min',
+        variants,
         size,
         props.class
       )

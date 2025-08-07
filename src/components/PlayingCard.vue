@@ -9,12 +9,14 @@
   import { Button } from '@/components/ui/button';
   import { completeCard } from '@/utils';
   import type { Card as CardType } from '@/types';
-  import { usePlayerStore } from '@/stores';
+  import { usePlayerStore, useTimersStore } from '@/stores';
   import Badge from '@/components/Badge.vue';
   import { computed, ref, onMounted } from 'vue';
   import { Progress } from '@/components/ui/progress';
+  import { X, Ban, Check } from 'lucide-vue-next';
 
   const player = usePlayerStore();
+  const timers = useTimersStore();
 
   interface Props {
     card: CardType;
@@ -59,9 +61,17 @@
       return;
     }
     var minutes = Math.floor((distance % _hour) / _minute);
-    var seconds = Math.floor((distance % _minute) / _second);
+    var seconds = String(Math.floor((distance % _minute) / _second)).padStart(
+      2,
+      '0'
+    );
     return `${minutes}m${seconds}s`;
   });
+
+  function handleVeto() {
+    completeCard(props.card.id, false);
+    timers.set('veto', 2);
+  }
 </script>
 
 <template>
@@ -108,7 +118,15 @@
         variant="outline"
         :disabled="disabled"
         v-if="card.type !== 'Prokletí'"
-        >Veto</Button
+        size="icon"
+        ><X class="w-4 h-4 opacity-70"
+      /></Button>
+      <Button
+        @click="handleVeto"
+        variant="outline"
+        :disabled="disabled"
+        v-if="card.type !== 'Prokletí'"
+        ><Ban class="w-4 h-4 mr-1 opacity-70" />Veto</Button
       >
       <Button
         @click="completeCard(card.id, card.type === 'Úkol')"
@@ -116,7 +134,7 @@
         :disabled="disabled"
         class="flex-1"
         v-if="!card.timerEnd"
-        >Dokončit</Button
+        ><Check class="w-4 h-4 mr-1 opacity-70" />Dokončit</Button
       >
       <Progress
         v-if="card.timer && card.timerEnd.getTime() > new Date().getTime()"

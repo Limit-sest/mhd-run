@@ -39,3 +39,9 @@ export interface Location {
   longitude: number;
   url: string;
 }
+
+export interface Timer {
+  powerupId?: number;
+  start: Date;
+  end: Date;
+}

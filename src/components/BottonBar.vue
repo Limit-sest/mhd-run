@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import { Button } from '@/components/ui/button';
-import { BookCopy, MapPin, Settings, Store } from 'lucide-vue-next';
-import { useRoute } from 'vue-router';
+  import { BookCopy, MapPin, Settings, Store } from 'lucide-vue-next';
+  import { useRoute } from 'vue-router';
 
   const route = useRoute();
 </script>
