@@ -145,9 +145,13 @@
           v-if="!timers.isVetoActive"
         >
           Zaplatit
-          {{ shopStore.totalCoins }}
-          🪙
-          {{ shopStore.totalPowerups }} ⚡
+          <Badge variant="coin" v-if="shopStore.totalCoins">{{
+            shopStore.totalCoins
+          }}</Badge>
+
+          <Badge variant="gem" v-if="shopStore.totalPowerups">{{
+            shopStore.totalPowerups
+          }}</Badge>
         </Button>
         <Button class="w-full bg-gray-900/50 pointer-events-none" v-else
           ><Badge variant="veto">{{ timers.vetoTimeRemaining }}</Badge>
