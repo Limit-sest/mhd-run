@@ -51,7 +51,7 @@
   <div
     :class="
       cn(
-        'flex items-center rounded-full font-bold tabular-nums w-min',
+        'flex items-center rounded-full font-semibold tabular-nums w-max',
         variants,
         size,
         props.class

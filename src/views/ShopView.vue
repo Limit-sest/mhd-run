@@ -47,18 +47,18 @@
   <div class="flex flex-col gap-3 m-4 mb-0 justify-start relative">
     <div class="w-full h-full flex-1 overflow-y-scroll">
       <!-- Transit Section -->
-      <div v-if="shop.transit.value.length > 0">
-        <h2 class="text-lg font-semibold mb-2">Doprava</h2>
+      <div v-if="shop.transit.value.length > 0" class="mb-4">
+        <h2 class="text-lg font-semibold">Doprava</h2>
         <div
-          class="flex justify-between items-center gap-2 p-2 border-b"
+          class="flex justify-between items-center p-2 border-b last:border-none"
           v-for="(item, index) in shop.transit.value"
           :key="`transit-${index}`"
         >
-          <div class="flex flex-col">
-            <span>{{ item.title }}</span>
-            <span class="text-sm text-gray-500" v-if="item.price"
-              >{{ item.price }} 🪙/min
-            </span>
+          <div class="flex flex-col gap-1">
+            <span class="font-medium">{{ item.title }}</span>
+            <Badge v-if="item.price" variant="coin"
+              >{{ item.price }}/min
+            </Badge>
           </div>
           <div class="flex items-center gap-2">
             <Button
@@ -89,15 +89,18 @@
 
       <!-- Powerups Section -->
       <div v-if="shop.powerups.value.length > 0" class="mb-20">
-        <h2 class="text-lg font-semibold mb-2">Vylepšení</h2>
+        <h2 class="text-lg font-semibold">Vylepšení</h2>
         <div
-          class="flex justify-between items-center gap-2 p-2 border-b"
+          class="flex justify-between items-center gap-2 p-2 border-b last:border-none"
           v-for="(item, index) in shop.powerups.value"
           :key="`powerup-${index}`"
         >
-          <div class="flex flex-col gap-0.5">
-            <span>{{ item.title }}</span>
-            <p class="text-sm text-gray-700">{{ item.description }}</p>
+          <div class="flex flex-col gap-2">
+            <div class="space-y-0.5">
+              <span class="font-medium">{{ item.title }}</span>
+              <p class="text-sm text-gray-700">{{ item.description }}</p>
+            </div>
+
             <div class="flex gap-1">
               <Badge variant="gem" v-if="item.price">{{ item.price }}</Badge>
               <Badge variant="timer" v-if="timers.isPowerupActive(index)">{{
