@@ -11,6 +11,8 @@
   import type { Card as CardType } from '@/types';
   import { usePlayerStore } from '@/stores';
   import Badge from '@/components/Badge.vue';
+  import { computed, ref, onMounted } from 'vue';
+  import { Progress } from '@/components/ui/progress';
 
   const player = usePlayerStore();
 
@@ -19,7 +21,24 @@
     disabled?: boolean;
   }
 
-  defineProps<Props>();
+  const props = defineProps<Props>();
+
+  const currentTime = ref(new Date());
+  const progress = ref(100);
+  let interval;
+
+  onMounted(() => {
+    if (props.card.timerEnd) {
+      interval = setInterval(() => {
+        currentTime.value = new Date();
+        progress.value =
+          100 -
+          100 *
+            ((currentTime.value.getTime() - props.card.timestamp.getTime()) /
+              (props.card.timerEnd.getTime() - props.card.timestamp.getTime()));
+      }, 1000);
+    }
+  });
 
   const formatTimestamp = (timestamp?: Date): string => {
     if (!timestamp) return 'Neznámé datum';
@@ -28,6 +47,21 @@
       timeStyle: 'medium',
     }).format(date);
   };
+
+  const timeRemaining = computed(() => {
+    var _second = 1000;
+    var _minute = _second * 60;
+    var _hour = _minute * 60;
+    var distance = props.card.timerEnd.getTime() - currentTime.value.getTime();
+    if (distance < 0) {
+      clearInterval(interval);
+      completeCard(props.card.id);
+      return;
+    }
+    var minutes = Math.floor((distance % _hour) / _minute);
+    var seconds = Math.floor((distance % _minute) / _second);
+    return `${minutes}m${seconds}s`;
+  });
 </script>
 
 <template>
@@ -61,6 +95,11 @@
           {{ parseInt(card.rewardPowerUp) * 2 }}</Badge
         >
         <Badge variant="gem" v-else>{{ card.rewardPowerUp }}</Badge>
+        <Badge
+          variant="timer"
+          v-if="card.timer && card.timerEnd.getTime() > new Date().getTime()"
+          >{{ timeRemaining }}</Badge
+        >
       </div>
     </CardHeader>
     <CardFooter class="flex gap-2 w-full">
@@ -76,8 +115,13 @@
         variant="secondary"
         :disabled="disabled"
         class="flex-1"
+        v-if="!card.timerEnd"
         >Dokončit</Button
       >
+      <Progress
+        v-if="card.timer && card.timerEnd.getTime() > new Date().getTime()"
+        v-model="progress"
+      />
     </CardFooter>
   </Card>
 </template>

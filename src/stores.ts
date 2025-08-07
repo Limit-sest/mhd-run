@@ -26,6 +26,12 @@ export const useAllCardsStore = defineStore('allCards', {
         card.timestamp = new Date();
       }
     },
+    addTimerEnd(cardId: string, duration: number) {
+      const card = this.getCardDetails(cardId);
+      if (card) {
+        card.timerEnd = new Date(card.timestamp.getTime() + duration * 60000);
+      }
+    },
   },
 });
 

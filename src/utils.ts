@@ -90,6 +90,7 @@ const proccessCards = (
       const rewardCoins = String(row['rewardCoins'])?.trim();
       const rewardPowerUp = String(row['rewardPowerUp'])?.trim();
       const type = String(row['type'])?.trim();
+      const timer = parseInt(row['timer']);
 
       return {
         id: generateUniqueId(),
@@ -98,6 +99,7 @@ const proccessCards = (
         rewardCoins: rewardCoins || '0',
         rewardPowerUp: rewardPowerUp || '0',
         type: type === 'Prokletí' ? 'Prokletí' : 'Úkol',
+        timer,
       };
     })
     .filter((card): card is Card => card !== null);
@@ -180,8 +182,6 @@ const rewardCard = (cardId: string): void => {
 
   const coinsReward = parseInt(cardDetails.rewardCoins);
   const powerupReward = parseInt(cardDetails.rewardPowerUp);
-  console.log(player.doublePowerupCard);
-  console.log(cardId);
 
   if (player.doublePowerupCard.includes(cardId)) {
     player.addCoins(coinsReward * 2);
@@ -207,6 +207,10 @@ export const drawCard = (): void => {
   const card = allCards.cards.find((card: Card) => card.id === cardIdToDraw);
   if (card?.type === 'Prokletí') {
     rewardCard(cardIdToDraw);
+  }
+
+  if (card.timer) {
+    allCards.addTimerEnd(cardIdToDraw, card.timer);
   }
 
   if (player.hasOwnedPowerup(0)) {

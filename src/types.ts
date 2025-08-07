@@ -6,6 +6,8 @@ export interface Card {
   rewardPowerUp: string;
   type: 'Úkol' | 'Prokletí';
   timestamp?: Date;
+  timer?: number;
+  timerEnd?: Date;
 }
 
 export interface ShopItem {
@@ -31,9 +33,9 @@ export interface CSVRow {
 }
 
 export interface Location {
-  title: string,
-  description?: string,
-  latitude: number,
-  longitude: number,
-  url: string
+  title: string;
+  description?: string;
+  latitude: number;
+  longitude: number;
+  url: string;
 }
