@@ -70,7 +70,7 @@
 
   function handleVeto() {
     completeCard(props.card.id, false);
-    timers.set('veto', 2);
+    timers.set('veto', 4);
   }
 </script>
 
