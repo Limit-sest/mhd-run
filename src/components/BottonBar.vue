@@ -15,8 +15,9 @@
         <Button
           size="icon"
           :variant="route.path === '/' ? 'secondary' : 'ghost'"
+          class=""
         >
-          <BookCopy class="text-gray-800" />
+          <BookCopy class="text-gray-800 !w-6 !h-6" />
         </Button>
       </div>
     </RouterLink>
@@ -26,7 +27,7 @@
           size="icon"
           :variant="route.path === '/shop' ? 'secondary' : 'ghost'"
         >
-          <Store class="text-gray-800" />
+          <Store class="text-gray-800 !w-6 !h-6" />
         </Button>
       </div>
     </RouterLink>
@@ -36,7 +37,7 @@
           size="icon"
           :variant="route.path === '/location' ? 'secondary' : 'ghost'"
         >
-          <MapPin class="text-gray-800" />
+          <MapPin class="text-gray-800 !w-6 !h-6" />
         </Button>
       </div>
     </RouterLink>
@@ -46,7 +47,7 @@
           size="icon"
           :variant="route.path === '/settings' ? 'secondary' : 'ghost'"
         >
-          <Settings class="text-gray-800" />
+          <Settings class="text-gray-800 !w-6 !h-6" />
         </Button>
       </div>
     </RouterLink>
