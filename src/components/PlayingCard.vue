@@ -14,6 +14,17 @@
   import { computed, ref, onMounted } from 'vue';
   import { Progress } from '@/components/ui/progress';
   import { X, Ban, Check } from 'lucide-vue-next';
+  import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+  } from '@/components/ui/alert-dialog';
 
   const player = usePlayerStore();
   const timers = useTimersStore();
@@ -113,14 +124,32 @@
       </div>
     </CardHeader>
     <CardFooter class="flex gap-2 w-full">
-      <Button
-        @click="completeCard(card.id, false)"
-        variant="outline"
-        :disabled="disabled"
-        v-if="card.type !== 'Prokletí'"
-        size="icon"
-        ><X class="w-4 h-4 opacity-70"
-      /></Button>
+      <AlertDialog>
+        <AlertDialogTrigger as-child>
+          <Button
+            variant="outline"
+            :disabled="disabled"
+            v-if="card.type !== 'Prokletí'"
+            size="icon"
+            ><X class="w-4 h-4 opacity-70"
+          /></Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Opravdu chceš kartu zrušit?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tohle by se mělo používat jen vyjímečně. Nedostaneš odměnu ani
+              postih. <b>Myslíš si, že bys to měl udělat? 🤨</b>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Uhh ne</AlertDialogCancel>
+            <AlertDialogAction @click="completeCard(card.id, false)"
+              >Ano, chci jí zrušit</AlertDialogAction
+            >
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       <Button
         @click="handleVeto"
         variant="outline"
