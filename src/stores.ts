@@ -37,8 +37,10 @@ export const useAllCardsStore = defineStore('allCards', {
 
 export const useTimersStore = defineStore('timersStore', {
   state: () => {
-    const savedVeto = getFromLocalStorage('timersStore_veto') as any;
-    const savedPowerups = getFromLocalStorage('timersStore_powerups') as any[];
+    const savedVeto = getFromLocalStorage('timersStore_veto') as Timer;
+    const savedPowerups = getFromLocalStorage(
+      'timersStore_powerups'
+    ) as Timer[];
 
     return {
       veto:
@@ -49,7 +51,7 @@ export const useTimersStore = defineStore('timersStore', {
             } as Timer)
           : ({} as Timer),
       powerups: savedPowerups
-        ? savedPowerups.map((p: any) => ({
+        ? savedPowerups.map((p) => ({
             ...p,
             start: p.start ? new Date(p.start) : undefined,
             end: p.end ? new Date(p.end) : undefined,
@@ -241,7 +243,9 @@ export const usePlayerStore = defineStore('player', {
     ownedPowerups:
       getFromLocalStorage('player_ownedPowerups') || ([] as number[]),
     doublePowerupCard:
-      getFromLocalStorage('doublePowerupCard') || ([] as string[]),
+      getFromLocalStorage('player_doublePowerupCard') || ([] as string[]),
+    transferPowerupCard:
+      getFromLocalStorage('player_transferPowerupCard') || ([] as string[]),
   }),
   actions: {
     setCoins(coins: number) {
@@ -262,32 +266,40 @@ export const usePlayerStore = defineStore('player', {
     removePowerup(amount: number) {
       this.powerup = Math.max(0, this.powerup - amount);
     },
-    addOwnedPowerup(powerupIndex: number) {
-      if (!this.ownedPowerups.includes(powerupIndex)) {
-        this.ownedPowerups.push(powerupIndex);
+    addOwnedPowerup(powerupId: number) {
+      if (!this.ownedPowerups.includes(powerupId)) {
+        this.ownedPowerups.push(powerupId);
       }
     },
-    removeOwnedPowerup(powerupIndex: number) {
+    removeOwnedPowerup(powerupId: number) {
       this.ownedPowerups = this.ownedPowerups.filter((item) => {
-        return item !== powerupIndex;
+        return item !== powerupId;
       });
     },
-    hasOwnedPowerup(powerupIndex: number): boolean {
-      return this.ownedPowerups.includes(powerupIndex);
+    hasOwnedPowerup(powerupId: number): boolean {
+      return this.ownedPowerups.includes(powerupId);
     },
     resetOwnedPowerups() {
       this.ownedPowerups = [] as number[];
+      this.doublePowerupCard = [] as string[];
+      this.transferPowerupCard = [] as string[];
     },
     addDoublePowerupCard(card: string): void {
       this.doublePowerupCard.push(card);
+    },
+    addTransferPowerupCard(card: string): void {
+      this.transferPowerupCard.push(card);
     },
   },
 });
 
 export const useShopStore = defineStore('shop', {
   state: () => ({
-    transit: getFromLocalStorage('shop_transit') || ([] as ShopItem[]),
-    powerups: getFromLocalStorage('shop_powerups') || ([] as ShopItem[]),
+    transit:
+      (getFromLocalStorage('shop_transit') as ShopItem[]) || ([] as ShopItem[]),
+    powerups:
+      (getFromLocalStorage('shop_powerups') as ShopItem[]) ||
+      ([] as ShopItem[]),
     shoppingCart: {
       transit: {} as Record<number, number>,
       powerup: {} as Record<number, boolean>,

@@ -63,7 +63,9 @@ const convertCSVToShopItems = (csvData: CSVRow[]): ShopItem[] => {
       price: parseInt(row.price || '0'),
       type: row.type === 'powerup' ? 'powerup' : 'transit',
       icon: row.icon || '',
-      function: row.function,
+      id: parseInt(row.id),
+      shareDescription: row.shareDescription,
+      timer: parseInt(row.timer),
     })
   );
 };
@@ -204,7 +206,9 @@ export const drawCard = (): void => {
   handCards.cards.value.unshift(cardIdToDraw);
   allCards.addTimestamp(cardIdToDraw);
 
-  const card = allCards.cards.find((card: Card) => card.id === cardIdToDraw);
+  const card: Card = allCards.cards.find(
+    (card: Card) => card.id === cardIdToDraw
+  );
   if (card?.type === 'Prokletí') {
     rewardCard(cardIdToDraw);
   }
@@ -216,6 +220,11 @@ export const drawCard = (): void => {
   if (player.hasOwnedPowerup(0)) {
     player.addDoublePowerupCard(cardIdToDraw);
     player.removeOwnedPowerup(0);
+  }
+
+  if (player.hasOwnedPowerup(2) && card.type === 'Úkol') {
+    player.addTransferPowerupCard(cardIdToDraw);
+    player.removeOwnedPowerup(2);
   }
 };
 
@@ -312,4 +321,12 @@ export function getCurrentLocation(): Promise<GeolocationPosition> {
       }
     );
   });
+}
+
+export async function share(text: string) {
+  if (navigator.share) {
+    navigator.share({
+      text,
+    });
+  }
 }

@@ -16,7 +16,9 @@ export interface ShopItem {
   price: number;
   type: 'transit' | 'powerup';
   icon: string;
-  function?: string;
+  timer?: number;
+  shareDescription?: string;
+  id?: number;
 }
 
 export interface CSVRow {
@@ -30,6 +32,9 @@ export interface CSVRow {
   function?: string;
   plusCode?: string;
   url?: string;
+  id?: string;
+  timer?: string;
+  shareDescription?: string;
 }
 
 export interface Location {

@@ -2,15 +2,27 @@
   import { Button } from '@/components/ui/button';
   import { Input } from '@/components/ui/input';
   import { usePlayerStore, useShopStore, useTimersStore } from '@/stores';
-  import { computed, onMounted } from 'vue';
+  import { computed, onMounted, ref } from 'vue';
   import { storeToRefs } from 'pinia';
-  import { Plus, Minus, Check, CheckCheck } from 'lucide-vue-next';
+  import { Plus, Minus, Check, CheckCheck, Share2 } from 'lucide-vue-next';
   import Badge from '@/components/Badge.vue';
+  import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogContent,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+  } from '@/components/ui/alert-dialog';
+  import { share } from '@/utils';
 
   const shopStore = useShopStore();
   const shop = storeToRefs(shopStore);
   const player = usePlayerStore();
   const timers = useTimersStore();
+
+  const showDialogPowerupAlert = ref(false);
+  const ownedDialogPowerups = ref([]);
 
   const handleShopItemCountChange = (itemIndex: number, event: Event) => {
     const target = event.target as HTMLInputElement;
@@ -21,10 +33,37 @@
   };
 
   const handlePay = (): void => {
-    // Add owned powerups to player
+    const persistentPowerups = [0, 2];
+    const dialogPowerups = [1, 3, 4];
+
+    let hasDialogPowerups = false;
+
     for (const itemIndex in shop.shoppingCart.value.powerup) {
       if (shop.shoppingCart.value.powerup[parseInt(itemIndex)]) {
-        player.addOwnedPowerup(parseInt(itemIndex));
+        let powerup = shopStore.powerups.find(
+          (powerup) => powerup.id == parseInt(itemIndex)
+        );
+        console.log(powerup);
+        if (dialogPowerups.includes(powerup.id)) {
+          hasDialogPowerups = true;
+          ownedDialogPowerups.value.push(powerup.id);
+        }
+
+        if (powerup.timer) {
+          timers.set('powerup', powerup.timer, powerup.id);
+        }
+      }
+    }
+
+    if (hasDialogPowerups) {
+      showDialogPowerupAlert.value = true;
+    }
+
+    for (const itemIndex in shop.shoppingCart.value.powerup) {
+      if (shop.shoppingCart.value.powerup[parseInt(itemIndex)]) {
+        if (persistentPowerups.includes(parseInt(itemIndex))) {
+          player.addOwnedPowerup(parseInt(itemIndex));
+        }
       }
     }
 
@@ -34,6 +73,21 @@
     shopStore.initializePowerupCart();
   };
 
+  async function handleShare() {
+    let shareText: string;
+    ownedDialogPowerups.value.forEach((powerupId) => {
+      shareText += shopStore.powerups.find(
+        (powerup) => powerup.id == powerupId
+      ).shareDescription;
+      shareText += '\n';
+    });
+
+    await share(shareText);
+
+    showDialogPowerupAlert.value = false;
+    ownedDialogPowerups.value = [];
+  }
+
   const getShopItemCount = (itemIndex: number) => {
     return computed(() => shop.shoppingCart.value.transit[itemIndex] || 0);
   };
@@ -41,6 +95,7 @@
   onMounted(() => {
     shopStore.initializeTransitCart();
     shopStore.initializePowerupCart();
+    timers.startTimerUpdates();
   });
 </script>
 <template>
@@ -92,8 +147,8 @@
         <h2 class="text-lg font-semibold">Vylepšení</h2>
         <div
           class="flex justify-between items-center gap-2 p-2 border-b last:border-none"
-          v-for="(item, index) in shop.powerups.value"
-          :key="`powerup-${index}`"
+          v-for="item in shop.powerups.value"
+          :key="item.id"
         >
           <div class="flex flex-col gap-2">
             <div class="space-y-0.5">
@@ -103,26 +158,32 @@
 
             <div class="flex gap-1">
               <Badge variant="gem" v-if="item.price">{{ item.price }}</Badge>
-              <Badge variant="timer" v-if="timers.isPowerupActive(index)">{{
-                timers.powerupTimeRemaining
+              <Badge variant="timer" v-if="timers.isPowerupActive(item.id)">{{
+                timers.powerupTimeRemaining(item.id)
               }}</Badge>
             </div>
           </div>
           <div class="flex items-center gap-2">
             <Button
-              @click="shopStore.togglePowerupItem(index)"
+              @click="shopStore.togglePowerupItem(item.id)"
               :variant="
-                shop.shoppingCart.value.powerup[index] ? 'default' : 'outline'
+                shop.shoppingCart.value.powerup[item.id] ? 'default' : 'outline'
               "
-              :disabled="player.hasOwnedPowerup(index)"
+              :disabled="
+                player.hasOwnedPowerup(item.id) ||
+                timers.isPowerupActive(item.id)
+              "
               size="icon"
             >
               <Check
-                v-if="shop.shoppingCart.value.powerup[index]"
+                v-if="shop.shoppingCart.value.powerup[item.id]"
                 class="w-4 h-4"
               />
               <CheckCheck
-                v-else-if="player.hasOwnedPowerup(index)"
+                v-else-if="
+                  player.hasOwnedPowerup(item.id) ||
+                  timers.isPowerupActive(item.id)
+                "
                 class="w-4 h-4"
               />
               <Plus v-else class="w-4 h-4" />
@@ -158,5 +219,36 @@
         </Button>
       </div>
     </div>
+
+    <AlertDialog v-model:open="showDialogPowerupAlert">
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Oznam powerupy chytačům!</AlertDialogTitle>
+        </AlertDialogHeader>
+        <div
+          v-for="powerupId in ownedDialogPowerups"
+          key="powerupId"
+          class="flex justify-between items-center gap-2 p-2"
+        >
+          <div class="space-y-0.5">
+            <span class="font-medium">{{
+              shopStore.powerups.find((powerup) => powerup.id == powerupId)
+                .title
+            }}</span>
+            <p class="text-sm text-gray-700">
+              {{
+                shopStore.powerups.find((powerup) => powerup.id == powerupId)
+                  .description
+              }}
+            </p>
+          </div>
+        </div>
+        <AlertDialogFooter>
+          <AlertDialogAction @click="handleShare"
+            ><Share2 class="w-4 h-4 mr-1" /> Poslat</AlertDialogAction
+          >
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   </div>
 </template>

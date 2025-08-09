@@ -7,13 +7,13 @@
     CardTitle,
   } from '@/components/ui/card';
   import { Button } from '@/components/ui/button';
-  import { completeCard } from '@/utils';
+  import { completeCard, share } from '@/utils';
   import type { Card as CardType } from '@/types';
   import { usePlayerStore, useTimersStore } from '@/stores';
   import Badge from '@/components/Badge.vue';
   import { computed, ref, onMounted } from 'vue';
   import { Progress } from '@/components/ui/progress';
-  import { X, Ban, Check } from 'lucide-vue-next';
+  import { X, Ban, Check, Share2 } from 'lucide-vue-next';
   import {
     AlertDialog,
     AlertDialogAction,
@@ -83,6 +83,10 @@
     completeCard(props.card.id, false);
     timers.set('veto', 4);
   }
+
+  function handleTranferDialogClose() {
+    completeCard(props.card.id, false);
+  }
 </script>
 
 <template>
@@ -90,12 +94,18 @@
     <CardHeader>
       <CardTitle class="uppercase text-lg">{{ card.title }}</CardTitle>
       <CardDescription class="text-gray-600"
-        >Líznuto v {{ formatTimestamp(card.timestamp) }}</CardDescription
+        >Líznuto v {{ formatTimestamp(card.timestamp) }}
+        <span v-if="player.transferPowerupCard.includes(props.card.id)">
+          • Přeneseno na chytače</span
+        ></CardDescription
       >
       <CardDescription class="text-base">{{
         card.description
       }}</CardDescription>
-      <div class="flex gap-2">
+      <div
+        class="flex gap-2"
+        v-if="!player.transferPowerupCard.includes(props.card.id)"
+      >
         <Badge
           variant="coin"
           v-if="
@@ -123,7 +133,10 @@
         >
       </div>
     </CardHeader>
-    <CardFooter class="flex gap-2 w-full">
+    <CardFooter
+      class="flex gap-2 w-full"
+      v-if="!player.transferPowerupCard.includes(props.card.id)"
+    >
       <AlertDialog>
         <AlertDialogTrigger as-child>
           <Button
@@ -171,4 +184,45 @@
       />
     </CardFooter>
   </Card>
+  <AlertDialog
+    :default-open="true"
+    v-if="player.transferPowerupCard.includes(props.card.id) && !props.disabled"
+  >
+    <AlertDialogContent>
+      <AlertDialogHeader
+        ><AlertDialogTitle
+          >Přenes tento úkol na chytače</AlertDialogTitle
+        ></AlertDialogHeader
+      >
+      <AlertDialogDescription
+        >Dokud ho nesplní, nemohou tě chytit. Můžou se ale pořád pohybovat.
+        Platí pro ně stejná pravidla ohledně plnění
+        úkolů.</AlertDialogDescription
+      >
+      <Card>
+        <CardHeader>
+          <CardTitle class="uppercase text-lg">{{ card.title }}</CardTitle>
+          <CardDescription class="text-gray-600"
+            >Líznuto v {{ formatTimestamp(card.timestamp) }}</CardDescription
+          >
+          <CardDescription class="text-base">{{
+            card.description
+          }}</CardDescription>
+        </CardHeader>
+      </Card>
+      <AlertDialogFooter>
+        <AlertDialogCancel @click="handleTranferDialogClose()"
+          >Ok</AlertDialogCancel
+        >
+        <AlertDialogAction
+          @click="
+            share(
+              `Musíte spltit tento úkol, abyste mohli chytat! Pohybovat se stále můžete. Platí pro vás pravidla ohledně plnění úkolů.\n\n*${card.title}*\n${card.description}`
+            ).then(() => handleTranferDialogClose())
+          "
+          ><Share2 class="w-4 h-4 mr-1" /> Poslat</AlertDialogAction
+        >
+      </AlertDialogFooter>
+    </AlertDialogContent>
+  </AlertDialog>
 </template>
