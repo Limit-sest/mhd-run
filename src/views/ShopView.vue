@@ -23,6 +23,7 @@
 
   const showDialogPowerupAlert = ref(false);
   const ownedDialogPowerups = ref([]);
+  const pendingTimers = ref([]);
 
   const handleShopItemCountChange = (itemIndex: number, event: Event) => {
     const target = event.target as HTMLInputElement;
@@ -37,26 +38,31 @@
     const dialogPowerups = [1, 3, 4];
 
     let hasDialogPowerups = false;
+    pendingTimers.value = [];
 
     for (const itemIndex in shop.shoppingCart.value.powerup) {
       if (shop.shoppingCart.value.powerup[parseInt(itemIndex)]) {
         let powerup = shopStore.powerups.find(
           (powerup) => powerup.id == parseInt(itemIndex)
         );
-        console.log(powerup);
         if (dialogPowerups.includes(powerup.id)) {
           hasDialogPowerups = true;
           ownedDialogPowerups.value.push(powerup.id);
         }
 
         if (powerup.timer) {
-          timers.set('powerup', powerup.timer, powerup.id);
+          pendingTimers.value.push({ id: powerup.id, timer: powerup.timer });
         }
       }
     }
 
     if (hasDialogPowerups) {
       showDialogPowerupAlert.value = true;
+    } else {
+      // Set timers immediately if no dialog powerups
+      pendingTimers.value.forEach(({ id, timer }) => {
+        timers.set('powerup', timer, id);
+      });
     }
 
     for (const itemIndex in shop.shoppingCart.value.powerup) {
@@ -74,7 +80,7 @@
   };
 
   async function handleShare() {
-    let shareText: string;
+    let shareText: string = '';
     ownedDialogPowerups.value.forEach((powerupId) => {
       shareText += shopStore.powerups.find(
         (powerup) => powerup.id == powerupId
@@ -82,10 +88,18 @@
       shareText += '\n';
     });
 
+    console.log(shareText);
+
     await share(shareText);
+
+    // Set timers after sharing is complete
+    pendingTimers.value.forEach(({ id, timer }) => {
+      timers.set('powerup', timer, id);
+    });
 
     showDialogPowerupAlert.value = false;
     ownedDialogPowerups.value = [];
+    pendingTimers.value = [];
   }
 
   const getShopItemCount = (itemIndex: number) => {
