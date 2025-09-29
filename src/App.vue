@@ -1,6 +1,24 @@
 <script setup>
   import BottonBar from './components/BottonBar.vue';
   import TopBar from './components/TopBar.vue';
+  import { onMounted } from 'vue';
+  import { fetchAllData } from './utils';
+  import { useFetchTimestamp } from './stores';
+  import { storeToRefs } from 'pinia';
+
+  const fetchTimestamp = storeToRefs(useFetchTimestamp());
+
+  onMounted(() => {
+    console.log(fetchTimestamp.cards.value);
+    if (!fetchTimestamp.cards.value) {
+      fetchAllData(false);
+      fetchTimestamp.cards.value = new Date().getTime();
+    }
+    if (new Date().getTime() - fetchTimestamp.cards.value > 600000) {
+      fetchAllData(false);
+      fetchTimestamp.cards.value = new Date().getTime();
+    }
+  });
 </script>
 
 <template>

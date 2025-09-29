@@ -459,6 +459,12 @@ export const useLocationsStore = defineStore('locations', {
   },
 });
 
+export const useFetchTimestamp = defineStore('fetchTimestamp', {
+  state: () => ({
+    cards: undefined,
+  }),
+});
+
 // Function to setup persistence for all stores
 export function setupStorePersistence(piniaInstance: Pinia): void {
   const storesToPersist = [
@@ -476,6 +482,7 @@ export function setupStorePersistence(piniaInstance: Pinia): void {
     { store: useShopStore(piniaInstance), keyPrefix: 'shop' },
     { store: useLocationsStore(piniaInstance), keyPrefix: 'location' },
     { store: useTimersStore(piniaInstance), keyPrefix: 'timersStore' },
+    { store: useFetchTimestamp(piniaInstance), keyPrefix: 'fetchTimestamp' },
   ];
 
   storesToPersist.forEach(({ store, keyPrefix }) => {

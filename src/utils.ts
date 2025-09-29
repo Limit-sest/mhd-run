@@ -86,16 +86,11 @@ function convertCSVToShopItems(csvData: CSVRow[]): ShopItem[] {
 function proccessCards(
   dataRows: CSVRow[],
   allCardsStore: ReturnType<typeof useAllCardsStore>,
-  shuffeledCardsStore: ReturnType<typeof useShuffeledCardsStore>
+  shuffeledCardsStore: ReturnType<typeof useShuffeledCardsStore>,
+  destructive: boolean = true
 ): void {
-  if (!dataRows || dataRows.length <= 1) {
-    throw new Error(
-      'CSV data neobsahuje žádné datové řádky (pouze hlavičku nebo je prázdné).'
-    );
-  }
-
   if (dataRows.length === 0) {
-    throw new Error('CSV neobsahuje žádné datové řádky');
+    throw new Error('Empty csv!');
   }
 
   const parsedCards: Card[] = dataRows
@@ -121,14 +116,9 @@ function proccessCards(
       return card !== null;
     });
 
-  if (parsedCards.length === 0) {
-    throw new Error(
-      'Po parsování nebyly nalezeny žádné platné karty. Zkontrolujte formát CSV a obsah datových řádků.'
-    );
-  }
-
   allCardsStore.setCards(parsedCards);
-  shuffeledCardsStore.shuffleCards();
+  if (destructive || shuffeledCardsStore.cards.length === 0)
+    shuffeledCardsStore.shuffleCards();
 }
 
 function proccessLocations(dataRows: CSVRow[]): Location[] {
@@ -157,7 +147,7 @@ function proccessLocations(dataRows: CSVRow[]): Location[] {
   return locations;
 }
 
-export async function fetchAllData(): Promise<void> {
+export async function fetchAllData(destructive = true): Promise<void> {
   const cardCsv = import.meta.env.VITE_CARD_CSV_URL as string;
   const transitCsv = import.meta.env.VITE_SHOP_TRANSIT_CSV_URL as string;
   const powerupCsv = import.meta.env.VITE_SHOP_POWERUP_CSV_URL as string;
@@ -168,27 +158,15 @@ export async function fetchAllData(): Promise<void> {
   const shop = useShopStore();
   const locationStore = useLocationsStore();
 
-  try {
-    const cardDataRows = await fetchCSV(cardCsv);
-    const transit = await fetchCSV(transitCsv);
-    const powerup = await fetchCSV(powerupCsv);
-    const locations = await fetchCSV(locationCsv);
+  const cardDataRows = await fetchCSV(cardCsv);
+  const transit = await fetchCSV(transitCsv);
+  const powerup = await fetchCSV(powerupCsv);
+  const locations = await fetchCSV(locationCsv);
 
-    shop.setTransit(convertCSVToShopItems(transit));
-    shop.setPowerups(convertCSVToShopItems(powerup));
-    proccessCards(cardDataRows, allCards, shuffledCardsIds);
-    locationStore.setAllLocations(proccessLocations(locations));
-  } catch (err) {
-    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-    console.error(
-      'Chyba při načítání nebo zpracování karet z CSV:',
-      errorMessage
-    );
-    // Reset stores in case of an error
-    shop.setTransit([]);
-    shop.setPowerups([]);
-    allCards.setCards([]);
-  }
+  shop.setTransit(convertCSVToShopItems(transit));
+  shop.setPowerups(convertCSVToShopItems(powerup));
+  proccessCards(cardDataRows, allCards, shuffledCardsIds, destructive);
+  locationStore.setAllLocations(proccessLocations(locations));
 }
 
 function rewardCard(cardId: number): void {
