@@ -13,15 +13,26 @@ import { storeToRefs } from 'pinia';
 import OpenLocationCode from 'open-location-code-typescript';
 import type { Location } from './types';
 
-export const generateUniqueId = (): string =>
-  `card_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+export function getHash(source): number {
+  let hash = 0;
 
-export const getCardDetails = (cardId: string): Card | undefined => {
+  if (source.length == 0) return hash;
+
+  for (let i = 0; i < source.length; i++) {
+    const char = source.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash;
+  }
+
+  return hash;
+}
+
+export function getCardDetails(cardId: number): Card | undefined {
   const allCards = useAllCardsStore();
   return allCards.cards.find((card: Card) => card.id === cardId);
-};
+}
 
-export const fetchCSV = async (csvUrl: string): Promise<CSVRow[]> => {
+export async function fetchCSV(csvUrl: string): Promise<CSVRow[]> {
   if (!csvUrl) {
     throw new Error('Chyba: URL pro CSV data nebyla poskytnuta.');
   }
@@ -41,7 +52,9 @@ export const fetchCSV = async (csvUrl: string): Promise<CSVRow[]> => {
 
   if (parseResult.errors.length > 0) {
     const errorMessages = parseResult.errors
-      .map((e) => `Error: ${e.message} (řádek: ${e.row})`)
+      .map(function (e) {
+        return `Error: ${e.message} (řádek: ${e.row})`;
+      })
       .join('; ');
     throw new Error(`Chyba při parsování CSV: ${errorMessages}`);
   }
@@ -53,11 +66,11 @@ export const fetchCSV = async (csvUrl: string): Promise<CSVRow[]> => {
   }
 
   return parseResult.data;
-};
+}
 
-const convertCSVToShopItems = (csvData: CSVRow[]): ShopItem[] => {
-  return csvData.map(
-    (row): ShopItem => ({
+function convertCSVToShopItems(csvData: CSVRow[]): ShopItem[] {
+  return csvData.map(function (row): ShopItem {
+    return {
       title: row.title || '',
       description: row.description,
       price: parseInt(row.price || '0'),
@@ -66,15 +79,15 @@ const convertCSVToShopItems = (csvData: CSVRow[]): ShopItem[] => {
       id: parseInt(row.id),
       shareDescription: row.shareDescription,
       timer: parseInt(row.timer),
-    })
-  );
-};
+    };
+  });
+}
 
-const proccessCards = (
+function proccessCards(
   dataRows: CSVRow[],
   allCardsStore: ReturnType<typeof useAllCardsStore>,
   shuffeledCardsStore: ReturnType<typeof useShuffeledCardsStore>
-): void => {
+): void {
   if (!dataRows || dataRows.length <= 1) {
     throw new Error(
       'CSV data neobsahuje žádné datové řádky (pouze hlavičku nebo je prázdné).'
@@ -86,7 +99,7 @@ const proccessCards = (
   }
 
   const parsedCards: Card[] = dataRows
-    .map((row): Card | null => {
+    .map(function (row): Card | null {
       const title = row['title']?.trim();
       const description = row['description']?.trim();
       const rewardCoins = String(row['rewardCoins'])?.trim();
@@ -95,7 +108,7 @@ const proccessCards = (
       const timer = parseInt(row['timer']);
 
       return {
-        id: generateUniqueId(),
+        id: getHash(title),
         title: title || 'Neznámý titul',
         description: description || 'Žádný popis',
         rewardCoins: rewardCoins || '0',
@@ -104,7 +117,9 @@ const proccessCards = (
         timer,
       };
     })
-    .filter((card): card is Card => card !== null);
+    .filter(function (card): card is Card {
+      return card !== null;
+    });
 
   if (parsedCards.length === 0) {
     throw new Error(
@@ -114,10 +129,10 @@ const proccessCards = (
 
   allCardsStore.setCards(parsedCards);
   shuffeledCardsStore.shuffleCards();
-};
+}
 
-const proccessLocations = (dataRows: CSVRow[]): Location[] => {
-  const locations = dataRows.map((row) => {
+function proccessLocations(dataRows: CSVRow[]): Location[] {
+  const locations = dataRows.map(function (row) {
     const referenceLat: number = 50.0755; // Prague latitude
     const referenceLng: number = 14.4378; // Prague longitude
     const shortCode = row.plusCode.split(' ')[0];
@@ -140,9 +155,9 @@ const proccessLocations = (dataRows: CSVRow[]): Location[] => {
     };
   });
   return locations;
-};
+}
 
-export const fetchAllData = async (): Promise<void> => {
+export async function fetchAllData(): Promise<void> {
   const cardCsv = import.meta.env.VITE_CARD_CSV_URL as string;
   const transitCsv = import.meta.env.VITE_SHOP_TRANSIT_CSV_URL as string;
   const powerupCsv = import.meta.env.VITE_SHOP_POWERUP_CSV_URL as string;
@@ -174,9 +189,9 @@ export const fetchAllData = async (): Promise<void> => {
     shop.setPowerups([]);
     allCards.setCards([]);
   }
-};
+}
 
-const rewardCard = (cardId: string): void => {
+function rewardCard(cardId: number): void {
   const allCards = useAllCardsStore();
   const player = usePlayerStore();
   const cardDetails = allCards.getCardDetails(cardId);
@@ -192,9 +207,9 @@ const rewardCard = (cardId: string): void => {
     player.addCoins(coinsReward);
     player.addPowerup(powerupReward);
   }
-};
+}
 
-export const drawCard = (): void => {
+export function drawCard(): void {
   const shuffledCards = storeToRefs(useShuffeledCardsStore());
   const handCards = storeToRefs(useHandCardsStore());
   const allCards = useAllCardsStore();
@@ -226,13 +241,14 @@ export const drawCard = (): void => {
     player.addTransferPowerupCard(cardIdToDraw);
     player.removeOwnedPowerup(2);
   }
-};
+}
 
-export const completeCard = (cardId: string, reward: boolean = true): void => {
+export function completeCard(cardId: number, reward: boolean = true): void {
   const handCards = storeToRefs(useHandCardsStore());
   const completedCards = storeToRefs(useCompletedCardsStore());
 
   const cardIndexInHand = handCards.cards.value.indexOf(cardId);
+
   if (cardIndexInHand > -1) {
     const [cardToCompleteId] = handCards.cards.value.splice(cardIndexInHand, 1);
     completedCards.cards.value.unshift(cardToCompleteId);
@@ -240,7 +256,7 @@ export const completeCard = (cardId: string, reward: boolean = true): void => {
       rewardCard(cardToCompleteId);
     }
   }
-};
+}
 
 export const getFromLocalStorage = <T = unknown>(key: string): T | null => {
   const item = localStorage.getItem(key);

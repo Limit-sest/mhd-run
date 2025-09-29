@@ -17,16 +17,16 @@ export const useAllCardsStore = defineStore('allCards', {
     setCards(cards: Card[]) {
       this.cards = cards;
     },
-    getCardDetails(cardId: string): Card | undefined {
+    getCardDetails(cardId: number): Card | undefined {
       return this.cards.find((card: Card) => card.id === cardId);
     },
-    addTimestamp(cardId: string) {
+    addTimestamp(cardId: number) {
       const card = this.getCardDetails(cardId);
       if (card) {
         card.timestamp = new Date();
       }
     },
-    addTimerEnd(cardId: string, duration: number) {
+    addTimerEnd(cardId: number, duration: number) {
       const card = this.getCardDetails(cardId);
       if (card) {
         card.timerEnd = new Date(card.timestamp.getTime() + duration * 60000);
