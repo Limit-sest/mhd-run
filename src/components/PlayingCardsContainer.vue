@@ -24,7 +24,7 @@
     >
       Žádné karty
     </div>
-    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-4">
       <PlayingCard
         v-for="card in cards"
         :key="card.id"
