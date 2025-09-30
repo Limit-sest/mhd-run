@@ -14,6 +14,13 @@
       "description": " Tohle by se mělo používat jen vyjímečně. Nedostaneš odměnu ani postih. Myslíš si, že bys to měl udělat? 🤨",
       "yes": "Ano, chci jí zrušit",
       "no": "Uhh ne"
+    },
+    "transfered": "Přeneseno na chytače",
+    "transfer": {
+      "title": "Přenes tento úkol na chytače",
+      "description": "Dokud ho nesplní, nemohou tě chytit. Můžou se ale pořád pohybovat. Platí pro ně stejná pravidla ohledně plnění úkolů.",
+      "share": "Poslat",
+      "share-text": "Musíte spltit tento úkol, abyste mohli chytat! Pohybovat se stále můžete. Platí pro vás pravidla ohledně plnění úkolů."
     }
   },
   "shop": {

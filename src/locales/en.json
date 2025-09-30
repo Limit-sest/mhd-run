@@ -14,6 +14,13 @@
       "description": "This option is not meant to be used often. You won't be punished or rewarded. Are you sure you want to do this? 🤨",
       "yes": "Yes, I'm sure",
       "no": "Uhh no"
+    },
+    "transfered": "Transfered to chasers",
+    "transfer": {
+      "title": "Transfer this task to the chasers",
+      "description": "Until they complete it, they can’t catch you. But they can still move around. The same rules for completing tasks apply to them.",
+      "share": "Share",
+      "share-text": "Complete this task before you can start catching! You’re still allowed to move, but the task rules apply to you too."
     }
   },
   "shop": {

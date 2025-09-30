@@ -96,7 +96,7 @@
       <CardDescription class="text-gray-600"
         >Líznuto v {{ formatTimestamp(card.timestamp) }}
         <span v-if="player.transferPowerupCard.includes(props.card.id)">
-          • Přeneseno na chytače</span
+          • {{ $t('card.transfered') }}</span
         ></CardDescription
       >
       <CardDescription class="text-base">{{
@@ -149,17 +149,16 @@
         </AlertDialogTrigger>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Opravdu chceš kartu zrušit?</AlertDialogTitle>
+            <AlertDialogTitle>{{ $t('card.discard.title') }}</AlertDialogTitle>
             <AlertDialogDescription>
-              Tohle by se mělo používat jen vyjímečně. Nedostaneš odměnu ani
-              postih. <b>Myslíš si, že bys to měl udělat? 🤨</b>
+              {{ $t('card.discard.desctiption') }}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Uhh ne</AlertDialogCancel>
-            <AlertDialogAction @click="completeCard(card.id, false)"
-              >Ano, chci jí zrušit</AlertDialogAction
-            >
+            <AlertDialogCancel>{{ $t('card.discard.no') }}</AlertDialogCancel>
+            <AlertDialogAction @click="completeCard(card.id, false)">{{
+              $t('card.discard.yes')
+            }}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -168,7 +167,7 @@
         variant="outline"
         :disabled="disabled"
         v-if="card.type !== 'Prokletí'"
-        ><Ban class="w-4 h-4 mr-1 opacity-70" />Veto</Button
+        ><Ban class="w-4 h-4 mr-1 opacity-70" />{{ $t('card.veto') }}</Button
       >
       <Button
         @click="completeCard(card.id, card.type === 'Úkol')"
@@ -176,7 +175,9 @@
         :disabled="disabled"
         class="flex-1"
         v-if="!card.timerEnd"
-        ><Check class="w-4 h-4 mr-1 opacity-70" />Dokončit</Button
+        ><Check class="w-4 h-4 mr-1 opacity-70" />{{
+          $t('card.complete')
+        }}</Button
       >
       <Progress
         v-if="card.timer && card.timerEnd.getTime() > new Date().getTime()"
@@ -190,15 +191,13 @@
   >
     <AlertDialogContent>
       <AlertDialogHeader
-        ><AlertDialogTitle
-          >Přenes tento úkol na chytače</AlertDialogTitle
-        ></AlertDialogHeader
+        ><AlertDialogTitle>{{
+          $t('card.transfer.title')
+        }}</AlertDialogTitle></AlertDialogHeader
       >
-      <AlertDialogDescription
-        >Dokud ho nesplní, nemohou tě chytit. Můžou se ale pořád pohybovat.
-        Platí pro ně stejná pravidla ohledně plnění
-        úkolů.</AlertDialogDescription
-      >
+      <AlertDialogDescription>{{
+        $t('card.transfer.description')
+      }}</AlertDialogDescription>
       <Card>
         <CardHeader>
           <CardTitle class="uppercase text-lg">{{ card.title }}</CardTitle>
@@ -217,10 +216,13 @@
         <AlertDialogAction
           @click="
             share(
-              `Musíte spltit tento úkol, abyste mohli chytat! Pohybovat se stále můžete. Platí pro vás pravidla ohledně plnění úkolů.\n\n*${card.title}*\n${card.description}`
+              `${$t('card.transfer.share-text')}\n\n*${card.title}*\n${
+                card.description
+              }`
             ).then(() => handleTranferDialogClose())
           "
-          ><Share2 class="w-4 h-4 mr-1" /> Poslat</AlertDialogAction
+          ><Share2 class="w-4 h-4 mr-1" />
+          {{ $t('card.transfer.share') }}</AlertDialogAction
         >
       </AlertDialogFooter>
     </AlertDialogContent>

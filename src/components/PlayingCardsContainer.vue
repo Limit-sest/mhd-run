@@ -22,7 +22,7 @@
       v-if="cards.length === 0"
       class="text-slate-600 italic p-4 text-center"
     >
-      Žádné karty
+      {{ $t('cards.no-cards') }}
     </div>
     <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-4">
       <PlayingCard

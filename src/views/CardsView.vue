@@ -43,12 +43,12 @@
         <!-- Hand Zone -->
         <PlayingCardsContainer
           :cards="handCards"
-          title="Aktivní"
+          :title="$t('cards.active')"
           :cardsDisabled="false"
         />
         <PlayingCardsContainer
           :cards="completedCards"
-          title="Dokončené"
+          :title="$t('cards.completed')"
           :cardsDisabled="true"
         />
       </div>
@@ -64,7 +64,7 @@
         v-if="!timers.isVetoActive"
       >
         <BookPlus class="w-4 h-4 mr-1" />
-        Líznout kartu
+        {{ $t('cards.draw') }}
       </Button>
       <Button class="w-full bg-gray-900/50 pointer-events-none" v-else
         ><Badge variant="veto">{{ timers.vetoTimeRemaining }}</Badge>
