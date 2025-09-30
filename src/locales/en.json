@@ -1,0 +1,38 @@
+{
+  "cards": {
+    "active": "Active",
+    "completed": "Completed",
+    "draw": "Draw card",
+    "no-cards": "No cards to display"
+  },
+  "card": {
+    "complete": "Complete",
+    "veto": "Veto",
+    "timestamp": "Drawn at ",
+    "discard": {
+      "title": "Do you really want to discard this card?",
+      "description": "This option is not meant to be used often. You won't be punished or rewarded. Are you sure you want to do this? 🤨",
+      "yes": "Yes, I'm sure",
+      "no": "Uhh no"
+    }
+  },
+  "shop": {
+    "transit": "Transit",
+    "powerups": "Powerups",
+    "pay": "Pay"
+  },
+  "goal": {
+    "no-goal": "No goal location yet.\nGet one by clicking the button below.",
+    "draw": "Draw goal",
+    "distance": "Distance: {distance} km",
+    "open": "Open in maps"
+  },
+  "settings": {
+    "coins": "Amount of 🪙",
+    "gems": "Amount of 💎",
+    "save": "Save",
+    "goal-range": "Location drawing range (km)",
+    "reset": "Reset app",
+    "fetch": "Update data"
+  }
+}

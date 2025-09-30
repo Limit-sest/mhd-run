@@ -1,0 +1,38 @@
+{
+  "cards": {
+    "active": "Aktivní",
+    "completed": "Dokončené",
+    "draw": "Líznout kartu",
+    "no-cards": "Žádné karty k zobrazení"
+  },
+  "card": {
+    "complete": "Dokončit",
+    "veto": "Veto",
+    "timestamp": "Líznuto v ",
+    "discard": {
+      "title": "Opravdu chceš kartu zrušit?",
+      "description": " Tohle by se mělo používat jen vyjímečně. Nedostaneš odměnu ani postih. Myslíš si, že bys to měl udělat? 🤨",
+      "yes": "Ano, chci jí zrušit",
+      "no": "Uhh ne"
+    }
+  },
+  "shop": {
+    "transit": "Doprava",
+    "powerups": "Vylepšení",
+    "pay": "Zaplatit"
+  },
+  "goal": {
+    "no-goal": "Zatím žádný cíl.\nVylosuj si ho kliknutím na tlačítko dole.",
+    "draw": "Vylosovat cíl",
+    "distance": "Vzdálenost: {distance} km",
+    "open": "Otevřít v mapách"
+  },
+  "settings": {
+    "coins": "Počet 🪙",
+    "gems": "Počet 💎",
+    "save": "Uložit",
+    "goal-range": "Rozsah losování lokací (km)",
+    "reset": "Resetovat aplikaci",
+    "fetch": "Aktualizovat data"
+  }
+}
