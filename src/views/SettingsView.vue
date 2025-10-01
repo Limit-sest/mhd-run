@@ -43,28 +43,33 @@
   <div class="flex flex-col gap-6 m-4">
     <div class="flex gap-2">
       <div class="flex flex-col gap-2">
-        <Label for="coins">Počet mincí</Label>
+        <Label for="coins">{{ $t('settings.coins') }}</Label>
         <Input id="coins" type="number" v-model="coinsInput" />
       </div>
       <div class="flex flex-col gap-2">
-        <Label for="powerups">Počet powerupů</Label>
+        <Label for="powerups">{{ $t('settings.gems') }}</Label>
         <Input id="powerups" type="number" v-model="powerupInput" />
       </div>
-      <Button @click="handleSetCurrencies" class="self-end" variant="secondary"
-        >Nastavit</Button
+      <Button
+        @click="handleSetCurrencies"
+        class="self-end"
+        variant="secondary"
+        >{{ $t('settings.save') }}</Button
       >
     </div>
     <div class="flex flex-col gap-2">
-      <Label>Rozsah losování lokací</Label>
+      <Label>{{ $t('settings.goal-range') }}</Label>
       <div class="flex gap-2">
         <Input type="number" v-model="radiusMinInput" />
         <Input type="number" v-model="radiusMaxInput" />
-        <Button @click="handleSetRadius" variant="secondary">Nastavit</Button>
+        <Button @click="handleSetRadius" variant="secondary">{{
+          $t('settings.save')
+        }}</Button>
       </div>
     </div>
     <div class="grid grid-cols-2 gap-2 mt-auto">
-      <Button @click="handleReset"> Resetovat aplikaci </Button>
-      <Button @click="fetchAllData"> Fetch data </Button>
+      <Button @click="handleReset"> {{ $t('settings.reset') }} </Button>
+      <Button @click="fetchAllData"> {{ $t('settings.fetch') }} </Button>
     </div>
   </div>
 </template>
