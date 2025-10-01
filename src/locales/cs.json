@@ -26,7 +26,11 @@
   "shop": {
     "transit": "Doprava",
     "powerups": "Vylepšení",
-    "pay": "Zaplatit"
+    "pay": "Zaplatit",
+    "powerups-share": {
+      "title": "Oznam powerupy chytačům",
+      "share": "Poslat"
+    }
   },
   "goal": {
     "no-goal": "Zatím žádný cíl.\nVylosuj si ho kliknutím na tlačítko dole.",

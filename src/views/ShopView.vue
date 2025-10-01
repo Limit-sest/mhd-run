@@ -117,7 +117,7 @@
     <div class="w-full h-full flex-1 overflow-y-scroll">
       <!-- Transit Section -->
       <div v-if="shop.transit.value.length > 0" class="mb-4">
-        <h2 class="text-lg font-semibold">Doprava</h2>
+        <h2 class="text-lg font-semibold">{{ $t('shop.transit') }}</h2>
         <div
           class="flex justify-between items-center p-2 border-b last:border-none"
           v-for="(item, index) in shop.transit.value"
@@ -158,7 +158,7 @@
 
       <!-- Powerups Section -->
       <div v-if="shop.powerups.value.length > 0" class="mb-20">
-        <h2 class="text-lg font-semibold">Vylepšení</h2>
+        <h2 class="text-lg font-semibold">{{ $t('shop.powerups') }}</h2>
         <div
           class="flex justify-between items-center gap-2 p-2 border-b last:border-none"
           v-for="item in shop.powerups.value"
@@ -219,7 +219,7 @@
           class="tabular-nums w-full"
           v-if="!timers.isVetoActive"
         >
-          Zaplatit
+          {{ $t('shop.pay') }}
           <Badge variant="coin" v-if="shopStore.totalCoins">{{
             shopStore.totalCoins
           }}</Badge>
@@ -237,7 +237,9 @@
     <AlertDialog v-model:open="showDialogPowerupAlert">
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Oznam powerupy chytačům!</AlertDialogTitle>
+          <AlertDialogTitle>{{
+            $t('shop.powerups-share.title')
+          }}</AlertDialogTitle>
         </AlertDialogHeader>
         <div
           v-for="powerupId in ownedDialogPowerups"
@@ -259,7 +261,8 @@
         </div>
         <AlertDialogFooter>
           <AlertDialogAction @click="handleShare"
-            ><Share2 class="w-4 h-4 mr-1" /> Poslat</AlertDialogAction
+            ><Share2 class="w-4 h-4 mr-1" />
+            {{ $t('shop.powerups-share.share') }}</AlertDialogAction
           >
         </AlertDialogFooter>
       </AlertDialogContent>

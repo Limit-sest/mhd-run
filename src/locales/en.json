@@ -26,7 +26,11 @@
   "shop": {
     "transit": "Transit",
     "powerups": "Powerups",
-    "pay": "Pay"
+    "pay": "Pay",
+    "powerups-share": {
+      "title": "Announce you bought powerups!",
+      "share": "Share"
+    }
   },
   "goal": {
     "no-goal": "No goal location yet.\nGet one by clicking the button below.",
