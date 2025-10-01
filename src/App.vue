@@ -9,7 +9,6 @@
   const fetchTimestamp = storeToRefs(useFetchTimestamp());
 
   onMounted(() => {
-    console.log(fetchTimestamp.cards.value);
     if (!fetchTimestamp.cards.value) {
       fetchAllData(false);
       fetchTimestamp.cards.value = new Date().getTime();

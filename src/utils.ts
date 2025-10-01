@@ -12,6 +12,13 @@ import Papa from 'papaparse';
 import { storeToRefs } from 'pinia';
 import OpenLocationCode from 'open-location-code-typescript';
 import type { Location } from './types';
+import i18n from './i18n';
+import { watch } from 'vue';
+
+watch(
+  () => i18n.global.locale,
+  () => fetchAllData()
+);
 
 export function getHash(source): number {
   let hash = 0;
@@ -148,10 +155,21 @@ function proccessLocations(dataRows: CSVRow[]): Location[] {
 }
 
 export async function fetchAllData(destructive = true): Promise<void> {
-  const cardCsv = import.meta.env.VITE_CARD_CSV_URL as string;
-  const transitCsv = import.meta.env.VITE_SHOP_TRANSIT_CSV_URL as string;
-  const powerupCsv = import.meta.env.VITE_SHOP_POWERUP_CSV_URL as string;
-  const locationCsv = import.meta.env.VITE_LOCATION_CSV_URL as string;
+  const cardCsv =
+    import.meta.env.VITE_CARD || i18n.global.locale === 'cs'
+      ? 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRINMC6eKg8bWyZW9H-aZ9RTsqTMJgZSkVIS60ogExiBZ6I0NsI2C36vSP2Hgw-_qJYPr2OMWWA7ETB/pub?gid=0&single=true&output=csv'
+      : 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRINMC6eKg8bWyZW9H-aZ9RTsqTMJgZSkVIS60ogExiBZ6I0NsI2C36vSP2Hgw-_qJYPr2OMWWA7ETB/pub?gid=460722975&single=true&output=csv';
+  const transitCsv =
+    import.meta.env.VITE_SHOP_TRANSIT || i18n.global.locale === 'cs'
+      ? 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRINMC6eKg8bWyZW9H-aZ9RTsqTMJgZSkVIS60ogExiBZ6I0NsI2C36vSP2Hgw-_qJYPr2OMWWA7ETB/pub?gid=1746737016&single=true&output=csv'
+      : 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRINMC6eKg8bWyZW9H-aZ9RTsqTMJgZSkVIS60ogExiBZ6I0NsI2C36vSP2Hgw-_qJYPr2OMWWA7ETB/pub?gid=907602207&single=true&output=csv';
+  const powerupCsv =
+    import.meta.env.VITE_SHOP_POWERUP || i18n.global.locale === 'cs'
+      ? 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRINMC6eKg8bWyZW9H-aZ9RTsqTMJgZSkVIS60ogExiBZ6I0NsI2C36vSP2Hgw-_qJYPr2OMWWA7ETB/pub?gid=1927382705&single=true&output=csv'
+      : 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRINMC6eKg8bWyZW9H-aZ9RTsqTMJgZSkVIS60ogExiBZ6I0NsI2C36vSP2Hgw-_qJYPr2OMWWA7ETB/pub?gid=1554125513&single=true&output=csv';
+  const locationCsv =
+    import.meta.env.VITE_LOCATION ||
+    'https://docs.google.com/spreadsheets/d/e/2PACX-1vRINMC6eKg8bWyZW9H-aZ9RTsqTMJgZSkVIS60ogExiBZ6I0NsI2C36vSP2Hgw-_qJYPr2OMWWA7ETB/pub?gid=912143845&single=true&output=csv';
 
   const shuffledCardsIds = useShuffeledCardsStore();
   const allCards = useAllCardsStore();
