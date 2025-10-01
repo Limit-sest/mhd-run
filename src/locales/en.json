@@ -8,7 +8,7 @@
   "card": {
     "complete": "Complete",
     "veto": "Veto",
-    "timestamp": "Drawn at ",
+    "timestamp": "Drawn at",
     "discard": {
       "title": "Do you really want to discard this card?",
       "description": "This option is not meant to be used often. You won't be punished or rewarded. Are you sure you want to do this? 🤨",

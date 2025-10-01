@@ -8,7 +8,7 @@
   "card": {
     "complete": "Dokončit",
     "veto": "Veto",
-    "timestamp": "Líznuto v ",
+    "timestamp": "Líznuto v",
     "discard": {
       "title": "Opravdu chceš kartu zrušit?",
       "description": " Tohle by se mělo používat jen vyjímečně. Nedostaneš odměnu ani postih. Myslíš si, že bys to měl udělat? 🤨",

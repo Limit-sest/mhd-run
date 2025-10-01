@@ -94,7 +94,7 @@
     <CardHeader>
       <CardTitle class="uppercase text-lg">{{ card.title }}</CardTitle>
       <CardDescription class="text-gray-600"
-        >Líznuto v {{ formatTimestamp(card.timestamp) }}
+        >{{ $t('card.timestamp') }} {{ formatTimestamp(card.timestamp) }}
         <span v-if="player.transferPowerupCard.includes(props.card.id)">
           • {{ $t('card.transfered') }}</span
         ></CardDescription
