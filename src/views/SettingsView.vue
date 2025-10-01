@@ -9,6 +9,9 @@
   import { Button } from '@/components/ui/button';
   import { Input } from '@/components/ui/input';
   import { Label } from '@/components/ui/label';
+  import { Loader2 } from 'lucide-vue-next';
+
+  const fetchLoading = ref(false);
 
   const shuffledCardsIds = useShuffeledCardsStore();
   const playerStore = usePlayerStore();
@@ -69,7 +72,19 @@
     </div>
     <div class="grid grid-cols-2 gap-2 mt-auto">
       <Button @click="handleReset"> {{ $t('settings.reset') }} </Button>
-      <Button @click="fetchAllData"> {{ $t('settings.fetch') }} </Button>
+      <Button
+        @click="
+          async () => {
+            fetchLoading = true;
+            await fetchAllData();
+            fetchLoading = false;
+          }
+        "
+        :disabled="fetchLoading"
+      >
+        <Loader2 class="animate-spin w-4 h-4 mr-1" v-if="fetchLoading" />
+        {{ $t('settings.fetch') }}
+      </Button>
     </div>
   </div>
 </template>
