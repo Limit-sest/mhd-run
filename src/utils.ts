@@ -13,7 +13,7 @@ import { storeToRefs } from 'pinia';
 import OpenLocationCode from 'open-location-code-typescript';
 import type { Location } from './types';
 import { i18n } from './i18n';
-import { watch } from 'vue';
+import { ref, watch } from 'vue';
 
 watch(
   () => i18n.global.locale,
@@ -205,6 +205,8 @@ function rewardCard(cardId: number): void {
   }
 }
 
+export const cardsToAnimate = ref([]);
+
 export function drawCard(): void {
   const shuffledCards = storeToRefs(useShuffeledCardsStore());
   const handCards = storeToRefs(useHandCardsStore());
@@ -216,6 +218,12 @@ export function drawCard(): void {
 
   handCards.cards.value.unshift(cardIdToDraw);
   allCards.addTimestamp(cardIdToDraw);
+  cardsToAnimate.value.push(cardIdToDraw);
+
+  setTimeout(() => {
+    const index = cardsToAnimate.value.indexOf(cardIdToDraw);
+    if (index !== -1) cardsToAnimate.value.splice(index);
+  }, 700);
 
   const card: Card = allCards.cards.find(
     (card: Card) => card.id === cardIdToDraw

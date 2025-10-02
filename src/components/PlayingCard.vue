@@ -25,6 +25,7 @@
     AlertDialogTitle,
     AlertDialogTrigger,
   } from '@/components/ui/alert-dialog';
+  import { cardsToAnimate } from '@/utils';
 
   const player = usePlayerStore();
   const timers = useTimersStore();
@@ -89,8 +90,31 @@
   }
 </script>
 
+<style>
+  @keyframes draw {
+    0% {
+      opacity: 0;
+      transform: translateY(100px) scale(0.5) rotateX(90deg) rotateY(90deg);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0px) scale(1) rotateX(0deg) rotateY(0deg);
+    }
+  }
+
+  .card {
+    transform-origin: center;
+    animation: draw 0.5s ease-out forwards;
+  }
+</style>
+
 <template>
-  <Card :class="[card.type === 'Prokletí' ? 'curse-glow' : '']">
+  <Card
+    :class="[
+      card.type === 'Prokletí' ? 'curse-glow' : '',
+      cardsToAnimate.includes(card.id) ? 'card' : '',
+    ]"
+  >
     <CardHeader>
       <CardTitle class="uppercase text-lg">{{ card.title }}</CardTitle>
       <CardDescription class="text-gray-600"
