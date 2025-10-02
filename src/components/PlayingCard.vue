@@ -139,7 +139,9 @@
           ><span class="opacity-40 line-through">{{ card.rewardCoins }}</span>
           {{ parseInt(card.rewardCoins) * 2 }}</Badge
         >
-        <Badge variant="coin" v-else>{{ card.rewardCoins }}</Badge>
+        <Badge variant="coin" v-else-if="parseInt(card.rewardCoins) !== 0">{{
+          card.rewardCoins
+        }}</Badge>
         <Badge
           variant="gem"
           v-if="
@@ -149,7 +151,9 @@
           ><span class="opacity-40 line-through">{{ card.rewardPowerUp }}</span>
           {{ parseInt(card.rewardPowerUp) * 2 }}</Badge
         >
-        <Badge variant="gem" v-else>{{ card.rewardPowerUp }}</Badge>
+        <Badge variant="gem" v-else-if="parseInt(card.rewardPowerUp) !== 0">{{
+          card.rewardPowerUp
+        }}</Badge>
         <Badge
           variant="timer"
           v-if="card.timer && card.timerEnd.getTime() > new Date().getTime()"
