@@ -44,6 +44,7 @@
     "save": "Uložit",
     "goal-range": "Rozsah losování lokací (km)",
     "reset": "Resetovat aplikaci",
-    "fetch": "Aktualizovat data"
+    "fetch": "Aktualizovat data",
+    "language": "Jazyk (language) - toto resetuje aplikaci!"
   }
 }

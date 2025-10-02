@@ -465,6 +465,12 @@ export const useFetchTimestamp = defineStore('fetchTimestamp', {
   }),
 });
 
+export const useLanguageStore = defineStore('language', {
+  state: () => ({
+    lang: getFromLocalStorage('language_lang'),
+  }),
+});
+
 // Function to setup persistence for all stores
 export function setupStorePersistence(piniaInstance: Pinia): void {
   const storesToPersist = [
@@ -482,7 +488,7 @@ export function setupStorePersistence(piniaInstance: Pinia): void {
     { store: useShopStore(piniaInstance), keyPrefix: 'shop' },
     { store: useLocationsStore(piniaInstance), keyPrefix: 'location' },
     { store: useTimersStore(piniaInstance), keyPrefix: 'timersStore' },
-    { store: useFetchTimestamp(piniaInstance), keyPrefix: 'fetchTimestamp' },
+    { store: useLanguageStore(piniaInstance), keyPrefix: 'language' },
   ];
 
   storesToPersist.forEach(({ store, keyPrefix }) => {

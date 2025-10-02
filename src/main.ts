@@ -5,7 +5,7 @@ import { setupStorePersistence } from './stores';
 import App from './App.vue';
 import router from './router';
 import { registerSW } from 'virtual:pwa-register';
-import i18n from './i18n';
+import { i18n, initializeI18n } from './i18n';
 
 registerSW({
   onNeedRefresh() {
@@ -22,6 +22,7 @@ const pinia = createPinia();
 
 app.use(router);
 app.use(pinia);
-app.use(i18n);
 setupStorePersistence(pinia);
+await initializeI18n();
+app.use(i18n);
 app.mount('#app');

@@ -12,7 +12,7 @@ import Papa from 'papaparse';
 import { storeToRefs } from 'pinia';
 import OpenLocationCode from 'open-location-code-typescript';
 import type { Location } from './types';
-import i18n from './i18n';
+import { i18n } from './i18n';
 import { watch } from 'vue';
 
 watch(

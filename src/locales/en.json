@@ -44,6 +44,7 @@
     "save": "Save",
     "goal-range": "Location drawing range (km)",
     "reset": "Reset app",
-    "fetch": "Update data"
+    "fetch": "Update data",
+    "language": "Language (jazyk) - this will reset the app!"
   }
 }

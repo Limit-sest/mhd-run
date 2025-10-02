@@ -10,6 +10,13 @@
   import { Input } from '@/components/ui/input';
   import { Label } from '@/components/ui/label';
   import { Loader2 } from 'lucide-vue-next';
+  import {
+    Tabs,
+    TabsContent,
+    TabsList,
+    TabsTrigger,
+  } from '@/components/ui/tabs';
+  import { i18n } from '../i18n';
 
   const fetchLoading = ref(false);
 
@@ -70,6 +77,17 @@
         }}</Button>
       </div>
     </div>
+    <Label>{{ $t('settings.language') }}</Label>
+    <Tabs
+      :default-value="i18n.global.locale"
+      class="w-full"
+      v-model="i18n.global.locale"
+    >
+      <TabsList class="grid grid-cols-2 w-full">
+        <TabsTrigger value="cs"> Čeština </TabsTrigger>
+        <TabsTrigger value="en"> English </TabsTrigger>
+      </TabsList>
+    </Tabs>
     <div class="grid grid-cols-2 gap-2 mt-auto">
       <Button @click="handleReset"> {{ $t('settings.reset') }} </Button>
       <Button
