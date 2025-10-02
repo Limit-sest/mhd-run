@@ -4,12 +4,18 @@ import CardsView from '@/views/CardsView.vue';
 import SettingsView from '@/views/SettingsView.vue';
 import ShopView from '@/views/ShopView.vue';
 import LocationView from '@/views/LocationView.vue';
+import CompletedCardsView from '@/views/CompletedCardsView.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
     name: 'home',
     component: CardsView,
+  },
+  {
+    path: '/completed',
+    name: 'completed',
+    component: CompletedCardsView,
   },
   {
     path: '/settings',

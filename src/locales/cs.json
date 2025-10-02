@@ -1,9 +1,10 @@
 {
   "cards": {
-    "active": "Aktivní",
-    "completed": "Dokončené",
+    "active": "Aktivní karty",
+    "completed": "Dokončené karty",
     "draw": "Líznout kartu",
-    "no-cards": "Žádné karty k zobrazení"
+    "no-cards": "Žádné karty k zobrazení",
+    "back": "Zpátky"
   },
   "card": {
     "complete": "Dokončit",

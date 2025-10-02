@@ -1,9 +1,10 @@
 {
   "cards": {
-    "active": "Active",
-    "completed": "Completed",
+    "active": "Active cards",
+    "completed": "Completed cards",
     "draw": "Draw card",
-    "no-cards": "No cards to display"
+    "no-cards": "No cards to display",
+    "back": "Go back"
   },
   "card": {
     "complete": "Complete",

@@ -13,10 +13,8 @@
 
 <template>
   <section>
-    <h2
-      class="text-2xl font-semibold mb-4 border-b-2 border-neutral-500 tabular-nums"
-    >
-      {{ title }} ({{ cards.length }})
+    <h2 class="text-2xl font-semibold mb-4 tabular-nums">
+      {{ title }}
     </h2>
     <div
       v-if="cards.length === 0"
