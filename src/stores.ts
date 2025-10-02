@@ -467,7 +467,8 @@ export const useFetchTimestamp = defineStore('fetchTimestamp', {
 
 export const useLanguageStore = defineStore('language', {
   state: () => ({
-    lang: getFromLocalStorage('language_lang'),
+    lang:
+      getFromLocalStorage('language_lang') || navigator.language.split('-')[0],
   }),
 });
 

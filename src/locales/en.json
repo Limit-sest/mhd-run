@@ -45,6 +45,6 @@
     "goal-range": "Location drawing range (km)",
     "reset": "Reset app",
     "fetch": "Update data",
-    "language": "Language (jazyk) - this will reset the app!"
+    "language": "Language (jazyk) - this will reset the cards!"
   }
 }
