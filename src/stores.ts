@@ -4,7 +4,7 @@ import { getFromLocalStorage, saveToLocalStorage, getDistance } from './utils';
 import type { Card, ShopItem, Location, Timer } from './types';
 
 interface ShoppingCart {
-  transit: Record<number, number>;
+  transit: { id: null; minutes: null };
   powerup: Record<number, boolean>;
   totalPowerups: number;
 }
@@ -301,7 +301,7 @@ export const useShopStore = defineStore('shop', {
       (getFromLocalStorage('shop_powerups') as ShopItem[]) ||
       ([] as ShopItem[]),
     shoppingCart: {
-      transit: {} as Record<number, number>,
+      transit: { id: null, minutes: null },
       powerup: {} as Record<number, boolean>,
     } as ShoppingCart,
   }),
@@ -310,7 +310,7 @@ export const useShopStore = defineStore('shop', {
       let sum = 0;
       // Transit items (quantity-based)
       for (const itemIndex in state.shoppingCart.transit) {
-        const quantity = state.shoppingCart.transit[parseInt(itemIndex)];
+        const quantity = state.shoppingCart.transit.minutes as number;
         const price = state.transit[parseInt(itemIndex)]?.price || 0;
         sum += quantity * price;
       }
@@ -346,15 +346,8 @@ export const useShopStore = defineStore('shop', {
         this.shoppingCart.powerup[index] = false;
       });
     },
-    addShopItem(itemIndex: number) {
-      const currentCount = this.shoppingCart.transit[itemIndex] || 0;
-      this.shoppingCart.transit[itemIndex] = currentCount + 1;
-    },
-    removeShopItem(itemIndex: number) {
-      const currentCount = this.shoppingCart.transit[itemIndex] || 0;
-      if (currentCount > 0) {
-        this.shoppingCart.transit[itemIndex] = currentCount - 1;
-      }
+    setTransitCount(id: number, count: number) {
+      this.shoppingCart.transit = { id: id, minutes: count };
     },
     togglePowerupItem(itemIndex: number) {
       this.shoppingCart.powerup[itemIndex] =
