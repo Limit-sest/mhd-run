@@ -5,6 +5,7 @@ import SettingsView from '@/views/SettingsView.vue';
 import ShopView from '@/views/ShopView.vue';
 import LocationView from '@/views/LocationView.vue';
 import CompletedCardsView from '@/views/CompletedCardsView.vue';
+import ShopViewNew from '@/views/ShopViewNew.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -26,6 +27,11 @@ const routes: Array<RouteRecordRaw> = [
     path: '/shop',
     name: 'shop',
     component: ShopView,
+  },
+  {
+    path: '/shop-new',
+    name: 'shop-new',
+    component: ShopViewNew,
   },
   {
     path: '/location',
