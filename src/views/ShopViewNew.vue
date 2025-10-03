@@ -160,7 +160,7 @@
           <div
             :class="
               cn(
-                'flex justify-between items-center py-6 px-5 border rounded-md transition-transform duration-150 ease-in-out active:scale-95 cursor-pointer',
+                'flex justify-between items-center py-6 px-5 border rounded-md transition-all duration-150 ease-in-out active:scale-95 cursor-pointer',
                 selectedTransit === item.id
                   ? 'bg-gray-900 text-gray-50 scale-95'
                   : ''
@@ -180,7 +180,14 @@
           >
             <component
               :is="iconComponents[item.icon]"
-              class="w-7 h-7 text-gray-700"
+              :class="
+                cn(
+                  'w-7 h-7 transition-colors duration-150 ease-in-out flex-shrink-0',
+                  selectedTransit === item.id
+                    ? 'text-gray-200'
+                    : 'text-gray-700'
+                )
+              "
             />
             <div class="flex flex-col gap-1 text-right">
               <span class="font-semibold">{{ item.title }}</span>
@@ -209,7 +216,7 @@
           <div
             :class="
               cn(
-                'flex justify-between items-center py-6 px-5 border rounded-md transition-transform duration-150 ease-in-out active:scale-95 cursor-pointer',
+                'flex justify-between items-center py-6 px-5 border rounded-md transition-all duration-150 ease-in-out active:scale-95 cursor-pointer',
                 shop.shoppingCart.value.powerup[item.id]
                   ? 'bg-gray-900 text-gray-50 scale-95'
                   : '',
@@ -235,7 +242,7 @@
               :is="iconComponents[item.icon]"
               :class="
                 cn(
-                  'w-7 h-7 flex-shrink-0',
+                  'w-7 h-7 flex-shrink-0 transition-colors duration-150 ease-in-out',
                   shop.shoppingCart.value.powerup[item.id]
                     ? 'text-gray-200'
                     : 'text-gray-700'
