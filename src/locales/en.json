@@ -31,7 +31,10 @@
     "powerups-share": {
       "title": "Announce you bought powerups!",
       "share": "Share"
-    }
+    },
+    "transit-type": "Transit type",
+    "transit-minutes": "Minutes of transits",
+    "max-minutes": "Can get {minutes} min"
   },
   "goal": {
     "no-goal": "No goal location yet.\nGet one by clicking the button below.",

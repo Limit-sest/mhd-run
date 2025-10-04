@@ -31,7 +31,10 @@
     "powerups-share": {
       "title": "Oznam powerupy chytačům",
       "share": "Poslat"
-    }
+    },
+    "transit-type": "Dopravní prostředek",
+    "transit-minutes": "Počet minut",
+    "max-minutes": "Máš na {minutes} min"
   },
   "goal": {
     "no-goal": "Zatím žádný cíl.\nVylosuj si ho kliknutím na tlačítko dole.",

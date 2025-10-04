@@ -32,6 +32,7 @@
   } from '@/components/ui/alert-dialog';
   import { share } from '@/utils';
   import { Slider } from '@/components/ui/slider';
+  import { Input } from '@/components/ui/input';
 
   const iconComponents = {
     Plus,
@@ -110,6 +111,8 @@
       }
     }
 
+    selectedTransit.value = null;
+
     player.removeGems(shopStore.totalGems);
     player.removeCoins(shopStore.totalCoins);
     shopStore.initializeTransitCart();
@@ -162,10 +165,10 @@
   <div class="flex flex-col gap-3 m-4 mb-0 justify-start relative">
     <div class="w-full h-full flex-1 overflow-y-scroll">
       <!-- Transit Section -->
-      <div v-if="shop.transit.value.length > 0" class="mb-8">
+      <div v-if="shop.transit.value.length > 0" class="mb-10">
         <h2 class="text-xl font-semibold mb-2">{{ $t('shop.transit') }}</h2>
+        <h2 class="text-md font-medium mb-2">{{ $t('shop.transit-type') }}</h2>
         <div class="grid grid-cols-2 gap-3">
-          <span>{{ selectedTransit }}</span>
           <div
             :class="
               cn(
@@ -198,23 +201,40 @@
                 )
               "
             />
-            <div class="flex flex-col gap-1 text-right">
+            <div class="flex flex-col text-right">
               <span class="font-semibold">{{ item.title }}</span>
+              <span class="text-xs mb-2 -mt-1">{{
+                $t('shop.max-minutes', {
+                  minutes: Math.floor(player.coins / item.price),
+                })
+              }}</span>
               <Badge v-if="item.price" variant="coin"
                 >{{ item.price }}/min
               </Badge>
             </div>
           </div>
         </div>
-        <div>
-          <span>{{ slider }}</span>
+        <h2 class="text-md font-medium mt-4">
+          {{ $t('shop.transit-minutes') }}
+        </h2>
+        <div class="flex items-center gap-6">
           <Slider
             :model-value="slider"
-            :max="30"
+            :max="20"
             :min="1"
             :step="1"
             @update:model-value="(value) => (slider = value)"
+            class="shrink"
           />
+          <div class="flex items-center">
+            <Input
+              class="w-14 p-2 mr-1"
+              :model-value="slider[0]"
+              @update:model-value="(value) => (slider[0] = Number(value))"
+              type="number"
+            ></Input>
+            <p class="font-medium">min</p>
+          </div>
         </div>
       </div>
 
