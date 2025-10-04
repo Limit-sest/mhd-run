@@ -83,7 +83,7 @@ function convertCSVToShopItems(csvData: CSVRow[]): ShopItem[] {
       price: parseInt(row.price || '0'),
       type: row.type === 'powerup' ? 'powerup' : 'transit',
       icon: row.icon || '',
-      id: parseInt(row.id) || getHash(row.title),
+      id: isNaN(parseInt(row.id)) ? getHash(row.title) : parseInt(row.id),
       shareDescription: row.shareDescription,
       timer: parseInt(row.timer),
     };
