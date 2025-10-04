@@ -73,7 +73,7 @@
       }
     }
 
-    player.removePowerup(shopStore.totalPowerups);
+    player.removeGems(shopStore.totalGems);
     player.removeCoins(shopStore.totalCoins);
     shopStore.initializeTransitCart();
     shopStore.initializePowerupCart();
@@ -213,8 +213,8 @@
           @click="handlePay"
           :disabled="
             shopStore.totalCoins > player.coins ||
-            (shopStore.totalCoins === 0 && shopStore.totalPowerups === 0) ||
-            shopStore.totalPowerups > player.powerup
+            (shopStore.totalCoins === 0 && shopStore.totalGems === 0) ||
+            shopStore.totalGems > player.gems
           "
           class="tabular-nums w-full"
           v-if="!timers.isVetoActive"
@@ -224,8 +224,8 @@
             shopStore.totalCoins
           }}</Badge>
 
-          <Badge variant="gem" v-if="shopStore.totalPowerups">{{
-            shopStore.totalPowerups
+          <Badge variant="gem" v-if="shopStore.totalGems">{{
+            shopStore.totalGems
           }}</Badge>
         </Button>
         <Button class="w-full bg-gray-900/50 pointer-events-none" v-else

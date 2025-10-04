@@ -25,13 +25,13 @@
   const locationsStore = useLocationsStore();
 
   const coinsInput = ref(playerStore.coins);
-  const powerupInput = ref(playerStore.powerup);
+  const powerupInput = ref(playerStore.gems);
   const radiusMinInput = ref(locationsStore.radiusSetting.min);
   const radiusMaxInput = ref(locationsStore.radiusSetting.max);
 
   const handleSetCurrencies = (): void => {
     playerStore.setCoins(parseInt(coinsInput.value.toString(), 10) || 0);
-    playerStore.setPowerup(parseInt(powerupInput.value.toString(), 10) || 0);
+    playerStore.setGems(parseInt(powerupInput.value.toString(), 10) || 0);
   };
 
   const handleSetRadius = (): void => {
@@ -43,7 +43,7 @@
 
   const handleReset = (): void => {
     playerStore.setCoins(70);
-    playerStore.setPowerup(0);
+    playerStore.setGems(0);
     playerStore.resetOwnedPowerups();
     shuffledCardsIds.shuffleCards();
     locationsStore.resetLocation();

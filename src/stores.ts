@@ -4,7 +4,7 @@ import { getFromLocalStorage, saveToLocalStorage, getDistance } from './utils';
 import type { Card, ShopItem, Location, Timer } from './types';
 
 interface ShoppingCart {
-  transit: { id: null; minutes: null };
+  transit: { id: number; minutes: number };
   powerup: Record<number, boolean>;
   totalPowerups: number;
 }
@@ -239,7 +239,7 @@ export const useShuffeledCardsStore = defineStore('shuffeledCards', {
 export const usePlayerStore = defineStore('player', {
   state: () => ({
     coins: getFromLocalStorage('player_coins') || 70,
-    powerup: getFromLocalStorage('player_powerup') || 0,
+    gems: getFromLocalStorage('player_gems') || 0,
     ownedPowerups:
       getFromLocalStorage('player_ownedPowerups') || ([] as number[]),
     doublePowerupCard:
@@ -248,23 +248,23 @@ export const usePlayerStore = defineStore('player', {
       getFromLocalStorage('player_transferPowerupCard') || ([] as string[]),
   }),
   actions: {
-    setCoins(coins: number) {
-      this.coins = coins;
+    setCoins(amount: number) {
+      this.coins = amount;
     },
-    setPowerup(powerup: number) {
-      this.powerup = powerup;
+    setGems(amount: number) {
+      this.gems = amount;
     },
     addCoins(amount: number) {
       this.coins += amount;
     },
-    addPowerup(amount: number) {
-      this.powerup += amount;
+    addGems(amount: number) {
+      this.gems += amount;
     },
     removeCoins(amount: number) {
       this.coins = Math.max(0, this.coins - amount);
     },
-    removePowerup(amount: number) {
-      this.powerup = Math.max(0, this.powerup - amount);
+    removeGems(amount: number) {
+      this.gems = Math.max(0, this.gems - amount);
     },
     addOwnedPowerup(powerupId: number) {
       if (!this.ownedPowerups.includes(powerupId)) {
@@ -307,18 +307,14 @@ export const useShopStore = defineStore('shop', {
   }),
   getters: {
     totalCoins: (state) => {
-      let sum = 0;
-      // Transit items (quantity-based)
-      for (const itemIndex in state.shoppingCart.transit) {
-        const quantity = state.shoppingCart.transit.minutes as number;
-        const price = state.transit[parseInt(itemIndex)]?.price || 0;
-        sum += quantity * price;
-      }
-      return sum;
+      if (!state.shoppingCart.transit.id) return 0;
+      const price = state.transit.find(
+        (i) => i.id === state.shoppingCart.transit.id
+      )?.price;
+      return state.shoppingCart.transit.minutes * price;
     },
-    totalPowerups: (state) => {
+    totalGems: (state) => {
       let sum = 0;
-      // Powerup items (boolean-based)
       for (const itemIndex in state.shoppingCart.powerup) {
         const isSelected = state.shoppingCart.powerup[parseInt(itemIndex)];
         if (isSelected) {

@@ -2,7 +2,7 @@
   import { Button } from '@/components/ui/button';
   import { cn } from '@/lib/utils';
   import { usePlayerStore, useShopStore, useTimersStore } from '@/stores';
-  import { computed, onMounted, ref } from 'vue';
+  import { computed, onMounted, ref, watch } from 'vue';
   import { storeToRefs } from 'pinia';
   import {
     Plus,
@@ -110,7 +110,7 @@
       }
     }
 
-    player.removePowerup(shopStore.totalPowerups);
+    player.removeGems(shopStore.totalGems);
     player.removeCoins(shopStore.totalCoins);
     shopStore.initializeTransitCart();
     shopStore.initializePowerupCart();
@@ -142,6 +142,15 @@
   const getShopItemCount = (itemIndex: number) => {
     return computed(() => shop.shoppingCart.value.transit[itemIndex] || 0);
   };
+
+  const updateTransitCart = () => {
+    shop.shoppingCart.value.transit = {
+      id: selectedTransit.value,
+      minutes: slider.value[0],
+    };
+  };
+
+  watch([selectedTransit, slider], updateTransitCart, { deep: true });
 
   onMounted(() => {
     shopStore.initializeTransitCart();
@@ -269,8 +278,8 @@
           @click="handlePay"
           :disabled="
             shopStore.totalCoins > player.coins ||
-            (shopStore.totalCoins === 0 && shopStore.totalPowerups === 0) ||
-            shopStore.totalPowerups > player.powerup
+            (shopStore.totalCoins === 0 && shopStore.totalGems === 0) ||
+            shopStore.totalGems > player.gems
           "
           class="tabular-nums w-full"
           v-if="!timers.isVetoActive"
@@ -280,8 +289,8 @@
             shopStore.totalCoins
           }}</Badge>
 
-          <Badge variant="gem" v-if="shopStore.totalPowerups">{{
-            shopStore.totalPowerups
+          <Badge variant="gem" v-if="shopStore.totalGems">{{
+            shopStore.totalGems
           }}</Badge>
         </Button>
         <Button class="w-full bg-gray-900/50 pointer-events-none" v-else

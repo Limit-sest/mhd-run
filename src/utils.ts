@@ -198,10 +198,10 @@ function rewardCard(cardId: number): void {
 
   if (player.doublePowerupCard.includes(cardId)) {
     player.addCoins(coinsReward * 2);
-    player.addPowerup(powerupReward * 2);
+    player.addGems(powerupReward * 2);
   } else {
     player.addCoins(coinsReward);
-    player.addPowerup(powerupReward);
+    player.addGems(powerupReward);
   }
 }
 
