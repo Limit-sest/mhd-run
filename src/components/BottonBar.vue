@@ -31,16 +31,6 @@
         </Button>
       </div>
     </RouterLink>
-    <RouterLink to="/shop-new" class="flex-1 flex">
-      <div class="w-full flex items-center justify-center">
-        <Button
-          size="icon"
-          :variant="route.path === '/shop-new' ? 'secondary' : 'ghost'"
-        >
-          <Store class="text-gray-800 !w-6 !h-6" />
-        </Button>
-      </div>
-    </RouterLink>
     <RouterLink to="/location" class="flex-1 flex">
       <div class="w-full flex items-center justify-center">
         <Button
