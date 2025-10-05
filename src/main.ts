@@ -23,6 +23,7 @@ const pinia = createPinia();
 app.use(router);
 app.use(pinia);
 setupStorePersistence(pinia);
-await initializeI18n();
-app.use(i18n);
-app.mount('#app');
+initializeI18n().then(() => {
+  app.use(i18n);
+  app.mount('#app');
+});
