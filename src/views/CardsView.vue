@@ -11,7 +11,7 @@
   import { Button } from '@/components/ui/button';
   import type { Card } from '@/types';
   import Badge from '@/components/Badge.vue';
-  import { BookPlus } from 'lucide-vue-next';
+  import { ArrowRight, BookPlus } from 'lucide-vue-next';
 
   const shuffledCardsIds = useShuffeledCardsStore();
   const completedCardsIds = useCompletedCardsStore();
@@ -39,21 +39,24 @@
 <template>
   <div class="bg-white text-black p-4 pb-0 w-screen flex flex-col">
     <div class="w-full h-full flex-1 overflow-y-scroll">
-      <div class="space-y-8">
-        <!-- Hand Zone -->
-        <PlayingCardsContainer
-          :cards="handCards"
-          title="Aktivní"
-          :cardsDisabled="false"
-        />
-        <PlayingCardsContainer
-          :cards="completedCards"
-          title="Dokončené"
-          :cardsDisabled="true"
-        />
-      </div>
+      <PlayingCardsContainer
+        :cards="handCards"
+        :title="$t('cards.active')"
+        :cardsDisabled="false"
+      />
     </div>
     <div class="bg-white z-10 py-4">
+      <Button
+        @click="$router.push('/completed')"
+        :disabled="completedCards.length === 0"
+        class="w-full"
+        variant="outline"
+      >
+        <ArrowRight class="w-4 h-4 mr-1" />
+        {{ $t('cards.completed') }}
+      </Button>
+    </div>
+    <div class="bg-white z-10 pb-4">
       <Button
         @click="drawCard"
         :disabled="
@@ -64,7 +67,7 @@
         v-if="!timers.isVetoActive"
       >
         <BookPlus class="w-4 h-4 mr-1" />
-        Líznout kartu
+        {{ $t('cards.draw') }}
       </Button>
       <Button class="w-full bg-gray-900/50 pointer-events-none" v-else
         ><Badge variant="veto">{{ timers.vetoTimeRemaining }}</Badge>

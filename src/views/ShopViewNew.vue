@@ -1,10 +1,26 @@
 <script setup lang="ts">
   import { Button } from '@/components/ui/button';
-  import { Input } from '@/components/ui/input';
+  import { cn } from '@/lib/utils';
   import { usePlayerStore, useShopStore, useTimersStore } from '@/stores';
-  import { computed, onMounted, ref } from 'vue';
+  import { computed, onMounted, ref, watch } from 'vue';
   import { storeToRefs } from 'pinia';
-  import { Plus, Minus, Check, CheckCheck, Share2 } from 'lucide-vue-next';
+  import {
+    Plus,
+    Minus,
+    Check,
+    CheckCheck,
+    Share2,
+    BadgeDollarSign,
+    MapPinned,
+    ArrowLeftRight,
+    MapPinOff,
+    Snowflake,
+    TrainFrontTunnel,
+    TramFront,
+    Ship,
+    TrainFront,
+    Bike,
+  } from 'lucide-vue-next';
   import Badge from '@/components/Badge.vue';
   import {
     AlertDialog,
@@ -15,6 +31,26 @@
     AlertDialogTitle,
   } from '@/components/ui/alert-dialog';
   import { share } from '@/utils';
+  import { Slider } from '@/components/ui/slider';
+  import { Input } from '@/components/ui/input';
+
+  const iconComponents = {
+    Plus,
+    Minus,
+    Check,
+    CheckCheck,
+    Share2,
+    BadgeDollarSign,
+    MapPinned,
+    ArrowLeftRight,
+    MapPinOff,
+    Snowflake,
+    TrainFrontTunnel,
+    TramFront,
+    Ship,
+    TrainFront,
+    Bike,
+  };
 
   const shopStore = useShopStore();
   const shop = storeToRefs(shopStore);
@@ -24,6 +60,8 @@
   const showDialogPowerupAlert = ref(false);
   const ownedDialogPowerups = ref([]);
   const pendingTimers = ref([]);
+  const selectedTransit = ref();
+  const slider = ref([5]);
 
   const handleShopItemCountChange = (itemIndex: number, event: Event) => {
     const target = event.target as HTMLInputElement;
@@ -73,6 +111,8 @@
       }
     }
 
+    selectedTransit.value = null;
+
     player.removeGems(shopStore.totalGems);
     player.removeCoins(shopStore.totalCoins);
     shopStore.initializeTransitCart();
@@ -106,6 +146,15 @@
     return computed(() => shop.shoppingCart.value.transit[itemIndex] || 0);
   };
 
+  const updateTransitCart = () => {
+    shop.shoppingCart.value.transit = {
+      id: selectedTransit.value,
+      minutes: slider.value[0],
+    };
+  };
+
+  watch([selectedTransit, slider], updateTransitCart, { deep: true });
+
   onMounted(() => {
     shopStore.initializeTransitCart();
     shopStore.initializePowerupCart();
@@ -116,92 +165,128 @@
   <div class="flex flex-col gap-3 m-4 mb-0 justify-start relative">
     <div class="w-full h-full flex-1 overflow-y-scroll">
       <!-- Transit Section -->
-      <div v-if="shop.transit.value.length > 0" class="mb-4">
-        <h2 class="text-lg font-semibold">{{ $t('shop.transit') }}</h2>
-        <div
-          class="flex justify-between items-center p-2 border-b last:border-none"
-          v-for="(item, index) in shop.transit.value"
-          :key="`transit-${index}`"
-        >
-          <div class="flex flex-col gap-1">
-            <span class="font-medium">{{ item.title }}</span>
-            <Badge v-if="item.price" variant="coin"
-              >{{ item.price }}/min
-            </Badge>
-          </div>
-          <div class="flex items-center gap-2">
-            <Button
-              @click="shopStore.removeShopItem(index)"
-              variant="outline"
-              :disabled="!getShopItemCount(index).value"
-              size="icon"
-            >
-              <Minus class="w-4 h-4" />
-            </Button>
-            <Input
-              type="number"
-              @input="handleShopItemCountChange(index, $event)"
-              v-model="shop.shoppingCart.value.transit[index]"
-              min="0"
-              class="w-16 tabular-nums"
+      <div v-if="shop.transit.value.length > 0" class="mb-10">
+        <h2 class="text-xl font-semibold mb-2">{{ $t('shop.transit') }}</h2>
+        <h2 class="text-md font-medium mb-2">{{ $t('shop.transit-type') }}</h2>
+        <div class="grid grid-cols-2 gap-3">
+          <div
+            :class="
+              cn(
+                'flex justify-between items-center py-6 px-5 border rounded-md transition-all duration-150 ease-in-out active:scale-95 cursor-pointer',
+                selectedTransit === item.id
+                  ? 'bg-gray-900 text-gray-50 scale-95'
+                  : ''
+              )
+            "
+            v-for="(item, index) in shop.transit.value"
+            :key="item.title"
+            @click="
+              () => {
+                if (selectedTransit === item.id) {
+                  selectedTransit = null;
+                } else {
+                  selectedTransit = item.id;
+                }
+              }
+            "
+          >
+            <component
+              :is="iconComponents[item.icon]"
+              :class="
+                cn(
+                  'w-7 h-7 transition-colors duration-150 ease-in-out flex-shrink-0',
+                  selectedTransit === item.id
+                    ? 'text-gray-200'
+                    : 'text-gray-700'
+                )
+              "
             />
-            <Button
-              @click="shopStore.addShopItem(index)"
-              variant="outline"
-              size="icon"
-            >
-              <Plus class="w-4 h-4" />
-            </Button>
+            <div class="flex flex-col text-right">
+              <span class="font-semibold">{{ item.title }}</span>
+              <span class="text-xs mb-2 -mt-1">{{
+                $t('shop.max-minutes', {
+                  minutes: Math.floor(player.coins / item.price),
+                })
+              }}</span>
+              <Badge v-if="item.price" variant="coin"
+                >{{ item.price }}/min
+              </Badge>
+            </div>
+          </div>
+        </div>
+        <h2 class="text-md font-medium mt-4">
+          {{ $t('shop.transit-minutes') }}
+        </h2>
+        <div class="flex items-center gap-6">
+          <Slider
+            :model-value="slider"
+            :max="20"
+            :min="1"
+            :step="1"
+            @update:model-value="(value) => (slider = value)"
+            class="shrink"
+          />
+          <div class="flex items-center">
+            <Input
+              class="w-14 p-2 mr-1"
+              :model-value="slider[0]"
+              @update:model-value="(value) => (slider[0] = Number(value))"
+              type="number"
+            ></Input>
+            <p class="font-medium">min</p>
           </div>
         </div>
       </div>
 
       <!-- Powerups Section -->
       <div v-if="shop.powerups.value.length > 0" class="mb-20">
-        <h2 class="text-lg font-semibold">{{ $t('shop.powerups') }}</h2>
-        <div
-          class="flex justify-between items-center gap-2 p-2 border-b last:border-none"
-          v-for="item in shop.powerups.value"
-          :key="item.id"
-        >
-          <div class="flex flex-col gap-2">
-            <div class="space-y-0.5">
-              <span class="font-medium">{{ item.title }}</span>
-              <p class="text-sm text-gray-700">{{ item.description }}</p>
-            </div>
-
-            <div class="flex gap-1">
-              <Badge variant="gem" v-if="item.price">{{ item.price }}</Badge>
-              <Badge variant="timer" v-if="timers.isPowerupActive(item.id)">{{
-                timers.powerupTimeRemaining(item.id)
-              }}</Badge>
-            </div>
-          </div>
-          <div class="flex items-center gap-2">
-            <Button
-              @click="shopStore.togglePowerupItem(item.id)"
-              :variant="
-                shop.shoppingCart.value.powerup[item.id] ? 'default' : 'outline'
-              "
-              :disabled="
+        <h2 class="text-xl font-semibold mb-2">{{ $t('shop.powerups') }}</h2>
+        <div class="grid grid-cols-2 gap-3">
+          <div
+            :class="
+              cn(
+                'flex justify-between items-center py-6 px-5 border rounded-md transition-all duration-150 ease-in-out active:scale-95 cursor-pointer',
+                shop.shoppingCart.value.powerup[item.id]
+                  ? 'bg-gray-900 text-gray-50 scale-95'
+                  : '',
                 player.hasOwnedPowerup(item.id) ||
-                timers.isPowerupActive(item.id)
-              "
-              size="icon"
-            >
-              <Check
-                v-if="shop.shoppingCart.value.powerup[item.id]"
-                class="w-4 h-4"
-              />
-              <CheckCheck
-                v-else-if="
+                  timers.isPowerupActive(item.id)
+                  ? 'opacity-50 active:scale-100'
+                  : ''
+              )
+            "
+            v-for="(item, index) in shop.powerups.value"
+            :key="item.title"
+            @click="
+              if (
+                !(
                   player.hasOwnedPowerup(item.id) ||
                   timers.isPowerupActive(item.id)
-                "
-                class="w-4 h-4"
-              />
-              <Plus v-else class="w-4 h-4" />
-            </Button>
+                )
+              )
+                shopStore.togglePowerupItem(item.id);
+            "
+          >
+            <component
+              :is="iconComponents[item.icon]"
+              :class="
+                cn(
+                  'w-7 h-7 flex-shrink-0 transition-colors duration-150 ease-in-out',
+                  shop.shoppingCart.value.powerup[item.id]
+                    ? 'text-gray-200'
+                    : 'text-gray-700'
+                )
+              "
+            />
+            <div class="flex flex-col gap-1 text-right items-end">
+              <span class="font-semibold">{{ item.title }}</span>
+              <div class="flex flex-col items-end gap-1">
+                <Badge variant="gem" v-if="item.price">{{ item.price }}</Badge>
+                <Badge variant="timer" v-if="timers.isPowerupActive(item.id)">{{
+                  timers.powerupTimeRemaining(item.id)
+                }}</Badge>
+              </div>
+            </div>
           </div>
         </div>
       </div>

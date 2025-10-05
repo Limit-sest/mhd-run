@@ -4,7 +4,7 @@ import { getFromLocalStorage, saveToLocalStorage, getDistance } from './utils';
 import type { Card, ShopItem, Location, Timer } from './types';
 
 interface ShoppingCart {
-  transit: Record<number, number>;
+  transit: { id: number; minutes: number };
   powerup: Record<number, boolean>;
   totalPowerups: number;
 }
@@ -239,7 +239,7 @@ export const useShuffeledCardsStore = defineStore('shuffeledCards', {
 export const usePlayerStore = defineStore('player', {
   state: () => ({
     coins: getFromLocalStorage('player_coins') || 70,
-    powerup: getFromLocalStorage('player_powerup') || 0,
+    gems: getFromLocalStorage('player_gems') || 0,
     ownedPowerups:
       getFromLocalStorage('player_ownedPowerups') || ([] as number[]),
     doublePowerupCard:
@@ -248,23 +248,23 @@ export const usePlayerStore = defineStore('player', {
       getFromLocalStorage('player_transferPowerupCard') || ([] as string[]),
   }),
   actions: {
-    setCoins(coins: number) {
-      this.coins = coins;
+    setCoins(amount: number) {
+      this.coins = amount;
     },
-    setPowerup(powerup: number) {
-      this.powerup = powerup;
+    setGems(amount: number) {
+      this.gems = amount;
     },
     addCoins(amount: number) {
       this.coins += amount;
     },
-    addPowerup(amount: number) {
-      this.powerup += amount;
+    addGems(amount: number) {
+      this.gems += amount;
     },
     removeCoins(amount: number) {
       this.coins = Math.max(0, this.coins - amount);
     },
-    removePowerup(amount: number) {
-      this.powerup = Math.max(0, this.powerup - amount);
+    removeGems(amount: number) {
+      this.gems = Math.max(0, this.gems - amount);
     },
     addOwnedPowerup(powerupId: number) {
       if (!this.ownedPowerups.includes(powerupId)) {
@@ -301,24 +301,20 @@ export const useShopStore = defineStore('shop', {
       (getFromLocalStorage('shop_powerups') as ShopItem[]) ||
       ([] as ShopItem[]),
     shoppingCart: {
-      transit: {} as Record<number, number>,
+      transit: { id: null, minutes: null },
       powerup: {} as Record<number, boolean>,
     } as ShoppingCart,
   }),
   getters: {
     totalCoins: (state) => {
-      let sum = 0;
-      // Transit items (quantity-based)
-      for (const itemIndex in state.shoppingCart.transit) {
-        const quantity = state.shoppingCart.transit[parseInt(itemIndex)];
-        const price = state.transit[parseInt(itemIndex)]?.price || 0;
-        sum += quantity * price;
-      }
-      return sum;
+      if (!state.shoppingCart.transit.id) return 0;
+      const price = state.transit.find(
+        (i) => i.id === state.shoppingCart.transit.id
+      )?.price;
+      return state.shoppingCart.transit.minutes * price;
     },
-    totalPowerups: (state) => {
+    totalGems: (state) => {
       let sum = 0;
-      // Powerup items (boolean-based)
       for (const itemIndex in state.shoppingCart.powerup) {
         const isSelected = state.shoppingCart.powerup[parseInt(itemIndex)];
         if (isSelected) {
@@ -346,15 +342,8 @@ export const useShopStore = defineStore('shop', {
         this.shoppingCart.powerup[index] = false;
       });
     },
-    addShopItem(itemIndex: number) {
-      const currentCount = this.shoppingCart.transit[itemIndex] || 0;
-      this.shoppingCart.transit[itemIndex] = currentCount + 1;
-    },
-    removeShopItem(itemIndex: number) {
-      const currentCount = this.shoppingCart.transit[itemIndex] || 0;
-      if (currentCount > 0) {
-        this.shoppingCart.transit[itemIndex] = currentCount - 1;
-      }
+    setTransitCount(id: number, count: number) {
+      this.shoppingCart.transit = { id: id, minutes: count };
     },
     togglePowerupItem(itemIndex: number) {
       this.shoppingCart.powerup[itemIndex] =
@@ -459,6 +448,19 @@ export const useLocationsStore = defineStore('locations', {
   },
 });
 
+export const useFetchTimestamp = defineStore('fetchTimestamp', {
+  state: () => ({
+    cards: undefined,
+  }),
+});
+
+export const useLanguageStore = defineStore('language', {
+  state: () => ({
+    lang:
+      getFromLocalStorage('language_lang') || navigator.language.split('-')[0],
+  }),
+});
+
 // Function to setup persistence for all stores
 export function setupStorePersistence(piniaInstance: Pinia): void {
   const storesToPersist = [
@@ -476,6 +478,7 @@ export function setupStorePersistence(piniaInstance: Pinia): void {
     { store: useShopStore(piniaInstance), keyPrefix: 'shop' },
     { store: useLocationsStore(piniaInstance), keyPrefix: 'location' },
     { store: useTimersStore(piniaInstance), keyPrefix: 'timersStore' },
+    { store: useLanguageStore(piniaInstance), keyPrefix: 'language' },
   ];
 
   storesToPersist.forEach(({ store, keyPrefix }) => {

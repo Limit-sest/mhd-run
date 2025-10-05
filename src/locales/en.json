@@ -1,0 +1,54 @@
+{
+  "cards": {
+    "active": "Active cards",
+    "completed": "Completed cards",
+    "draw": "Draw card",
+    "no-cards": "No cards to display",
+    "back": "Go back"
+  },
+  "card": {
+    "complete": "Complete",
+    "veto": "Veto",
+    "timestamp": "Drawn at",
+    "discard": {
+      "title": "Do you really want to discard this card?",
+      "description": "This option is not meant to be used often. You won't be punished or rewarded. Are you sure you want to do this? 🤨",
+      "yes": "Yes, I'm sure",
+      "no": "Uhh no"
+    },
+    "transfered": "Transfered to chasers",
+    "transfer": {
+      "title": "Transfer this task to the chasers",
+      "description": "Until they complete it, they can’t catch you. But they can still move around. The same rules for completing tasks apply to them.",
+      "share": "Share",
+      "share-text": "Complete this task before you can start catching! You’re still allowed to move, but the task rules apply to you too."
+    }
+  },
+  "shop": {
+    "transit": "Transit",
+    "powerups": "Powerups",
+    "pay": "Pay",
+    "powerups-share": {
+      "title": "Announce you bought powerups!",
+      "share": "Share"
+    },
+    "transit-type": "Transit type",
+    "transit-minutes": "Minutes of transits",
+    "max-minutes": "Can get {minutes} min"
+  },
+  "goal": {
+    "no-goal": "No goal location yet.\nGet one by clicking the button below.",
+    "draw": "Draw goal",
+    "distance": "Distance: {distance} km",
+    "open": "Open in maps"
+  },
+  "settings": {
+    "coins": "Amount of 🪙",
+    "gems": "Amount of 💎",
+    "save": "Save",
+    "goal-range": "Location drawing range (km)",
+    "reset": "Reset app",
+    "fetch": "Update data",
+    "language": "Language (jazyk) - this will reset the cards!"
+  }
+}

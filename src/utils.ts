@@ -12,6 +12,13 @@ import Papa from 'papaparse';
 import { storeToRefs } from 'pinia';
 import OpenLocationCode from 'open-location-code-typescript';
 import type { Location } from './types';
+import { i18n } from './i18n';
+import { ref, watch } from 'vue';
+
+watch(
+  () => i18n.global.locale,
+  () => fetchAllData()
+);
 
 export function getHash(source): number {
   let hash = 0;
@@ -76,7 +83,7 @@ function convertCSVToShopItems(csvData: CSVRow[]): ShopItem[] {
       price: parseInt(row.price || '0'),
       type: row.type === 'powerup' ? 'powerup' : 'transit',
       icon: row.icon || '',
-      id: parseInt(row.id),
+      id: isNaN(parseInt(row.id)) ? getHash(row.title) : parseInt(row.id),
       shareDescription: row.shareDescription,
       timer: parseInt(row.timer),
     };
@@ -86,16 +93,11 @@ function convertCSVToShopItems(csvData: CSVRow[]): ShopItem[] {
 function proccessCards(
   dataRows: CSVRow[],
   allCardsStore: ReturnType<typeof useAllCardsStore>,
-  shuffeledCardsStore: ReturnType<typeof useShuffeledCardsStore>
+  shuffeledCardsStore: ReturnType<typeof useShuffeledCardsStore>,
+  destructive: boolean = true
 ): void {
-  if (!dataRows || dataRows.length <= 1) {
-    throw new Error(
-      'CSV data neobsahuje žádné datové řádky (pouze hlavičku nebo je prázdné).'
-    );
-  }
-
   if (dataRows.length === 0) {
-    throw new Error('CSV neobsahuje žádné datové řádky');
+    throw new Error('Empty csv!');
   }
 
   const parsedCards: Card[] = dataRows
@@ -121,14 +123,9 @@ function proccessCards(
       return card !== null;
     });
 
-  if (parsedCards.length === 0) {
-    throw new Error(
-      'Po parsování nebyly nalezeny žádné platné karty. Zkontrolujte formát CSV a obsah datových řádků.'
-    );
-  }
-
   allCardsStore.setCards(parsedCards);
-  shuffeledCardsStore.shuffleCards();
+  if (destructive || shuffeledCardsStore.cards.length === 0)
+    shuffeledCardsStore.shuffleCards();
 }
 
 function proccessLocations(dataRows: CSVRow[]): Location[] {
@@ -157,38 +154,37 @@ function proccessLocations(dataRows: CSVRow[]): Location[] {
   return locations;
 }
 
-export async function fetchAllData(): Promise<void> {
-  const cardCsv = import.meta.env.VITE_CARD_CSV_URL as string;
-  const transitCsv = import.meta.env.VITE_SHOP_TRANSIT_CSV_URL as string;
-  const powerupCsv = import.meta.env.VITE_SHOP_POWERUP_CSV_URL as string;
-  const locationCsv = import.meta.env.VITE_LOCATION_CSV_URL as string;
+export async function fetchAllData(destructive = true): Promise<void> {
+  const cardCsv =
+    import.meta.env.VITE_CARD || i18n.global.locale === 'cs'
+      ? 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRINMC6eKg8bWyZW9H-aZ9RTsqTMJgZSkVIS60ogExiBZ6I0NsI2C36vSP2Hgw-_qJYPr2OMWWA7ETB/pub?gid=0&single=true&output=csv'
+      : 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRINMC6eKg8bWyZW9H-aZ9RTsqTMJgZSkVIS60ogExiBZ6I0NsI2C36vSP2Hgw-_qJYPr2OMWWA7ETB/pub?gid=460722975&single=true&output=csv';
+  const transitCsv =
+    import.meta.env.VITE_SHOP_TRANSIT || i18n.global.locale === 'cs'
+      ? 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRINMC6eKg8bWyZW9H-aZ9RTsqTMJgZSkVIS60ogExiBZ6I0NsI2C36vSP2Hgw-_qJYPr2OMWWA7ETB/pub?gid=1746737016&single=true&output=csv'
+      : 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRINMC6eKg8bWyZW9H-aZ9RTsqTMJgZSkVIS60ogExiBZ6I0NsI2C36vSP2Hgw-_qJYPr2OMWWA7ETB/pub?gid=907602207&single=true&output=csv';
+  const powerupCsv =
+    import.meta.env.VITE_SHOP_POWERUP || i18n.global.locale === 'cs'
+      ? 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRINMC6eKg8bWyZW9H-aZ9RTsqTMJgZSkVIS60ogExiBZ6I0NsI2C36vSP2Hgw-_qJYPr2OMWWA7ETB/pub?gid=1927382705&single=true&output=csv'
+      : 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRINMC6eKg8bWyZW9H-aZ9RTsqTMJgZSkVIS60ogExiBZ6I0NsI2C36vSP2Hgw-_qJYPr2OMWWA7ETB/pub?gid=1554125513&single=true&output=csv';
+  const locationCsv =
+    import.meta.env.VITE_LOCATION ||
+    'https://docs.google.com/spreadsheets/d/e/2PACX-1vRINMC6eKg8bWyZW9H-aZ9RTsqTMJgZSkVIS60ogExiBZ6I0NsI2C36vSP2Hgw-_qJYPr2OMWWA7ETB/pub?gid=912143845&single=true&output=csv';
 
   const shuffledCardsIds = useShuffeledCardsStore();
   const allCards = useAllCardsStore();
   const shop = useShopStore();
   const locationStore = useLocationsStore();
 
-  try {
-    const cardDataRows = await fetchCSV(cardCsv);
-    const transit = await fetchCSV(transitCsv);
-    const powerup = await fetchCSV(powerupCsv);
-    const locations = await fetchCSV(locationCsv);
+  const cardDataRows = await fetchCSV(cardCsv);
+  const transit = await fetchCSV(transitCsv);
+  const powerup = await fetchCSV(powerupCsv);
+  const locations = await fetchCSV(locationCsv);
 
-    shop.setTransit(convertCSVToShopItems(transit));
-    shop.setPowerups(convertCSVToShopItems(powerup));
-    proccessCards(cardDataRows, allCards, shuffledCardsIds);
-    locationStore.setAllLocations(proccessLocations(locations));
-  } catch (err) {
-    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-    console.error(
-      'Chyba při načítání nebo zpracování karet z CSV:',
-      errorMessage
-    );
-    // Reset stores in case of an error
-    shop.setTransit([]);
-    shop.setPowerups([]);
-    allCards.setCards([]);
-  }
+  shop.setTransit(convertCSVToShopItems(transit));
+  shop.setPowerups(convertCSVToShopItems(powerup));
+  proccessCards(cardDataRows, allCards, shuffledCardsIds, destructive);
+  locationStore.setAllLocations(proccessLocations(locations));
 }
 
 function rewardCard(cardId: number): void {
@@ -202,12 +198,14 @@ function rewardCard(cardId: number): void {
 
   if (player.doublePowerupCard.includes(cardId)) {
     player.addCoins(coinsReward * 2);
-    player.addPowerup(powerupReward * 2);
+    player.addGems(powerupReward * 2);
   } else {
     player.addCoins(coinsReward);
-    player.addPowerup(powerupReward);
+    player.addGems(powerupReward);
   }
 }
+
+export const cardsToAnimate = ref([]);
 
 export function drawCard(): void {
   const shuffledCards = storeToRefs(useShuffeledCardsStore());
@@ -220,6 +218,12 @@ export function drawCard(): void {
 
   handCards.cards.value.unshift(cardIdToDraw);
   allCards.addTimestamp(cardIdToDraw);
+  cardsToAnimate.value.push(cardIdToDraw);
+
+  setTimeout(() => {
+    const index = cardsToAnimate.value.indexOf(cardIdToDraw);
+    if (index !== -1) cardsToAnimate.value.splice(index);
+  }, 700);
 
   const card: Card = allCards.cards.find(
     (card: Card) => card.id === cardIdToDraw

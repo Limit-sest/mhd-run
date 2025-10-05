@@ -26,7 +26,7 @@
     <span
       v-if="locationsStore.currentLocation === undefined"
       class="text-slate-600 italic text-center py-4"
-      >Zatím žádný vylosovaný cíl</span
+      >{{ $t('goal.no-goal') }}</span
     >
     <Card v-else>
       <CardHeader>
@@ -37,22 +37,22 @@
       </CardHeader>
       <CardContent>
         <CardDescription
-          >Vzdálenost:
-          {{
-            getDistance(
-              locationsStore.latestGps.coords.latitude,
-              locationsStore.latestGps.coords.longitude,
-              locationsStore.currentLocation.latitude,
-              locationsStore.currentLocation.longitude
-            ).toFixed(2)
+          >{{
+            $t('goal.distance', {
+              distance: getDistance(
+                locationsStore.latestGps.coords.latitude,
+                locationsStore.latestGps.coords.longitude,
+                locationsStore.currentLocation.latitude,
+                locationsStore.currentLocation.longitude
+              ).toFixed(2),
+            })
           }}
-          km</CardDescription
-        >
+        </CardDescription>
       </CardContent>
       <CardFooter>
         <Button class="w-full" as-child>
           <a :href="locationsStore.currentLocation?.url" target="_blank"
-            ><ExternalLink class="w-4 h-4 mr-2" /> Otevřít v mapách</a
+            ><ExternalLink class="w-4 h-4 mr-2" /> {{ $t('goal.open') }}</a
           >
         </Button>
       </CardFooter>
@@ -63,7 +63,7 @@
         class="w-full"
         :disabled="locationsStore.allLocations.length === 0"
       >
-        Vylosovat cíl
+        {{ $t('goal.draw') }}
       </Button>
     </div>
   </div>

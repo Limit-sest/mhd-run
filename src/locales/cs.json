@@ -1,0 +1,54 @@
+{
+  "cards": {
+    "active": "Aktivní karty",
+    "completed": "Dokončené karty",
+    "draw": "Líznout kartu",
+    "no-cards": "Žádné karty k zobrazení",
+    "back": "Zpátky"
+  },
+  "card": {
+    "complete": "Dokončit",
+    "veto": "Veto",
+    "timestamp": "Líznuto v",
+    "discard": {
+      "title": "Opravdu chceš kartu zrušit?",
+      "description": " Tohle by se mělo používat jen vyjímečně. Nedostaneš odměnu ani postih. Myslíš si, že bys to měl udělat? 🤨",
+      "yes": "Ano, chci jí zrušit",
+      "no": "Uhh ne"
+    },
+    "transfered": "Přeneseno na chytače",
+    "transfer": {
+      "title": "Přenes tento úkol na chytače",
+      "description": "Dokud ho nesplní, nemohou tě chytit. Můžou se ale pořád pohybovat. Platí pro ně stejná pravidla ohledně plnění úkolů.",
+      "share": "Poslat",
+      "share-text": "Musíte spltit tento úkol, abyste mohli chytat! Pohybovat se stále můžete. Platí pro vás pravidla ohledně plnění úkolů."
+    }
+  },
+  "shop": {
+    "transit": "Doprava",
+    "powerups": "Vylepšení",
+    "pay": "Zaplatit",
+    "powerups-share": {
+      "title": "Oznam powerupy chytačům",
+      "share": "Poslat"
+    },
+    "transit-type": "Dopravní prostředek",
+    "transit-minutes": "Počet minut",
+    "max-minutes": "Máš na {minutes} min"
+  },
+  "goal": {
+    "no-goal": "Zatím žádný cíl.\nVylosuj si ho kliknutím na tlačítko dole.",
+    "draw": "Vylosovat cíl",
+    "distance": "Vzdálenost: {distance} km",
+    "open": "Otevřít v mapách"
+  },
+  "settings": {
+    "coins": "Počet 🪙",
+    "gems": "Počet 💎",
+    "save": "Uložit",
+    "goal-range": "Rozsah losování lokací (km)",
+    "reset": "Resetovat aplikaci",
+    "fetch": "Aktualizovat data",
+    "language": "Jazyk (language) - toto resetuje karty!"
+  }
+}
