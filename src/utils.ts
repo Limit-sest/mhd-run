@@ -7,6 +7,7 @@ import {
   usePlayerStore,
   useShopStore,
   useLocationsStore,
+  useGameSettingsStore,
 } from './stores';
 import Papa from 'papaparse';
 import { storeToRefs } from 'pinia';
@@ -37,6 +38,12 @@ export function getHash(source): number {
 export function getCardDetails(cardId: number): Card | undefined {
   const allCards = useAllCardsStore();
   return allCards.cards.find((card: Card) => card.id === cardId);
+}
+
+export function applyTextMultiplier(text: string, multiplier: number): string {
+  return text.replace(/\{(\d+(?:\.\d+)?)\}/g, (_, num) => {
+    return String(Math.round(parseFloat(num) * multiplier));
+  });
 }
 
 export async function fetchCSV(csvUrl: string): Promise<CSVRow[]> {
@@ -238,7 +245,8 @@ export function drawCard(): void {
   }
 
   if (card.timer) {
-    allCards.addTimerEnd(cardIdToDraw, card.timer);
+    const gameSettings = useGameSettingsStore();
+    allCards.addTimerEnd(cardIdToDraw, card.timer * gameSettings.multiplier);
   }
 
   if (player.hasOwnedPowerup(0)) {

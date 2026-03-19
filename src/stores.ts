@@ -318,7 +318,8 @@ export const useShopStore = defineStore('shop', {
       const price = state.transit.find(
         (i) => i.id === state.shoppingCart.transit.id
       )?.price;
-      return state.shoppingCart.transit.minutes * price;
+      const gameSettings = useGameSettingsStore();
+      return Math.round(state.shoppingCart.transit.minutes * (price / gameSettings.multiplier));
     },
     totalGems: (state) => {
       let sum = 0;
@@ -371,6 +372,11 @@ export const useLocationsStore = defineStore('locations', {
   }),
   actions: {
     drawLocation(gpsLat: number, gpsLon: number) {
+      const gameSettings = useGameSettingsStore();
+      const radiusMultiplier = gameSettings.radiusAffectedByMultiplier ? gameSettings.multiplier : 1;
+      const minRadius = this.radiusSetting.min * radiusMultiplier;
+      const maxRadius = this.radiusSetting.max * radiusMultiplier;
+
       const validLocations: Location[] = this.allLocations.filter(
         (location: Location) => {
           const distance = getDistance(
@@ -380,8 +386,8 @@ export const useLocationsStore = defineStore('locations', {
             location.longitude
           );
           return (
-            distance >= this.radiusSetting.min &&
-            distance <= this.radiusSetting.max
+            distance >= minRadius &&
+            distance <= maxRadius
           );
         }
       );
@@ -401,8 +407,8 @@ export const useLocationsStore = defineStore('locations', {
             bestLocation.longitude
           );
           let bestDistanceFromBoundary = Math.min(
-            Math.abs(bestDistance - this.radiusSetting.min),
-            Math.abs(bestDistance - this.radiusSetting.max)
+            Math.abs(bestDistance - minRadius),
+            Math.abs(bestDistance - maxRadius)
           );
 
           for (const location of this.allLocations) {
@@ -414,10 +420,10 @@ export const useLocationsStore = defineStore('locations', {
             );
 
             const distanceFromMinBoundary = Math.abs(
-              distance - this.radiusSetting.min
+              distance - minRadius
             );
             const distanceFromMaxBoundary = Math.abs(
-              distance - this.radiusSetting.max
+              distance - maxRadius
             );
             const distanceFromBoundary = Math.min(
               distanceFromMinBoundary,
@@ -464,5 +470,28 @@ export const useLanguageStore = defineStore('language', {
   state: () => ({
     lang: navigator.language.split('-')[0],
   }),
+  persist: true,
+});
+
+export const useGameSettingsStore = defineStore('gameSettings', {
+  state: () => ({
+    multiplier: 1.0,
+    baseVetoDuration: 4,
+    radiusAffectedByMultiplier: true,
+  }),
+  getters: {
+    vetoDuration: (state) => state.baseVetoDuration * state.multiplier,
+  },
+  actions: {
+    setMultiplier(value: number) {
+      this.multiplier = Math.round(value * 10) / 10;
+    },
+    setBaseVetoDuration(value: number) {
+      this.baseVetoDuration = value;
+    },
+    setRadiusAffectedByMultiplier(value: boolean) {
+      this.radiusAffectedByMultiplier = value;
+    },
+  },
   persist: true,
 });

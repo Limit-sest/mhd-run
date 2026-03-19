@@ -7,9 +7,9 @@
     CardTitle,
   } from '@/components/ui/card';
   import { Button } from '@/components/ui/button';
-  import { completeCard, share } from '@/utils';
+  import { completeCard, share, applyTextMultiplier } from '@/utils';
   import type { Card as CardType } from '@/types';
-  import { usePlayerStore, useTimersStore } from '@/stores';
+  import { usePlayerStore, useTimersStore, useGameSettingsStore } from '@/stores';
   import Badge from '@/components/Badge.vue';
   import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
   import { Progress } from '@/components/ui/progress';
@@ -30,6 +30,7 @@
 
   const player = usePlayerStore();
   const timers = useTimersStore();
+  const gameSettings = useGameSettingsStore();
 
   interface Props {
     card: CardType;
@@ -91,7 +92,7 @@
 
   function handleVeto() {
     completeCard(props.card.id, false);
-    timers.set('veto', 4);
+    timers.set('veto', gameSettings.vetoDuration);
   }
 
   function handleTranferDialogClose() {
@@ -125,7 +126,7 @@
     ]"
   >
     <CardHeader>
-      <CardTitle class="uppercase text-lg">{{ card.title }}</CardTitle>
+      <CardTitle class="uppercase text-lg">{{ applyTextMultiplier(card.title, gameSettings.multiplier) }}</CardTitle>
       <CardDescription class="text-gray-600"
         >{{ $t('card.timestamp') }} {{ formatTimestamp(card.timestamp) }}
         <span v-if="player.transferPowerupCard.includes(props.card.id)">
@@ -133,7 +134,7 @@
         ></CardDescription
       >
       <CardDescription class="text-base">{{
-        card.description
+        applyTextMultiplier(card.description, gameSettings.multiplier)
       }}</CardDescription>
       <div
         class="flex gap-2"
@@ -237,12 +238,12 @@
       }}</AlertDialogDescription>
       <Card>
         <CardHeader>
-          <CardTitle class="uppercase text-lg">{{ card.title }}</CardTitle>
+          <CardTitle class="uppercase text-lg">{{ applyTextMultiplier(card.title, gameSettings.multiplier) }}</CardTitle>
           <CardDescription class="text-gray-600"
             >Líznuto v {{ formatTimestamp(card.timestamp) }}</CardDescription
           >
           <CardDescription class="text-base">{{
-            card.description
+            applyTextMultiplier(card.description, gameSettings.multiplier)
           }}</CardDescription>
         </CardHeader>
       </Card>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import { Button } from '@/components/ui/button';
   import { cn } from '@/lib/utils';
-  import { usePlayerStore, useShopStore, useTimersStore } from '@/stores';
+  import { usePlayerStore, useShopStore, useTimersStore, useGameSettingsStore } from '@/stores';
   import { onMounted, ref, watch } from 'vue';
   import { storeToRefs } from 'pinia';
   import {
@@ -47,6 +47,7 @@
   const shop = storeToRefs(shopStore);
   const player = usePlayerStore();
   const timers = useTimersStore();
+  const gameSettings = useGameSettingsStore();
 
   const showDialogPowerupAlert = ref(false);
   const ownedDialogPowerups = ref([]);
@@ -72,7 +73,7 @@
         }
 
         if (powerup.timer) {
-          pendingTimers.value.push({ id: powerup.id, timer: powerup.timer });
+          pendingTimers.value.push({ id: powerup.id, timer: powerup.timer * gameSettings.multiplier });
         }
       }
     }
@@ -184,11 +185,11 @@
               <span class="font-semibold">{{ item.title }}</span>
               <span class="text-xs mb-2 -mt-1">{{
                 $t('shop.max-minutes', {
-                  minutes: Math.floor(player.coins / item.price),
+                  minutes: Math.floor(player.coins / (item.price / gameSettings.multiplier)),
                 })
               }}</span>
               <Badge v-if="item.price" variant="coin"
-                >{{ item.price }}/min
+                >{{ Math.round(item.price / gameSettings.multiplier) }}/min
               </Badge>
             </div>
           </div>
