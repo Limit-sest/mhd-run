@@ -1,8 +1,13 @@
 <script setup lang="ts">
   import { Button } from '@/components/ui/button';
   import { cn } from '@/lib/utils';
-  import { usePlayerStore, useShopStore, useTimersStore, useGameSettingsStore } from '@/stores';
-  import { onMounted, ref, watch } from 'vue';
+  import {
+    usePlayerStore,
+    useShopStore,
+    useTimersStore,
+    useGameSettingsStore,
+  } from '@/stores';
+  import { computed, onMounted, ref, watch } from 'vue';
   import { storeToRefs } from 'pinia';
   import {
     Share2,
@@ -55,6 +60,18 @@
   const selectedTransit = ref();
   const slider = ref([5]);
 
+  const isTransitDisabled = (item: { price: number }) => {
+    const effectivePrice = Math.round(item.price / gameSettings.multiplier);
+    return player.coins < effectivePrice;
+  };
+
+  const isPowerupDisabled = (item: { id?: number; price: number }) => {
+    if (player.hasOwnedPowerup(item.id) || timers.isPowerupActive(item.id))
+      return true;
+    if (shop.shoppingCart.value.powerup[item.id]) return false; // already selected, allow deselect
+    return shopStore.totalGems + item.price > player.gems;
+  };
+
   const handlePay = (): void => {
     const persistentPowerups = [0, 2];
     const dialogPowerups = [1, 3, 4];
@@ -73,7 +90,10 @@
         }
 
         if (powerup.timer) {
-          pendingTimers.value.push({ id: powerup.id, timer: powerup.timer * gameSettings.multiplier });
+          pendingTimers.value.push({
+            id: powerup.id,
+            timer: powerup.timer * gameSettings.multiplier,
+          });
         }
       }
     }
@@ -152,16 +172,20 @@
           <div
             :class="
               cn(
-                'flex justify-between items-center py-6 px-5 border rounded-md transition-all duration-150 ease-in-out active:scale-95 cursor-pointer',
+                'flex justify-between items-center py-6 px-5 border rounded-md transition-all duration-150 ease-in-out',
                 selectedTransit === item.id
                   ? 'bg-gray-900 text-gray-50 scale-95'
-                  : ''
+                  : '',
+                isTransitDisabled(item)
+                  ? 'opacity-50 cursor-not-allowed'
+                  : 'active:scale-95 cursor-pointer'
               )
             "
             v-for="(item, index) in shop.transit.value"
             :key="item.title"
             @click="
               () => {
+                if (isTransitDisabled(item)) return;
                 if (selectedTransit === item.id) {
                   selectedTransit = null;
                 } else {
@@ -185,7 +209,9 @@
               <span class="font-semibold">{{ item.title }}</span>
               <span class="text-xs mb-2 -mt-1">{{
                 $t('shop.max-minutes', {
-                  minutes: Math.floor(player.coins / (item.price / gameSettings.multiplier)),
+                  minutes: Math.floor(
+                    player.coins / (item.price / gameSettings.multiplier)
+                  ),
                 })
               }}</span>
               <Badge v-if="item.price" variant="coin"
@@ -225,25 +251,19 @@
           <div
             :class="
               cn(
-                'flex justify-between items-center py-6 px-5 border rounded-md transition-all duration-150 ease-in-out active:scale-95 cursor-pointer',
+                'flex justify-between items-center py-6 px-5 border rounded-md transition-all duration-150 ease-in-out',
                 shop.shoppingCart.value.powerup[item.id]
                   ? 'bg-gray-900 text-gray-50 scale-95'
                   : '',
-                player.hasOwnedPowerup(item.id) ||
-                  timers.isPowerupActive(item.id)
-                  ? 'opacity-50 active:scale-100'
-                  : ''
+                isPowerupDisabled(item)
+                  ? 'opacity-50 cursor-not-allowed'
+                  : 'active:scale-95 cursor-pointer'
               )
             "
             v-for="(item, index) in shop.powerups.value"
             :key="item.title"
             @click="
-              if (
-                !(
-                  player.hasOwnedPowerup(item.id) ||
-                  timers.isPowerupActive(item.id)
-                )
-              )
+              if (!isPowerupDisabled(item))
                 shopStore.togglePowerupItem(item.id);
             "
           >
