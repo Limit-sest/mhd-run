@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia';
-import type { Pinia } from 'pinia';
-import { getFromLocalStorage, saveToLocalStorage, getDistance } from './utils';
+import { getDistance } from './utils';
 import type { Card, ShopItem, Location, Timer } from './types';
 
 interface ShoppingCart {
@@ -9,9 +8,30 @@ interface ShoppingCart {
   totalPowerups: number;
 }
 
+function reviveDates(obj: unknown): unknown {
+  if (
+    typeof obj === 'string' &&
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/.test(obj)
+  ) {
+    return new Date(obj);
+  } else if (Array.isArray(obj)) {
+    return obj.map(reviveDates);
+  } else if (obj && typeof obj === 'object') {
+    return Object.fromEntries(
+      Object.entries(obj).map(([key, value]) => [key, reviveDates(value)])
+    );
+  }
+  return obj;
+}
+
+const dateSerializer = {
+  serialize: (value: unknown) => JSON.stringify(value),
+  deserialize: (value: string) => reviveDates(JSON.parse(value)),
+};
+
 export const useAllCardsStore = defineStore('allCards', {
   state: () => ({
-    cards: getFromLocalStorage('allCards_cards') || ([] as Card[]),
+    cards: [] as Card[],
   }),
   actions: {
     setCards(cards: Card[]) {
@@ -33,33 +53,17 @@ export const useAllCardsStore = defineStore('allCards', {
       }
     },
   },
+  persist: {
+    serializer: dateSerializer,
+  },
 });
 
 export const useTimersStore = defineStore('timersStore', {
-  state: () => {
-    const savedVeto = getFromLocalStorage('timersStore_veto') as Timer;
-    const savedPowerups = getFromLocalStorage(
-      'timersStore_powerups'
-    ) as Timer[];
-
-    return {
-      veto:
-        savedVeto && savedVeto.start && savedVeto.end
-          ? ({
-              start: new Date(savedVeto.start),
-              end: new Date(savedVeto.end),
-            } as Timer)
-          : ({} as Timer),
-      powerups: savedPowerups
-        ? savedPowerups.map((p) => ({
-            ...p,
-            start: p.start ? new Date(p.start) : undefined,
-            end: p.end ? new Date(p.end) : undefined,
-          }))
-        : ([] as Timer[]),
-      currentTime: new Date().getTime(),
-    };
-  },
+  state: () => ({
+    veto: {} as Timer,
+    powerups: [] as Timer[],
+    currentTime: new Date().getTime(),
+  }),
   getters: {
     vetoTimeRemaining: (state) => {
       if (!state.veto.start || !state.veto.end) return null;
@@ -183,33 +187,39 @@ export const useTimersStore = defineStore('timersStore', {
       }, 1000);
     },
   },
+  persist: {
+    pick: ['veto', 'powerups'],
+    serializer: dateSerializer,
+  },
 });
 
 export const useHandCardsStore = defineStore('handCards', {
   state: () => ({
-    cards: getFromLocalStorage('handCards_cards') || ([] as string[]),
+    cards: [] as number[],
   }),
   actions: {
-    setCards(cards: string[]) {
+    setCards(cards: number[]) {
       this.cards = cards;
     },
   },
+  persist: true,
 });
 
 export const useCompletedCardsStore = defineStore('completedCards', {
   state: () => ({
-    cards: getFromLocalStorage('completedCards_cards') || ([] as string[]),
+    cards: [] as number[],
   }),
   actions: {
-    setCards(cards: string[]) {
+    setCards(cards: number[]) {
       this.cards = cards;
     },
   },
+  persist: true,
 });
 
 export const useShuffeledCardsStore = defineStore('shuffeledCards', {
   state: () => ({
-    cards: getFromLocalStorage('shuffeledCards_cards') || ([] as string[]),
+    cards: [] as number[],
   }),
   actions: {
     shuffleCards() {
@@ -234,18 +244,16 @@ export const useShuffeledCardsStore = defineStore('shuffeledCards', {
       completedCardsStore.setCards([]);
     },
   },
+  persist: true,
 });
 
 export const usePlayerStore = defineStore('player', {
   state: () => ({
-    coins: getFromLocalStorage('player_coins') || 70,
-    gems: getFromLocalStorage('player_gems') || 0,
-    ownedPowerups:
-      getFromLocalStorage('player_ownedPowerups') || ([] as number[]),
-    doublePowerupCard:
-      getFromLocalStorage('player_doublePowerupCard') || ([] as string[]),
-    transferPowerupCard:
-      getFromLocalStorage('player_transferPowerupCard') || ([] as string[]),
+    coins: 70,
+    gems: 0,
+    ownedPowerups: [] as number[],
+    doublePowerupCard: [] as number[],
+    transferPowerupCard: [] as number[],
   }),
   actions: {
     setCoins(amount: number) {
@@ -281,28 +289,27 @@ export const usePlayerStore = defineStore('player', {
     },
     resetOwnedPowerups() {
       this.ownedPowerups = [] as number[];
-      this.doublePowerupCard = [] as string[];
-      this.transferPowerupCard = [] as string[];
+      this.doublePowerupCard = [] as number[];
+      this.transferPowerupCard = [] as number[];
     },
-    addDoublePowerupCard(card: string): void {
+    addDoublePowerupCard(card: number): void {
       this.doublePowerupCard.push(card);
     },
-    addTransferPowerupCard(card: string): void {
+    addTransferPowerupCard(card: number): void {
       this.transferPowerupCard.push(card);
     },
   },
+  persist: true,
 });
 
 export const useShopStore = defineStore('shop', {
   state: () => ({
-    transit:
-      (getFromLocalStorage('shop_transit') as ShopItem[]) || ([] as ShopItem[]),
-    powerups:
-      (getFromLocalStorage('shop_powerups') as ShopItem[]) ||
-      ([] as ShopItem[]),
+    transit: [] as ShopItem[],
+    powerups: [] as ShopItem[],
     shoppingCart: {
-      transit: { id: null, minutes: null },
+      transit: { id: 0, minutes: 0 },
       powerup: {} as Record<number, boolean>,
+      totalPowerups: 0,
     } as ShoppingCart,
   }),
   getters: {
@@ -311,7 +318,8 @@ export const useShopStore = defineStore('shop', {
       const price = state.transit.find(
         (i) => i.id === state.shoppingCart.transit.id
       )?.price;
-      return state.shoppingCart.transit.minutes * price;
+      const gameSettings = useGameSettingsStore();
+      return Math.round(state.shoppingCart.transit.minutes * (price / gameSettings.multiplier));
     },
     totalGems: (state) => {
       let sum = 0;
@@ -350,22 +358,25 @@ export const useShopStore = defineStore('shop', {
         !this.shoppingCart.powerup[itemIndex];
     },
   },
+  persist: {
+    pick: ['transit', 'powerups'],
+  },
 });
 
 export const useLocationsStore = defineStore('locations', {
   state: () => ({
     currentLocation: undefined as Location | undefined,
-    radiusSetting:
-      (getFromLocalStorage('location_radiusSetting') as {
-        min: number;
-        max: number;
-      }) || ({ min: 4.5, max: 6 } as { min: number; max: number }),
-    allLocations:
-      getFromLocalStorage('location_allLocations') || ([] as Location[]),
+    radiusSetting: { min: 4.5, max: 6 } as { min: number; max: number },
+    allLocations: [] as Location[],
     latestGps: undefined as GeolocationPosition | undefined,
   }),
   actions: {
     drawLocation(gpsLat: number, gpsLon: number) {
+      const gameSettings = useGameSettingsStore();
+      const radiusMultiplier = gameSettings.radiusAffectedByMultiplier ? gameSettings.multiplier : 1;
+      const minRadius = this.radiusSetting.min * radiusMultiplier;
+      const maxRadius = this.radiusSetting.max * radiusMultiplier;
+
       const validLocations: Location[] = this.allLocations.filter(
         (location: Location) => {
           const distance = getDistance(
@@ -375,8 +386,8 @@ export const useLocationsStore = defineStore('locations', {
             location.longitude
           );
           return (
-            distance >= this.radiusSetting.min &&
-            distance <= this.radiusSetting.max
+            distance >= minRadius &&
+            distance <= maxRadius
           );
         }
       );
@@ -396,8 +407,8 @@ export const useLocationsStore = defineStore('locations', {
             bestLocation.longitude
           );
           let bestDistanceFromBoundary = Math.min(
-            Math.abs(bestDistance - this.radiusSetting.min),
-            Math.abs(bestDistance - this.radiusSetting.max)
+            Math.abs(bestDistance - minRadius),
+            Math.abs(bestDistance - maxRadius)
           );
 
           for (const location of this.allLocations) {
@@ -409,10 +420,10 @@ export const useLocationsStore = defineStore('locations', {
             );
 
             const distanceFromMinBoundary = Math.abs(
-              distance - this.radiusSetting.min
+              distance - minRadius
             );
             const distanceFromMaxBoundary = Math.abs(
-              distance - this.radiusSetting.max
+              distance - maxRadius
             );
             const distanceFromBoundary = Math.min(
               distanceFromMinBoundary,
@@ -433,18 +444,19 @@ export const useLocationsStore = defineStore('locations', {
     },
     setAllLocations(locations: Location[]) {
       this.allLocations = locations;
-      saveToLocalStorage('location_allLocations', locations);
     },
     resetLocation() {
       this.currentLocation = undefined;
     },
     setRadiusSetting(min: number, max: number) {
       this.radiusSetting = { min, max };
-      saveToLocalStorage('location_radiusSetting', this.radiusSetting);
     },
     setLatestGps(gps: GeolocationPosition) {
       this.latestGps = gps;
     },
+  },
+  persist: {
+    pick: ['radiusSetting', 'allLocations'],
   },
 });
 
@@ -456,43 +468,30 @@ export const useFetchTimestamp = defineStore('fetchTimestamp', {
 
 export const useLanguageStore = defineStore('language', {
   state: () => ({
-    lang:
-      getFromLocalStorage('language_lang') || navigator.language.split('-')[0],
+    lang: navigator.language.split('-')[0],
   }),
+  persist: true,
 });
 
-// Function to setup persistence for all stores
-export function setupStorePersistence(piniaInstance: Pinia): void {
-  const storesToPersist = [
-    { store: useAllCardsStore(piniaInstance), keyPrefix: 'allCards' },
-    { store: useHandCardsStore(piniaInstance), keyPrefix: 'handCards' },
-    {
-      store: useCompletedCardsStore(piniaInstance),
-      keyPrefix: 'completedCards',
+export const useGameSettingsStore = defineStore('gameSettings', {
+  state: () => ({
+    multiplier: 1.0,
+    baseVetoDuration: 4,
+    radiusAffectedByMultiplier: true,
+  }),
+  getters: {
+    vetoDuration: (state) => state.baseVetoDuration * state.multiplier,
+  },
+  actions: {
+    setMultiplier(value: number) {
+      this.multiplier = Math.round(value * 10) / 10;
     },
-    {
-      store: useShuffeledCardsStore(piniaInstance),
-      keyPrefix: 'shuffeledCards',
+    setBaseVetoDuration(value: number) {
+      this.baseVetoDuration = value;
     },
-    { store: usePlayerStore(piniaInstance), keyPrefix: 'player' },
-    { store: useShopStore(piniaInstance), keyPrefix: 'shop' },
-    { store: useLocationsStore(piniaInstance), keyPrefix: 'location' },
-    { store: useTimersStore(piniaInstance), keyPrefix: 'timersStore' },
-    { store: useLanguageStore(piniaInstance), keyPrefix: 'language' },
-  ];
-
-  storesToPersist.forEach(({ store, keyPrefix }) => {
-    // Initial load is handled by the state definition itself
-
-    // Subscribe to changes for saving
-    store.$subscribe((_mutation, state: Record<string, any>) => {
-      // Automatically save all state properties with the storeName_propertyName format
-      Object.keys(state).forEach((propertyName) => {
-        const propertyValue = state[propertyName];
-        if (propertyValue !== undefined) {
-          saveToLocalStorage(`${keyPrefix}_${propertyName}`, propertyValue);
-        }
-      });
-    });
-  });
-}
+    setRadiusAffectedByMultiplier(value: boolean) {
+      this.radiusAffectedByMultiplier = value;
+    },
+  },
+  persist: true,
+});

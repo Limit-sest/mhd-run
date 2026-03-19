@@ -47,6 +47,10 @@
     "gems": "Počet 💎",
     "save": "Uložit",
     "goal-range": "Rozsah losování lokací (km)",
+    "multiplier": "Herní násobič",
+    "multiplier-hint": "Ovlivňuje časovače, ceny dopravy a hodnoty {N}",
+    "veto-duration": "Základní doba veta (min)",
+    "radius-multiplier": "Použít násobič na rozsah losování",
     "reset": "Resetovat aplikaci",
     "fetch": "Aktualizovat data",
     "language": "Jazyk (language) - toto resetuje karty!"

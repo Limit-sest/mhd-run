@@ -2,8 +2,8 @@ export interface Card {
   id: number;
   title: string;
   description: string;
-  rewardCoins: string;
-  rewardPowerUp: string;
+  rewardCoins: number;
+  rewardPowerUp: number;
   type: 'Úkol' | 'Prokletí';
   timestamp?: Date;
   timer?: number;

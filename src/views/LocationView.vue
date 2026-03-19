@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import { ref } from 'vue';
   import { Button } from '@/components/ui/button';
   import { useLocationsStore } from '@/stores';
   import { getCurrentLocation } from '@/utils';
@@ -14,11 +15,20 @@
   import { getDistance } from '@/utils';
 
   const locationsStore = useLocationsStore();
+  const locationError = ref<string | null>(null);
 
   async function getNewLocation() {
-    const gps = await getCurrentLocation();
-    locationsStore.setLatestGps(gps);
-    locationsStore.drawLocation(gps.coords.latitude, gps.coords.longitude);
+    locationError.value = null;
+    try {
+      const gps = await getCurrentLocation();
+      locationsStore.setLatestGps(gps);
+      locationsStore.drawLocation(gps.coords.latitude, gps.coords.longitude);
+    } catch (error) {
+      locationError.value =
+        error instanceof GeolocationPositionError
+          ? error.message
+          : 'Failed to get location. Please enable GPS.';
+    }
   }
 </script>
 <template>
@@ -35,7 +45,7 @@
           locationsStore.currentLocation.description
         }}</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent v-if="locationsStore.latestGps">
         <CardDescription
           >{{
             $t('goal.distance', {
@@ -57,6 +67,11 @@
         </Button>
       </CardFooter>
     </Card>
+    <span
+      v-if="locationError"
+      class="text-red-600 text-sm text-center"
+      >{{ locationError }}</span
+    >
     <div class="mt-auto">
       <Button
         @click="getNewLocation"

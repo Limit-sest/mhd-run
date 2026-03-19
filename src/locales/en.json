@@ -47,6 +47,10 @@
     "gems": "Amount of 💎",
     "save": "Save",
     "goal-range": "Location drawing range (km)",
+    "multiplier": "Game multiplier",
+    "multiplier-hint": "Affects timers, transit prices, and {N} values",
+    "veto-duration": "Baseline veto duration (min)",
+    "radius-multiplier": "Apply multiplier to drawing range",
     "reset": "Reset app",
     "fetch": "Update data",
     "language": "Language (jazyk) - this will reset the cards!"

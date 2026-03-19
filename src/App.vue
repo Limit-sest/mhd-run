@@ -1,5 +1,5 @@
 <script setup>
-  import BottonBar from './components/BottonBar.vue';
+  import BottomBar from './components/BottomBar.vue';
   import TopBar from './components/TopBar.vue';
   import { onMounted } from 'vue';
   import { fetchAllData } from './utils';
@@ -28,7 +28,7 @@
         <div class="flex-1 flex overflow-y-scroll bg-white text-gray-900">
           <RouterView class="flex-1" />
         </div>
-        <BottonBar />
+        <BottomBar />
       </div>
     </div>
     <div class="hidden md:block mx-auto my-auto px-4">
