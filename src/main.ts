@@ -1,7 +1,7 @@
 import './assets/main.css';
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
-import { setupStorePersistence } from './stores';
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
 import App from './App.vue';
 import router from './router';
 import { registerSW } from 'virtual:pwa-register';
@@ -19,10 +19,10 @@ registerSW({
 
 const app = createApp(App);
 const pinia = createPinia();
+pinia.use(piniaPluginPersistedstate);
 
 app.use(router);
 app.use(pinia);
-setupStorePersistence(pinia);
 initializeI18n().then(() => {
   app.use(i18n);
   app.mount('#app');

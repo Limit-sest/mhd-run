@@ -48,6 +48,17 @@
     shuffledCardsIds.shuffleCards();
     locationsStore.resetLocation();
   };
+
+  const handleFetch = async (): Promise<void> => {
+    fetchLoading.value = true;
+    try {
+      await fetchAllData();
+    } catch {
+      window.alert('Failed to fetch data. Check your connection.');
+    } finally {
+      fetchLoading.value = false;
+    }
+  };
 </script>
 <template>
   <div class="flex flex-col gap-6 m-4">
@@ -91,13 +102,7 @@
     <div class="grid grid-cols-2 gap-2 mt-auto">
       <Button @click="handleReset"> {{ $t('settings.reset') }} </Button>
       <Button
-        @click="
-          async () => {
-            fetchLoading = true;
-            await fetchAllData();
-            fetchLoading = false;
-          }
-        "
+        @click="handleFetch"
         :disabled="fetchLoading"
       >
         <Loader2 class="animate-spin w-4 h-4 mr-1" v-if="fetchLoading" />

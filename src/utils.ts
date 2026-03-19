@@ -104,8 +104,8 @@ function proccessCards(
     .map(function (row): Card | null {
       const title = row['title']?.trim();
       const description = row['description']?.trim();
-      const rewardCoins = String(row['rewardCoins'])?.trim();
-      const rewardPowerUp = String(row['rewardPowerUp'])?.trim();
+      const rewardCoins = parseInt(String(row['rewardCoins'])?.trim()) || 0;
+      const rewardPowerUp = parseInt(String(row['rewardPowerUp'])?.trim()) || 0;
       const type = String(row['type'])?.trim();
       const timer = parseInt(row['timer']);
 
@@ -113,8 +113,8 @@ function proccessCards(
         id: getHash(title),
         title: title || 'Neznámý titul',
         description: description || 'Žádný popis',
-        rewardCoins: rewardCoins || '0',
-        rewardPowerUp: rewardPowerUp || '0',
+        rewardCoins,
+        rewardPowerUp,
         type: type === 'Prokletí' ? 'Prokletí' : 'Úkol',
         timer,
       };
@@ -176,15 +176,20 @@ export async function fetchAllData(destructive = true): Promise<void> {
   const shop = useShopStore();
   const locationStore = useLocationsStore();
 
-  const cardDataRows = await fetchCSV(cardCsv);
-  const transit = await fetchCSV(transitCsv);
-  const powerup = await fetchCSV(powerupCsv);
-  const locations = await fetchCSV(locationCsv);
+  try {
+    const cardDataRows = await fetchCSV(cardCsv);
+    const transit = await fetchCSV(transitCsv);
+    const powerup = await fetchCSV(powerupCsv);
+    const locations = await fetchCSV(locationCsv);
 
-  shop.setTransit(convertCSVToShopItems(transit));
-  shop.setPowerups(convertCSVToShopItems(powerup));
-  proccessCards(cardDataRows, allCards, shuffledCardsIds, destructive);
-  locationStore.setAllLocations(proccessLocations(locations));
+    shop.setTransit(convertCSVToShopItems(transit));
+    shop.setPowerups(convertCSVToShopItems(powerup));
+    proccessCards(cardDataRows, allCards, shuffledCardsIds, destructive);
+    locationStore.setAllLocations(proccessLocations(locations));
+  } catch (error) {
+    console.error('Failed to fetch game data:', error);
+    throw error;
+  }
 }
 
 function rewardCard(cardId: number): void {
@@ -193,8 +198,8 @@ function rewardCard(cardId: number): void {
   const cardDetails = allCards.getCardDetails(cardId);
   if (!cardDetails) return;
 
-  const coinsReward = parseInt(cardDetails.rewardCoins);
-  const powerupReward = parseInt(cardDetails.rewardPowerUp);
+  const coinsReward = cardDetails.rewardCoins;
+  const powerupReward = cardDetails.rewardPowerUp;
 
   if (player.doublePowerupCard.includes(cardId)) {
     player.addCoins(coinsReward * 2);
@@ -262,41 +267,6 @@ export function completeCard(cardId: number, reward: boolean = true): void {
   }
 }
 
-export const getFromLocalStorage = <T = unknown>(key: string): T | null => {
-  const item = localStorage.getItem(key);
-  try {
-    const parsed = item ? JSON.parse(item) : null;
-
-    const reviveDates = (obj: unknown): unknown => {
-      if (
-        typeof obj === 'string' &&
-        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/.test(obj)
-      ) {
-        return new Date(obj);
-      } else if (Array.isArray(obj)) {
-        return obj.map(reviveDates);
-      } else if (obj && typeof obj === 'object') {
-        return Object.fromEntries(
-          Object.entries(obj).map(([key, value]) => [key, reviveDates(value)])
-        );
-      }
-      return obj;
-    };
-
-    return reviveDates(parsed) as T;
-  } catch (e) {
-    console.error(`Error parsing localStorage item ${key}:`, e);
-    return null;
-  }
-};
-
-export const saveToLocalStorage = (key: string, value: unknown): void => {
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-  } catch (e) {
-    console.error(`Error saving to localStorage item ${key}:`, e);
-  }
-};
 
 function toRadians(degrees: number): number {
   return degrees * (Math.PI / 180);

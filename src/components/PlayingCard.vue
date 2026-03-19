@@ -11,7 +11,7 @@
   import type { Card as CardType } from '@/types';
   import { usePlayerStore, useTimersStore } from '@/stores';
   import Badge from '@/components/Badge.vue';
-  import { computed, ref, onMounted } from 'vue';
+  import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
   import { Progress } from '@/components/ui/progress';
   import { X, Ban, Check, Share2 } from 'lucide-vue-next';
   import {
@@ -26,6 +26,7 @@
     AlertDialogTrigger,
   } from '@/components/ui/alert-dialog';
   import { cardsToAnimate } from '@/utils';
+  import { i18n } from '@/i18n';
 
   const player = usePlayerStore();
   const timers = useTimersStore();
@@ -39,7 +40,7 @@
 
   const currentTime = ref(new Date());
   const progress = ref(100);
-  let interval;
+  let interval: ReturnType<typeof setInterval> | undefined;
 
   onMounted(() => {
     if (props.card.timerEnd) {
@@ -54,15 +55,23 @@
     }
   });
 
+  onBeforeUnmount(() => {
+    if (interval) {
+      clearInterval(interval);
+    }
+  });
+
   const formatTimestamp = (timestamp?: Date): string => {
     if (!timestamp) return 'Neznámé datum';
     const date = new Date(timestamp);
-    return new Intl.DateTimeFormat('cs-CZ', {
+    const locale = i18n.global.locale === 'cs' ? 'cs-CZ' : 'en-US';
+    return new Intl.DateTimeFormat(locale, {
       timeStyle: 'medium',
     }).format(date);
   };
 
   const timeRemaining = computed(() => {
+    if (!props.card.timerEnd) return;
     var _second = 1000;
     var _minute = _second * 60;
     var _hour = _minute * 60;
@@ -134,29 +143,29 @@
           variant="coin"
           v-if="
             player.doublePowerupCard.includes(card.id) &&
-            parseInt(card.rewardCoins) !== 0
+            card.rewardCoins !== 0
           "
           ><span class="opacity-40 line-through">{{ card.rewardCoins }}</span>
-          {{ parseInt(card.rewardCoins) * 2 }}</Badge
+          {{ card.rewardCoins * 2 }}</Badge
         >
-        <Badge variant="coin" v-else-if="parseInt(card.rewardCoins) !== 0">{{
+        <Badge variant="coin" v-else-if="card.rewardCoins !== 0">{{
           card.rewardCoins
         }}</Badge>
         <Badge
           variant="gem"
           v-if="
             player.doublePowerupCard.includes(card.id) &&
-            parseInt(card.rewardPowerUp) !== 0
+            card.rewardPowerUp !== 0
           "
           ><span class="opacity-40 line-through">{{ card.rewardPowerUp }}</span>
-          {{ parseInt(card.rewardPowerUp) * 2 }}</Badge
+          {{ card.rewardPowerUp * 2 }}</Badge
         >
-        <Badge variant="gem" v-else-if="parseInt(card.rewardPowerUp) !== 0">{{
+        <Badge variant="gem" v-else-if="card.rewardPowerUp !== 0">{{
           card.rewardPowerUp
         }}</Badge>
         <Badge
           variant="timer"
-          v-if="card.timer && card.timerEnd.getTime() > new Date().getTime()"
+          v-if="card.timer && card.timerEnd && card.timerEnd.getTime() > new Date().getTime()"
           >{{ timeRemaining }}</Badge
         >
       </div>

@@ -17,7 +17,7 @@ export async function initializeI18n() {
   const { storeToRefs } = await import('pinia');
 
   const languages = storeToRefs(useLanguageStore());
-  i18n.global.locale = languages.lang.value;
+  i18n.global.locale = languages.lang.value as 'en' | 'cs';
   watch(
     () => i18n.global.locale,
     (lang) => (languages.lang.value = lang)
