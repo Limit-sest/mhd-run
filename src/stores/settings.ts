@@ -3,18 +3,21 @@ import { defineStore } from 'pinia';
 export const useGameSettingsStore = defineStore('gameSettings', {
   state: () => ({
     multiplier: 1.0,
-    baseVetoDuration: 4,
+    baseLeadTime: 5,
     radiusAffectedByMultiplier: true,
   }),
   getters: {
-    vetoDuration: (state) => state.baseVetoDuration * state.multiplier,
+    leadTime: (state) => state.baseLeadTime * Math.sqrt(state.multiplier),
+    vetoDuration(): number {
+      return this.leadTime * 0.8;
+    },
   },
   actions: {
     setMultiplier(value: number) {
       this.multiplier = Math.round(value * 10) / 10;
     },
-    setBaseVetoDuration(value: number) {
-      this.baseVetoDuration = value;
+    setBaseLeadTime(value: number) {
+      this.baseLeadTime = value;
     },
     setRadiusAffectedByMultiplier(value: boolean) {
       this.radiusAffectedByMultiplier = value;

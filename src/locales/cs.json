@@ -40,7 +40,9 @@
     "no-goal": "Zatím žádný cíl.\nVylosuj si ho kliknutím na tlačítko dole.",
     "draw": "Vylosovat cíl",
     "distance": "Vzdálenost: {distance} km",
-    "open": "Otevřít v mapách"
+    "open": "Otevřít v mapách",
+    "lead-label": "Náskok",
+    "veto-label": "Veto"
   },
   "settings": {
     "coins": "Počet 🪙",
@@ -49,8 +51,10 @@
     "goal-range": "Rozsah losování lokací (km)",
     "multiplier": "Herní násobič",
     "multiplier-hint": "Ovlivňuje časovače, ceny dopravy a hodnoty {N}",
-    "veto-duration": "Základní doba veta (min)",
+    "lead-time": "Základní doba náskoku (min)",
+    "lead-time-hint": "Náskok: {lead} min, veto: {veto} min",
     "radius-multiplier": "Použít násobič na rozsah losování",
+    "radius-multiplier-hint": "S násobičem: {min}–{max} km. Při aktivním přepínači obvykle není potřeba měnit rozsah ručně.",
     "reset": "Resetovat aplikaci",
     "fetch": "Aktualizovat data",
     "language": "Jazyk (language) - toto resetuje karty!"

@@ -40,7 +40,9 @@
     "no-goal": "No goal location yet.\nGet one by clicking the button below.",
     "draw": "Draw goal",
     "distance": "Distance: {distance} km",
-    "open": "Open in maps"
+    "open": "Open in maps",
+    "lead-label": "Lead time",
+    "veto-label": "Veto"
   },
   "settings": {
     "coins": "Amount of 🪙",
@@ -49,8 +51,10 @@
     "goal-range": "Location drawing range (km)",
     "multiplier": "Game multiplier",
     "multiplier-hint": "Affects timers, transit prices, and {N} values",
-    "veto-duration": "Baseline veto duration (min)",
+    "lead-time": "Base lead time (min)",
+    "lead-time-hint": "Lead: {lead} min, veto: {veto} min",
     "radius-multiplier": "Apply multiplier to drawing range",
+    "radius-multiplier-hint": "With multiplier: {min}–{max} km. You usually don't need to change the range manually when this is on.",
     "reset": "Reset app",
     "fetch": "Update data",
     "language": "Language (jazyk) - this will reset the cards!"

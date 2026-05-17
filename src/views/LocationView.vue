@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { Button } from '@/components/ui/button';
-  import { useLocationsStore } from '@/stores';
+  import { useLocationsStore, useGameSettingsStore } from '@/stores';
   import { getCurrentLocation } from '@/utils';
   import {
     Card,
@@ -15,6 +15,7 @@
   import { getDistance } from '@/utils';
 
   const locationsStore = useLocationsStore();
+  const gameSettings = useGameSettingsStore();
   const locationError = ref<string | null>(null);
 
   async function getNewLocation() {
@@ -67,11 +68,25 @@
         </Button>
       </CardFooter>
     </Card>
-    <span
-      v-if="locationError"
-      class="text-red-600 text-sm text-center"
-      >{{ locationError }}</span
-    >
+    <Card>
+      <CardContent class="flex flex-col gap-1">
+        <div class="flex justify-between">
+          <span>{{ $t('goal.lead-label') }}</span>
+          <span class="font-semibold"
+            >{{ gameSettings.leadTime.toFixed(1) }} min</span
+          >
+        </div>
+        <div class="flex justify-between">
+          <span>{{ $t('goal.veto-label') }}</span>
+          <span class="font-semibold"
+            >{{ gameSettings.vetoDuration.toFixed(1) }} min</span
+          >
+        </div>
+      </CardContent>
+    </Card>
+    <span v-if="locationError" class="text-red-600 text-sm text-center">{{
+      locationError
+    }}</span>
     <div class="mt-auto">
       <Button
         @click="getNewLocation"

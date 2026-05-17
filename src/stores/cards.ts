@@ -8,7 +8,15 @@ export const useAllCardsStore = defineStore('allCards', {
   }),
   actions: {
     setCards(cards: Card[]) {
-      this.cards = cards;
+      const existing = new Map(this.cards.map((c: Card) => [c.id, c]));
+      this.cards = cards.map((card) => {
+        const prev = existing.get(card.id) as Card | undefined;
+        if (prev) {
+          if (prev.timestamp) card.timestamp = prev.timestamp;
+          if (prev.timerEnd) card.timerEnd = prev.timerEnd;
+        }
+        return card;
+      });
     },
     getCardDetails(cardId: number): Card | undefined {
       return this.cards.find((card: Card) => card.id === cardId);

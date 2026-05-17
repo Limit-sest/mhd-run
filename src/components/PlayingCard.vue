@@ -12,7 +12,7 @@
   import type { Card as CardType } from '@/types';
   import { usePlayerStore, useTimersStore, useGameSettingsStore } from '@/stores';
   import Badge from '@/components/Badge.vue';
-  import { computed, ref, watch, onMounted, onBeforeUnmount } from 'vue';
+  import { computed } from 'vue';
   import { Progress } from '@/components/ui/progress';
   import { X, Ban, Check, Share2 } from 'lucide-vue-next';
   import {
@@ -40,27 +40,12 @@
 
   const props = defineProps<Props>();
 
-  const currentTime = ref(new Date());
-  const progress = ref(100);
-  let interval: ReturnType<typeof setInterval> | undefined;
-
-  onMounted(() => {
-    if (props.card.timerEnd) {
-      interval = setInterval(() => {
-        currentTime.value = new Date();
-        progress.value =
-          100 -
-          100 *
-            ((currentTime.value.getTime() - props.card.timestamp.getTime()) /
-              (props.card.timerEnd.getTime() - props.card.timestamp.getTime()));
-      }, 1000);
-    }
-  });
-
-  onBeforeUnmount(() => {
-    if (interval) {
-      clearInterval(interval);
-    }
+  const progress = computed(() => {
+    if (!props.card.timerEnd || !props.card.timestamp) return 100;
+    const total = props.card.timerEnd.getTime() - props.card.timestamp.getTime();
+    const elapsed = timers.currentTime - props.card.timestamp.getTime();
+    if (total <= 0) return 0;
+    return Math.min(100, Math.max(0, 100 - (elapsed / total) * 100));
   });
 
   const formatTimestamp = (timestamp?: Date): string => {
@@ -74,16 +59,9 @@
 
   const timeRemaining = computed(() => {
     if (!props.card.timerEnd) return undefined;
-    const distance = props.card.timerEnd.getTime() - currentTime.value.getTime();
+    const distance = props.card.timerEnd.getTime() - timers.currentTime;
     if (distance < 0) return undefined;
     return formatDuration(distance);
-  });
-
-  watch(timeRemaining, (value, oldValue) => {
-    if (oldValue !== undefined && value === undefined) {
-      clearInterval(interval);
-      completeCard(props.card.id);
-    }
   });
 
   function handleVeto() {
@@ -214,8 +192,8 @@
         }}</Button
       >
       <Progress
-        v-if="card.timer && card.timerEnd.getTime() > new Date().getTime()"
-        v-model="progress"
+        v-if="card.timer && card.timerEnd && card.timerEnd.getTime() > new Date().getTime()"
+        :model-value="progress"
       />
     </CardFooter>
   </Card>

@@ -6,6 +6,7 @@
   import { useFetchTimestamp } from './stores';
   import { storeToRefs } from 'pinia';
   import { i18n } from './i18n';
+  import { requestNotificationPermission, useNotifications } from './composables/useNotifications';
 
   const fetchTimestamp = storeToRefs(useFetchTimestamp());
 
@@ -13,6 +14,9 @@
     () => i18n.global.locale,
     () => fetchAllData()
   );
+
+  requestNotificationPermission();
+  useNotifications();
 
   onMounted(() => {
     if (!fetchTimestamp.cards.value) {

@@ -54,14 +54,20 @@
   const timers = useTimersStore();
   const gameSettings = useGameSettingsStore();
 
-  const { showDialogPowerupAlert, ownedDialogPowerups, handlePay, handleShare } =
-    useShopCheckout();
+  const {
+    showDialogPowerupAlert,
+    ownedDialogPowerups,
+    handlePay,
+    handleShare,
+  } = useShopCheckout();
 
   const selectedTransit = ref();
   const slider = ref([5]);
 
   const isTransitDisabled = (item: { price: number }) => {
-    const effectivePrice = Math.round(item.price / gameSettings.multiplier);
+    const effectivePrice = Math.round(
+      item.price * (1 / Math.sqrt(gameSettings.multiplier))
+    );
     return player.coins < effectivePrice;
   };
 
@@ -136,12 +142,17 @@
               <span class="text-xs mb-2 -mt-1">{{
                 $t('shop.max-minutes', {
                   minutes: Math.floor(
-                    player.coins / (item.price / gameSettings.multiplier)
+                    player.coins /
+                      (item.price * (1 / Math.sqrt(gameSettings.multiplier)))
                   ),
                 })
               }}</span>
               <Badge v-if="item.price" variant="coin"
-                >{{ Math.round(item.price / gameSettings.multiplier) }}/min
+                >{{
+                  Math.round(
+                    item.price * (1 / Math.sqrt(gameSettings.multiplier))
+                  )
+                }}/min
               </Badge>
             </div>
           </div>

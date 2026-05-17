@@ -9,12 +9,9 @@ import { i18n, initializeI18n } from './i18n';
 
 registerSW({
   onNeedRefresh() {
-    // optional: show a "Refresh" button
-    console.log('New content available, refresh to update.');
+    window.location.reload();
   },
-  onOfflineReady() {
-    console.log('App is ready to work offline.');
-  },
+  onOfflineReady() {},
 });
 
 const app = createApp(App);
