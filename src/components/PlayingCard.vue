@@ -8,10 +8,11 @@
   } from '@/components/ui/card';
   import { Button } from '@/components/ui/button';
   import { completeCard, share, applyTextMultiplier } from '@/utils';
+  import { formatDuration } from '@/utils/time';
   import type { Card as CardType } from '@/types';
   import { usePlayerStore, useTimersStore, useGameSettingsStore } from '@/stores';
   import Badge from '@/components/Badge.vue';
-  import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
+  import { computed, ref, watch, onMounted, onBeforeUnmount } from 'vue';
   import { Progress } from '@/components/ui/progress';
   import { X, Ban, Check, Share2 } from 'lucide-vue-next';
   import {
@@ -72,22 +73,17 @@
   };
 
   const timeRemaining = computed(() => {
-    if (!props.card.timerEnd) return;
-    var _second = 1000;
-    var _minute = _second * 60;
-    var _hour = _minute * 60;
-    var distance = props.card.timerEnd.getTime() - currentTime.value.getTime();
-    if (distance < 0) {
+    if (!props.card.timerEnd) return undefined;
+    const distance = props.card.timerEnd.getTime() - currentTime.value.getTime();
+    if (distance < 0) return undefined;
+    return formatDuration(distance);
+  });
+
+  watch(timeRemaining, (value, oldValue) => {
+    if (oldValue !== undefined && value === undefined) {
       clearInterval(interval);
       completeCard(props.card.id);
-      return;
     }
-    var minutes = Math.floor((distance % _hour) / _minute);
-    var seconds = String(Math.floor((distance % _minute) / _second)).padStart(
-      2,
-      '0'
-    );
-    return `${minutes}m${seconds}s`;
   });
 
   function handleVeto() {

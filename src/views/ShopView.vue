@@ -31,9 +31,9 @@
     AlertDialogHeader,
     AlertDialogTitle,
   } from '@/components/ui/alert-dialog';
-  import { share } from '@/utils';
   import { Slider } from '@/components/ui/slider';
   import { Input } from '@/components/ui/input';
+  import { useShopCheckout } from '@/composables/useShopCheckout';
 
   const iconComponents = {
     BadgeDollarSign,
@@ -54,9 +54,9 @@
   const timers = useTimersStore();
   const gameSettings = useGameSettingsStore();
 
-  const showDialogPowerupAlert = ref(false);
-  const ownedDialogPowerups = ref([]);
-  const pendingTimers = ref([]);
+  const { showDialogPowerupAlert, ownedDialogPowerups, handlePay, handleShare } =
+    useShopCheckout();
+
   const selectedTransit = ref();
   const slider = ref([5]);
 
@@ -68,83 +68,9 @@
   const isPowerupDisabled = (item: { id?: number; price: number }) => {
     if (player.hasOwnedPowerup(item.id) || timers.isPowerupActive(item.id))
       return true;
-    if (shop.shoppingCart.value.powerup[item.id]) return false; // already selected, allow deselect
+    if (shop.shoppingCart.value.powerup[item.id]) return false;
     return shopStore.totalGems + item.price > player.gems;
   };
-
-  const handlePay = (): void => {
-    const persistentPowerups = [0, 2];
-    const dialogPowerups = [1, 3, 4];
-
-    let hasDialogPowerups = false;
-    pendingTimers.value = [];
-
-    for (const itemIndex in shop.shoppingCart.value.powerup) {
-      if (shop.shoppingCart.value.powerup[parseInt(itemIndex)]) {
-        let powerup = shopStore.powerups.find(
-          (powerup) => powerup.id == parseInt(itemIndex)
-        );
-        if (dialogPowerups.includes(powerup.id)) {
-          hasDialogPowerups = true;
-          ownedDialogPowerups.value.push(powerup.id);
-        }
-
-        if (powerup.timer) {
-          pendingTimers.value.push({
-            id: powerup.id,
-            timer: powerup.timer * gameSettings.multiplier,
-          });
-        }
-      }
-    }
-
-    if (hasDialogPowerups) {
-      showDialogPowerupAlert.value = true;
-    } else {
-      // Set timers immediately if no dialog powerups
-      pendingTimers.value.forEach(({ id, timer }) => {
-        timers.set('powerup', timer, id);
-      });
-    }
-
-    for (const itemIndex in shop.shoppingCart.value.powerup) {
-      if (shop.shoppingCart.value.powerup[parseInt(itemIndex)]) {
-        if (persistentPowerups.includes(parseInt(itemIndex))) {
-          player.addOwnedPowerup(parseInt(itemIndex));
-        }
-      }
-    }
-
-    selectedTransit.value = null;
-
-    player.removeGems(shopStore.totalGems);
-    player.removeCoins(shopStore.totalCoins);
-    shopStore.initializeTransitCart();
-    shopStore.initializePowerupCart();
-  };
-
-  async function handleShare() {
-    let shareText: string = '';
-    ownedDialogPowerups.value.forEach((powerupId) => {
-      shareText += shopStore.powerups.find(
-        (powerup) => powerup.id == powerupId
-      ).shareDescription;
-      shareText += '\n';
-    });
-
-    console.log(shareText);
-
-    await share(shareText);
-
-    // Set timers after sharing is complete
-    pendingTimers.value.forEach(({ id, timer }) => {
-      timers.set('powerup', timer, id);
-    });
-
-    showDialogPowerupAlert.value = false;
-    ownedDialogPowerups.value = [];
-    pendingTimers.value = [];
-  }
 
   const updateTransitCart = () => {
     shop.shoppingCart.value.transit = {

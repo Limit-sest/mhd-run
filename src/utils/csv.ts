@@ -1,50 +1,14 @@
-import type { Card, CSVRow, ShopItem } from './types';
+import type { Card, CSVRow, ShopItem, Location } from '../types';
 import {
   useAllCardsStore,
   useShuffeledCardsStore,
-  useHandCardsStore,
-  useCompletedCardsStore,
-  usePlayerStore,
   useShopStore,
   useLocationsStore,
-  useGameSettingsStore,
-} from './stores';
+} from '../stores';
 import Papa from 'papaparse';
-import { storeToRefs } from 'pinia';
 import OpenLocationCode from 'open-location-code-typescript';
-import type { Location } from './types';
-import { i18n } from './i18n';
-import { ref, watch } from 'vue';
-
-watch(
-  () => i18n.global.locale,
-  () => fetchAllData()
-);
-
-export function getHash(source): number {
-  let hash = 0;
-
-  if (source.length == 0) return hash;
-
-  for (let i = 0; i < source.length; i++) {
-    const char = source.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    hash = hash & hash;
-  }
-
-  return hash;
-}
-
-export function getCardDetails(cardId: number): Card | undefined {
-  const allCards = useAllCardsStore();
-  return allCards.cards.find((card: Card) => card.id === cardId);
-}
-
-export function applyTextMultiplier(text: string, multiplier: number): string {
-  return text.replace(/\{(\d+(?:\.\d+)?)\}/g, (_, num) => {
-    return String(Math.round(parseFloat(num) * multiplier));
-  });
-}
+import { i18n } from '../i18n';
+import { getHash } from './hash';
 
 export async function fetchCSV(csvUrl: string): Promise<CSVRow[]> {
   if (!csvUrl) {
@@ -163,9 +127,8 @@ function proccessLocations(dataRows: CSVRow[]): Location[] {
 
 export async function fetchAllData(destructive = true): Promise<void> {
   const cardCsv =
-    import.meta.env.VITE_CARD || i18n.global.locale === 'cs'
-      ? 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRINMC6eKg8bWyZW9H-aZ9RTsqTMJgZSkVIS60ogExiBZ6I0NsI2C36vSP2Hgw-_qJYPr2OMWWA7ETB/pub?gid=0&single=true&output=csv'
-      : 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRINMC6eKg8bWyZW9H-aZ9RTsqTMJgZSkVIS60ogExiBZ6I0NsI2C36vSP2Hgw-_qJYPr2OMWWA7ETB/pub?gid=460722975&single=true&output=csv';
+    import.meta.env.VITE_CARD ||
+    'https://docs.google.com/spreadsheets/d/e/2PACX-1vRINMC6eKg8bWyZW9H-aZ9RTsqTMJgZSkVIS60ogExiBZ6I0NsI2C36vSP2Hgw-_qJYPr2OMWWA7ETB/pub?gid=0&single=true&output=csv';
   const transitCsv =
     import.meta.env.VITE_SHOP_TRANSIT || i18n.global.locale === 'cs'
       ? 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRINMC6eKg8bWyZW9H-aZ9RTsqTMJgZSkVIS60ogExiBZ6I0NsI2C36vSP2Hgw-_qJYPr2OMWWA7ETB/pub?gid=1746737016&single=true&output=csv'
@@ -196,135 +159,5 @@ export async function fetchAllData(destructive = true): Promise<void> {
   } catch (error) {
     console.error('Failed to fetch game data:', error);
     throw error;
-  }
-}
-
-function rewardCard(cardId: number): void {
-  const allCards = useAllCardsStore();
-  const player = usePlayerStore();
-  const cardDetails = allCards.getCardDetails(cardId);
-  if (!cardDetails) return;
-
-  const coinsReward = cardDetails.rewardCoins;
-  const powerupReward = cardDetails.rewardPowerUp;
-
-  if (player.doublePowerupCard.includes(cardId)) {
-    player.addCoins(coinsReward * 2);
-    player.addGems(powerupReward * 2);
-  } else {
-    player.addCoins(coinsReward);
-    player.addGems(powerupReward);
-  }
-}
-
-export const cardsToAnimate = ref([]);
-
-export function drawCard(): void {
-  const shuffledCards = storeToRefs(useShuffeledCardsStore());
-  const handCards = storeToRefs(useHandCardsStore());
-  const allCards = useAllCardsStore();
-  const player = usePlayerStore();
-
-  const cardIdToDraw = shuffledCards.cards.value.shift();
-  if (!cardIdToDraw) return;
-
-  handCards.cards.value.unshift(cardIdToDraw);
-  allCards.addTimestamp(cardIdToDraw);
-  cardsToAnimate.value.push(cardIdToDraw);
-
-  setTimeout(() => {
-    const index = cardsToAnimate.value.indexOf(cardIdToDraw);
-    if (index !== -1) cardsToAnimate.value.splice(index);
-  }, 700);
-
-  const card: Card = allCards.cards.find(
-    (card: Card) => card.id === cardIdToDraw
-  );
-  if (card?.type === 'Prokletí') {
-    rewardCard(cardIdToDraw);
-  }
-
-  if (card.timer) {
-    const gameSettings = useGameSettingsStore();
-    allCards.addTimerEnd(cardIdToDraw, card.timer * gameSettings.multiplier);
-  }
-
-  if (player.hasOwnedPowerup(0)) {
-    player.addDoublePowerupCard(cardIdToDraw);
-    player.removeOwnedPowerup(0);
-  }
-
-  if (player.hasOwnedPowerup(2) && card.type === 'Úkol') {
-    player.addTransferPowerupCard(cardIdToDraw);
-    player.removeOwnedPowerup(2);
-  }
-}
-
-export function completeCard(cardId: number, reward: boolean = true): void {
-  const handCards = storeToRefs(useHandCardsStore());
-  const completedCards = storeToRefs(useCompletedCardsStore());
-
-  const cardIndexInHand = handCards.cards.value.indexOf(cardId);
-
-  if (cardIndexInHand > -1) {
-    const [cardToCompleteId] = handCards.cards.value.splice(cardIndexInHand, 1);
-    completedCards.cards.value.unshift(cardToCompleteId);
-    if (reward) {
-      rewardCard(cardToCompleteId);
-    }
-  }
-}
-
-
-function toRadians(degrees: number): number {
-  return degrees * (Math.PI / 180);
-}
-
-export function getDistance(
-  lat1: number,
-  lon1: number,
-  lat2: number,
-  lon2: number
-): number {
-  const R = 6371; // Earth's radius in kilometers
-
-  const dLat = toRadians(lat2 - lat1);
-  const dLon = toRadians(lon2 - lon1);
-
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRadians(lat1)) *
-      Math.cos(toRadians(lat2)) *
-      Math.sin(dLon / 2) ** 2;
-
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-  return R * c; // Distance in kilometers
-}
-
-export function getCurrentLocation(): Promise<GeolocationPosition> {
-  return new Promise((resolve, reject) => {
-    if (!navigator.geolocation) {
-      reject(new Error('Geolocation not supported'));
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      (position: GeolocationPosition) => resolve(position),
-      (error: GeolocationPositionError) => reject(error),
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0,
-      }
-    );
-  });
-}
-
-export async function share(text: string) {
-  if (navigator.share) {
-    navigator.share({
-      text,
-    });
   }
 }

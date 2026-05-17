@@ -1,12 +1,18 @@
 <script setup>
   import BottomBar from './components/BottomBar.vue';
   import TopBar from './components/TopBar.vue';
-  import { onMounted } from 'vue';
+  import { onMounted, watch } from 'vue';
   import { fetchAllData } from './utils';
   import { useFetchTimestamp } from './stores';
   import { storeToRefs } from 'pinia';
+  import { i18n } from './i18n';
 
   const fetchTimestamp = storeToRefs(useFetchTimestamp());
+
+  watch(
+    () => i18n.global.locale,
+    () => fetchAllData()
+  );
 
   onMounted(() => {
     if (!fetchTimestamp.cards.value) {
