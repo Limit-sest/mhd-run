@@ -65,8 +65,11 @@
   });
 
   function handleVeto() {
+    const vetoDuration = player.doublePowerupCard.includes(props.card.id)
+      ? gameSettings.vetoDuration * 3
+      : gameSettings.vetoDuration;
     completeCard(props.card.id, false);
-    timers.set('veto', gameSettings.vetoDuration);
+    timers.set('veto', vetoDuration);
   }
 
   function handleTranferDialogClose() {
