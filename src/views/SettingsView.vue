@@ -34,7 +34,7 @@
   const radiusMaxInput = ref(locationsStore.radiusSetting.max);
   const multiplierSlider = ref([gameSettings.multiplier]);
   const multiplierInput = ref(gameSettings.multiplier);
-  const vetoInput = ref(gameSettings.baseVetoDuration);
+  const leadTimeInput = ref(gameSettings.baseLeadTime);
 
   watch(multiplierSlider, (val) => {
     multiplierInput.value = val[0];
@@ -47,8 +47,8 @@
     multiplierSlider.value = [gameSettings.multiplier];
   };
 
-  const handleSetVeto = () => {
-    gameSettings.setBaseVetoDuration(parseFloat(vetoInput.value.toString()) || 4);
+  const handleSetLeadTime = () => {
+    gameSettings.setBaseLeadTime(parseFloat(leadTimeInput.value.toString()) || 4);
   };
 
   const handleSetCurrencies = (): void => {
@@ -110,13 +110,19 @@
       <span class="text-xs text-gray-500">{{ $t('settings.multiplier-hint') }}</span>
     </div>
     <div class="flex flex-col gap-2">
-      <Label>{{ $t('settings.veto-duration') }}</Label>
+      <Label>{{ $t('settings.lead-time') }}</Label>
       <div class="flex gap-2">
-        <Input type="number" v-model="vetoInput" class="w-20" />
-        <Button @click="handleSetVeto" variant="secondary">{{
+        <Input type="number" v-model="leadTimeInput" class="w-20" />
+        <Button @click="handleSetLeadTime" variant="secondary">{{
           $t('settings.save')
         }}</Button>
       </div>
+      <span class="text-xs text-gray-500">
+        {{ $t('settings.lead-time-hint', {
+          lead: gameSettings.leadTime.toFixed(1),
+          veto: gameSettings.vetoDuration.toFixed(1),
+        }) }}
+      </span>
     </div>
     <div class="flex gap-2">
       <div class="flex flex-col gap-2">
@@ -145,11 +151,17 @@
       </div>
       <div class="flex items-center gap-2 mt-1">
         <Switch
-          :checked="gameSettings.radiusAffectedByMultiplier"
-          @update:checked="(val) => gameSettings.setRadiusAffectedByMultiplier(val)"
+          :model-value="gameSettings.radiusAffectedByMultiplier"
+          @update:model-value="(val) => gameSettings.setRadiusAffectedByMultiplier(val)"
         />
         <Label class="text-sm">{{ $t('settings.radius-multiplier') }}</Label>
       </div>
+      <span v-if="gameSettings.radiusAffectedByMultiplier" class="text-xs text-gray-500">
+        {{ $t('settings.radius-multiplier-hint', {
+          min: (radiusMinInput * gameSettings.multiplier).toFixed(1),
+          max: (radiusMaxInput * gameSettings.multiplier).toFixed(1),
+        }) }}
+      </span>
     </div>
     <Label>{{ $t('settings.language') }}</Label>
     <Tabs
