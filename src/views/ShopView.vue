@@ -47,6 +47,7 @@
     Ship,
     TrainFront,
     Bike,
+    BusFront,
   };
 
   const shopStore = useShopStore();
