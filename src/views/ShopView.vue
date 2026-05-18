@@ -21,6 +21,7 @@
     Ship,
     TrainFront,
     Bike,
+    BusFront,
   } from 'lucide-vue-next';
   import Badge from '@/components/Badge.vue';
   import {
