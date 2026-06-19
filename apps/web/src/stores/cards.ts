@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import type { Card } from '../types';
+import type { Card } from '@mhd/shared';
 import { dateSerializer } from './_serializers';
 
 export const useAllCardsStore = defineStore('allCards', {

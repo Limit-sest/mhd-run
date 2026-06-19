@@ -8,8 +8,8 @@
   } from '@/components/ui/card';
   import { Button } from '@/components/ui/button';
   import { completeCard, share, applyTextMultiplier } from '@/utils';
-  import { formatDuration } from '@/utils/time';
-  import type { Card as CardType } from '@/types';
+  import { formatDuration } from '@mhd/shared';
+  import type { Card as CardType } from '@mhd/shared';
   import { usePlayerStore, useTimersStore, useGameSettingsStore } from '@/stores';
   import Badge from '@/components/Badge.vue';
   import { computed } from 'vue';

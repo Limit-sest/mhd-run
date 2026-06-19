@@ -1,4 +1,4 @@
-import type { Card } from '../types';
+import type { Card } from '@mhd/shared';
 import {
   useAllCardsStore,
   useShuffeledCardsStore,
@@ -7,7 +7,7 @@ import {
   usePlayerStore,
   useGameSettingsStore,
 } from '../stores';
-import { POWERUP } from '../constants';
+import { POWERUP } from '@mhd/shared';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
 

@@ -3,7 +3,7 @@
   import { useCompletedCardsStore } from '@/stores';
   import PlayingCardsContainer from '@/components/PlayingCardsContainer.vue';
   import { getCardDetails } from '@/utils';
-  import type { Card } from '@/types';
+  import type { Card } from '@mhd/shared';
   import { ArrowLeft } from 'lucide-vue-next';
   import { Button } from '@/components/ui/button';
 

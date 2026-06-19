@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
-import type { Timer } from '../types';
+import type { Timer } from '@mhd/shared';
 import { dateSerializer } from './_serializers';
-import { formatDuration } from '../utils/time';
+import { formatDuration } from '@mhd/shared';
 
 export const useTimersStore = defineStore('timersStore', {
   state: () => ({

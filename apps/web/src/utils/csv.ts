@@ -1,4 +1,4 @@
-import type { Card, CSVRow, ShopItem, Location } from '../types';
+import type { Card, CSVRow, ShopItem, Location } from '@mhd/shared';
 import {
   useAllCardsStore,
   useShuffeledCardsStore,
@@ -8,7 +8,7 @@ import {
 import Papa from 'papaparse';
 import OpenLocationCode from 'open-location-code-typescript';
 import { i18n } from '../i18n';
-import { getHash } from './hash';
+import { getHash } from '@mhd/shared';
 
 export async function fetchCSV(csvUrl: string): Promise<CSVRow[]> {
   if (!csvUrl) {

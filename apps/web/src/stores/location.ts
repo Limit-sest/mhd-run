@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { getDistance } from '../utils';
-import type { Location } from '../types';
+import type { Location } from '@mhd/shared';
 import { useGameSettingsStore } from './settings';
 
 export const useLocationsStore = defineStore('locations', {

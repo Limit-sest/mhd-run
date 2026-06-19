@@ -9,7 +9,7 @@
   import PlayingCardsContainer from '@/components/PlayingCardsContainer.vue';
   import { getCardDetails, drawCard } from '@/utils';
   import { Button } from '@/components/ui/button';
-  import type { Card } from '@/types';
+  import type { Card } from '@mhd/shared';
   import Badge from '@/components/Badge.vue';
   import { ArrowRight, BookPlus } from 'lucide-vue-next';
 

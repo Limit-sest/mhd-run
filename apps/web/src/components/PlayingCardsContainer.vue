@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import PlayingCard from '@/components/PlayingCard.vue';
-  import type { Card } from '@/types';
+  import type { Card } from '@mhd/shared';
 
   interface Props {
     cards: Card[];

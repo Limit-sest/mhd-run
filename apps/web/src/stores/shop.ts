@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import type { ShopItem } from '../types';
+import type { ShopItem } from '@mhd/shared';
 import { useGameSettingsStore } from './settings';
 
 export interface ShoppingCart {

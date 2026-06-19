@@ -1,7 +1,7 @@
 import { ref } from 'vue';
 import { usePlayerStore, useShopStore, useTimersStore, useGameSettingsStore } from '@/stores';
 import { share } from '@/utils';
-import { PERSISTENT_POWERUPS, DIALOG_POWERUPS } from '@/constants';
+import { PERSISTENT_POWERUPS, DIALOG_POWERUPS } from '@mhd/shared';
 
 export function useShopCheckout() {
   const shopStore = useShopStore();
