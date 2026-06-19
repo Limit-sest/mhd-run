@@ -1,5 +1,6 @@
 import { POWERUP } from '@mhd/shared';
 
+import { adminRouter } from './admin';
 import { publicProcedure, router } from './trpc';
 
 export const appRouter = router({
@@ -8,6 +9,8 @@ export const appRouter = router({
     ok: true,
     powerupCount: Object.keys(POWERUP).length,
   })),
+
+  admin: adminRouter,
 });
 
 export type AppRouter = typeof appRouter;

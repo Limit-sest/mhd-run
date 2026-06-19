@@ -52,7 +52,7 @@ const trimmed = (v: string | undefined): string | null => {
   return s.length > 0 ? s : null;
 };
 
-// ── Cards (single sheet, Czech — EN falls back to CS) ────────────────────────
+// ── Cards (single sheet, Czech only — no EN source, so EN stays null) ─────────
 
 function buildCards(rows: CSVRow[]) {
   return rows
@@ -63,9 +63,9 @@ function buildCards(rows: CSVRow[]) {
       const type = String(r.type ?? '').trim() === 'Prokletí' ? 'curse' : 'task';
       return {
         titleCs,
-        titleEn: titleCs,
+        titleEn: null,
         descriptionCs: descCs,
-        descriptionEn: descCs,
+        descriptionEn: null,
         rewardCoins: num(r.rewardCoins),
         rewardGems: num(r.rewardPowerUp),
         type: type as 'task' | 'curse',
@@ -90,19 +90,21 @@ function buildShopItems(
   return csRows
     .filter((r) => trimmed(r.title))
     .map((r, i) => {
-      const en = enByKey.get(shopKey(r, i)) ?? r;
+      // Real EN translation from the EN sheet, or null when there's no match
+      // (null falls back to the Czech value at read time — no stale copy).
+      const en = enByKey.get(shopKey(r, i));
       const titleCs = String(r.title).trim();
       return {
         titleCs,
-        titleEn: trimmed(en.title) ?? titleCs,
+        titleEn: en ? trimmed(en.title) : null,
         descriptionCs: trimmed(r.description),
-        descriptionEn: trimmed(en.description) ?? trimmed(r.description),
+        descriptionEn: en ? trimmed(en.description) : null,
         price: num(r.price),
         type,
         currency: (type === 'powerup' ? 'gem' : 'coin') as 'coin' | 'gem',
         icon: trimmed(r.icon) ?? '',
         shareDescriptionCs: trimmed(r.shareDescription),
-        shareDescriptionEn: trimmed(en.shareDescription) ?? trimmed(r.shareDescription),
+        shareDescriptionEn: en ? trimmed(en.shareDescription) : null,
         timerMinutes: optionalNum(r.timer),
       };
     });
@@ -125,9 +127,9 @@ function buildLocations(rows: CSVRow[]) {
       const descCs = trimmed(r.description);
       return {
         titleCs,
-        titleEn: titleCs,
+        titleEn: null,
         descriptionCs: descCs,
-        descriptionEn: descCs,
+        descriptionEn: null,
         plusCode: shortCode,
         latitude: decoded.latitudeCenter.toFixed(6),
         longitude: decoded.longitudeCenter.toFixed(6),

@@ -28,7 +28,8 @@ export const teamCardStatus = pgEnum('team_card_status', [
 export const cards = pgTable('cards', {
   id: serial('id').primaryKey(),
   titleCs: text('title_cs').notNull(),
-  titleEn: text('title_en').notNull(),
+  // Nullable: blank EN falls back to CS at read time (see admin localization).
+  titleEn: text('title_en'),
   descriptionCs: text('description_cs'),
   descriptionEn: text('description_en'),
   rewardCoins: integer('reward_coins').notNull().default(0),
@@ -41,7 +42,8 @@ export const cards = pgTable('cards', {
 export const shopItems = pgTable('shop_items', {
   id: serial('id').primaryKey(),
   titleCs: text('title_cs').notNull(),
-  titleEn: text('title_en').notNull(),
+  // Nullable: blank EN falls back to CS at read time (see admin localization).
+  titleEn: text('title_en'),
   descriptionCs: text('description_cs'),
   descriptionEn: text('description_en'),
   price: integer('price').notNull(),
@@ -57,7 +59,8 @@ export const shopItems = pgTable('shop_items', {
 export const locations = pgTable('locations', {
   id: serial('id').primaryKey(),
   titleCs: text('title_cs').notNull(),
-  titleEn: text('title_en').notNull(),
+  // Nullable: blank EN falls back to CS at read time (see admin localization).
+  titleEn: text('title_en'),
   descriptionCs: text('description_cs'),
   descriptionEn: text('description_en'),
   plusCode: text('plus_code'),
