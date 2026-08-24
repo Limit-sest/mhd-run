@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia';
 import type { ShopItem } from '../types';
-import { useGameSettingsStore } from './settings';
 
 export interface ShoppingCart {
   transit: { id: number; minutes: number };
@@ -24,8 +23,7 @@ export const useShopStore = defineStore('shop', {
       const price = state.transit.find(
         (i) => i.id === state.shoppingCart.transit.id
       )?.price;
-      const gameSettings = useGameSettingsStore();
-      return Math.round(state.shoppingCart.transit.minutes * (price / gameSettings.multiplier));
+      return Math.round(state.shoppingCart.transit.minutes * price);
     },
     totalGems: (state) => {
       let sum = 0;

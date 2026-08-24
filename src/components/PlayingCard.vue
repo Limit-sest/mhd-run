@@ -57,6 +57,11 @@
     }).format(date);
   };
 
+  const isTimerRunning = computed(() => {
+    if (!props.card.timerEnd) return false;
+    return timers.currentTime < props.card.timerEnd.getTime();
+  });
+
   const timeRemaining = computed(() => {
     if (!props.card.timerEnd) return undefined;
     const distance = props.card.timerEnd.getTime() - timers.currentTime;
@@ -143,7 +148,7 @@
         }}</Badge>
         <Badge
           variant="timer"
-          v-if="card.timer && card.timerEnd && card.timerEnd.getTime() > new Date().getTime()"
+          v-if="isTimerRunning"
           >{{ timeRemaining }}</Badge
         >
       </div>
@@ -185,19 +190,16 @@
         ><Ban class="w-4 h-4 mr-1 opacity-70" />{{ $t('card.veto') }}</Button
       >
       <Button
-        @click="completeCard(card.id, card.type === 'Úkol')"
+        @click="completeCard(card.id, true)"
         variant="secondary"
         :disabled="disabled"
         class="flex-1"
-        v-if="!card.timerEnd"
+        v-if="!isTimerRunning"
         ><Check class="w-4 h-4 mr-1 opacity-70" />{{
           $t('card.complete')
         }}</Button
       >
-      <Progress
-        v-if="card.timer && card.timerEnd && card.timerEnd.getTime() > new Date().getTime()"
-        :model-value="progress"
-      />
+      <Progress v-if="isTimerRunning" :model-value="progress" />
     </CardFooter>
   </Card>
   <AlertDialog

@@ -57,9 +57,6 @@ export function drawCard(): void {
   const card: Card = allCards.cards.find(
     (card: Card) => card.id === cardIdToDraw
   );
-  if (card?.type === 'Prokletí') {
-    rewardCard(cardIdToDraw);
-  }
 
   if (card.timer) {
     const gameSettings = useGameSettingsStore();
