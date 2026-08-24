@@ -64,7 +64,7 @@
   };
 
   const handleReset = (): void => {
-    playerStore.setCoins(70);
+    playerStore.setCoins(gameSettings.startingCoins);
     playerStore.setGems(0);
     playerStore.resetOwnedPowerups();
     shuffledCardsIds.shuffleCards();

@@ -5,7 +5,6 @@
     usePlayerStore,
     useShopStore,
     useTimersStore,
-    useGameSettingsStore,
   } from '@/stores';
   import { computed, onMounted, ref, watch } from 'vue';
   import { storeToRefs } from 'pinia';
@@ -54,7 +53,6 @@
   const shop = storeToRefs(shopStore);
   const player = usePlayerStore();
   const timers = useTimersStore();
-  const gameSettings = useGameSettingsStore();
 
   const {
     showDialogPowerupAlert,
@@ -67,10 +65,7 @@
   const slider = ref([5]);
 
   const isTransitDisabled = (item: { price: number }) => {
-    const effectivePrice = Math.round(
-      item.price * (1 / Math.sqrt(gameSettings.multiplier))
-    );
-    return player.coins < effectivePrice;
+    return player.coins < item.price;
   };
 
   const isPowerupDisabled = (item: { id?: number; price: number }) => {
@@ -143,19 +138,10 @@
               <span class="font-semibold">{{ item.title }}</span>
               <span class="text-xs mb-2 -mt-1">{{
                 $t('shop.max-minutes', {
-                  minutes: Math.floor(
-                    player.coins /
-                      (item.price * (1 / Math.sqrt(gameSettings.multiplier)))
-                  ),
+                  minutes: Math.floor(player.coins / item.price),
                 })
               }}</span>
-              <Badge v-if="item.price" variant="coin"
-                >{{
-                  Math.round(
-                    item.price * (1 / Math.sqrt(gameSettings.multiplier))
-                  )
-                }}/min
-              </Badge>
+              <Badge v-if="item.price" variant="coin">{{ item.price }}/min </Badge>
             </div>
           </div>
         </div>
