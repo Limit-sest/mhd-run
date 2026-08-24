@@ -128,18 +128,16 @@ function proccessLocations(dataRows: CSVRow[]): Location[] {
 export async function fetchAllData(destructive = true): Promise<void> {
   const cardCsv =
     import.meta.env.VITE_CARD ||
-    'https://docs.google.com/spreadsheets/d/e/2PACX-1vRINMC6eKg8bWyZW9H-aZ9RTsqTMJgZSkVIS60ogExiBZ6I0NsI2C36vSP2Hgw-_qJYPr2OMWWA7ETB/pub?gid=0&single=true&output=csv';
+    'https://docs.google.com/spreadsheets/d/e/2PACX-1vT1e_ojo2j2rL4q1UBHufG2YRQ-f5AgLAAenJMn_jRHmnx8WoErH9F93jJL6aZ4DQ4x33uA-sxu_hxB/pub?gid=0&single=true&output=csv';
   const transitCsv =
-    import.meta.env.VITE_SHOP_TRANSIT || i18n.global.locale === 'cs'
-      ? 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRINMC6eKg8bWyZW9H-aZ9RTsqTMJgZSkVIS60ogExiBZ6I0NsI2C36vSP2Hgw-_qJYPr2OMWWA7ETB/pub?gid=1746737016&single=true&output=csv'
-      : 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRINMC6eKg8bWyZW9H-aZ9RTsqTMJgZSkVIS60ogExiBZ6I0NsI2C36vSP2Hgw-_qJYPr2OMWWA7ETB/pub?gid=907602207&single=true&output=csv';
+    import.meta.env.VITE_SHOP_TRANSIT ||
+    'https://docs.google.com/spreadsheets/d/e/2PACX-1vT1e_ojo2j2rL4q1UBHufG2YRQ-f5AgLAAenJMn_jRHmnx8WoErH9F93jJL6aZ4DQ4x33uA-sxu_hxB/pub?gid=1746737016&single=true&output=csv';
   const powerupCsv =
-    import.meta.env.VITE_SHOP_POWERUP || i18n.global.locale === 'cs'
-      ? 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRINMC6eKg8bWyZW9H-aZ9RTsqTMJgZSkVIS60ogExiBZ6I0NsI2C36vSP2Hgw-_qJYPr2OMWWA7ETB/pub?gid=1927382705&single=true&output=csv'
-      : 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRINMC6eKg8bWyZW9H-aZ9RTsqTMJgZSkVIS60ogExiBZ6I0NsI2C36vSP2Hgw-_qJYPr2OMWWA7ETB/pub?gid=1554125513&single=true&output=csv';
+    import.meta.env.VITE_SHOP_POWERUP ||
+    'https://docs.google.com/spreadsheets/d/e/2PACX-1vT1e_ojo2j2rL4q1UBHufG2YRQ-f5AgLAAenJMn_jRHmnx8WoErH9F93jJL6aZ4DQ4x33uA-sxu_hxB/pub?gid=1927382705&single=true&output=csv';
   const locationCsv =
     import.meta.env.VITE_LOCATION ||
-    'https://docs.google.com/spreadsheets/d/e/2PACX-1vRINMC6eKg8bWyZW9H-aZ9RTsqTMJgZSkVIS60ogExiBZ6I0NsI2C36vSP2Hgw-_qJYPr2OMWWA7ETB/pub?gid=912143845&single=true&output=csv';
+    'https://docs.google.com/spreadsheets/d/e/2PACX-1vT1e_ojo2j2rL4q1UBHufG2YRQ-f5AgLAAenJMn_jRHmnx8WoErH9F93jJL6aZ4DQ4x33uA-sxu_hxB/pub?gid=912143845&single=true&output=csv';
 
   const shuffledCardsIds = useShuffeledCardsStore();
   const allCards = useAllCardsStore();
